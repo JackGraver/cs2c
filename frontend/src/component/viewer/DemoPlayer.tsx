@@ -6,15 +6,13 @@ type DemoPlayerProps = {
     currentTick: TickData;
     isPlaying: boolean;
     onAdvanceTick: () => void;
-    onNextRound: () => void;
 };
 
 export function DemoPlayer({
     currentTick,
     isPlaying,
     onAdvanceTick,
-}: // onNextRound,
-DemoPlayerProps) {
+}: DemoPlayerProps) {
     useEffect(() => {
         if (!isPlaying) return;
         const id = setInterval(() => {

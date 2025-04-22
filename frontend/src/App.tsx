@@ -21,7 +21,7 @@ const App = () => {
     const [isPlaying, setIsPlaying] = useState(true);
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
-    //   const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const roundCache = useRef<Record<number, TickData[]>>({});
 
@@ -29,16 +29,19 @@ const App = () => {
         const fetchRounds = async () => {
             if (roundCache.current[selectedRound]) {
                 setTickData(roundCache.current[selectedRound]);
+                setLoading(false);
                 return;
             }
 
             try {
+                setLoading(true);
                 const res = await fetch(
                     `http://127.0.0.1:8000/round/${selectedRound}`
                 );
                 const data = await res.json();
                 if (data.data) {
                     console.log(data.data);
+                    roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                 }
                 if (data.rounds) {
@@ -60,19 +63,26 @@ const App = () => {
                 }
             } catch (err) {
                 console.error("Error fetching round data:", err);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchRounds();
     }, [selectedRound]);
 
+    useEffect(() => {
+        if (tickData.length == 0) return;
+
+        console.log("ue", currentTickIndex, tickData.length);
+        if (currentTickIndex >= tickData.length) {
+            setSelectedRound(selectedRound + 1);
+            setCurrentTickIndex(0);
+        }
+    }, [currentTickIndex]);
+
     const togglePlay = () => {
         setIsPlaying((prev) => !prev);
-    };
-
-    const nextRound = () => {
-        setCurrentTickIndex(0);
-        setSelectedRound((prevRound) => prevRound + 1);
     };
 
     return (
@@ -86,7 +96,20 @@ const App = () => {
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {tickData.length > 0 && (
+                    {/* {tickData.length > 0 && (
+                        <Team
+                            key={`t-${currentTickIndex}`}
+                            players={[
+                                ...tickData[currentTickIndex].players.filter(
+                                    (p) => p.side === "ct"
+                                ),
+                            ]}
+                        />
+                    )} */}
+
+                    {loading || !tickData[currentTickIndex]?.players ? (
+                        <div>Loading...</div>
+                    ) : (
                         <Team
                             key={`t-${currentTickIndex}`}
                             players={[
@@ -106,13 +129,12 @@ const App = () => {
                         onAdvanceTick={() =>
                             setCurrentTickIndex((prev) => prev + 1)
                         }
-                        onNextRound={nextRound}
                     />
                 </div>
 
                 {/* Right Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {tickData.length === 0 ? (
+                    {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
                         <Team

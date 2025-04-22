@@ -24,14 +24,18 @@ export function BottomBar({
     setSelectedRound,
 }: BottomBarProps) {
     const handleSliderMouseDown = () => {
-        console.log("BB SMD");
         if (isPlaying && togglePlay) {
             togglePlay();
         }
     };
 
+    const handleSliderMouseUp = () => {
+        if (!isPlaying && togglePlay) {
+            togglePlay();
+        }
+    };
+
     const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log("BB HS");
         const index = parseInt(e.target.value);
         onTickChange(index); // Notify parent (DemoViewer)
     };
@@ -57,6 +61,7 @@ export function BottomBar({
                     value={currentTickIndex}
                     onChange={handleSliderChange}
                     onMouseDown={handleSliderMouseDown}
+                    onMouseUp={handleSliderMouseUp}
                     className="w-full"
                 />
             </div>
