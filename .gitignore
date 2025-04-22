@@ -1,0 +1,96 @@
+# -----------------
+# OS / System Files
+# -----------------
+# Windows thumbnail cache, Recycle Bin files, etc.
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# VS Code settings
+.vscode/
+.history/
+
+# -----------------
+# Node / Vite / React
+# -----------------
+node_modules/
+dist/
+build/
+*.log
+*.tsbuildinfo
+
+# Vite cache
+.vite/
+.cache/
+
+# Tailwind JIT cache (if used)
+.tailwindcache/
+
+# dotenv files (if you use them)
+.env
+.env.*.local
+
+# -----------------
+# Python / FastAPI
+# -----------------
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Python virtual environment
+env/
+venv/
+.venv/
+
+# MyPy / Pyright
+.mypy_cache/
+.pyright/
+
+# Jupyter/IPython (if ever used)
+.ipynb_checkpoints/
+
+# pyproject tools
+.poetry/
+*.egg-info/
+build/
+dist/
+
+# -----------------
+# General IDE / Editor
+# -----------------
+.DS_Store
+.idea/
+*.swp
+*.swo
+
+# -----------------
+# Coverage / Testing
+# -----------------
+coverage/
+*.cover
+*.py,cover
+.hypothesis/
+.tox/
+nosetests.xml
+coverage.xml
+*.lcov
+
+# -----------------
+# Logs / Temp
+# -----------------
+*.log
+*.tmp
+*.bak
+*.pid
+
+# Optional: custom JSON tick data or cached data output
+# Uncomment if generated
+# data/*.json
+
+_frontend/
+
+*.dem
