@@ -94,3 +94,5 @@ coverage.xml
 _frontend/
 
 *.dem
+
+.prettierrc
