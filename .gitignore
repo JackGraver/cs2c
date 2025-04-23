@@ -96,3 +96,7 @@ _frontend/
 *.dem
 
 .prettierrc
+
+parsed_demos/
+
+*.db
