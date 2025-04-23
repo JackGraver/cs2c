@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 type ParsedDemos = {
-    demo_id: number;
+    demo_id: string;
     demo_name: string;
     map_name: string;
     rounds: number;
@@ -49,7 +49,8 @@ export default function Home() {
             setLoading(false);
 
             if (res.ok && data.success) {
-                navigate("/viewer");
+                // navigate("/viewer");
+                navigate(`/viewer?demo_id=${data.demo_id}`);
             } else {
                 setError(data.message || "Failed to parse demo.");
             }
@@ -88,6 +89,7 @@ export default function Home() {
                                 <th className="px-4 py-2 border-b border-gray-700">
                                     Uploaded
                                 </th>
+                                <th className="px-4 py-2 border-b border-gray-700" />
                             </tr>
                         </thead>
                         <tbody>
@@ -110,6 +112,18 @@ export default function Home() {
                                         {new Date(
                                             demo.uploaded_at
                                         ).toLocaleString()}
+                                    </td>
+                                    <td className="px-4 py-2 text-center">
+                                        <button
+                                            onClick={() =>
+                                                navigate(
+                                                    `/viewer?demo_id=${demo.demo_id}`
+                                                )
+                                            }
+                                            className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
+                                        >
+                                            View
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

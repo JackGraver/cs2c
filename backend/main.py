@@ -36,31 +36,39 @@ def get_demos():
     demos = parser.get_all_known_demos()
     return {"demos": demos}
     
-@app.get("/round/{round_num}")
-def get_player_data(round_num: int):
-    round = parser.read_demo_round(round_num)
-    round_info = parser.read_demo_round_info()
+@app.get("/demo/{demo_id}/round/{round_num}")
+def get_round_data(demo_id: str, round_num: int):
+    round = parser.read_demo_round(demo_id, round_num)
+    round_info = parser.read_demo_round_info(demo_id)
     if round and round_info:
         return {"data": round, "rounds": round_info}
     else:
-        raise HTTPException(status_code=400, detail=f"Unable to read round {round_num}.")
+        raise HTTPException(status_code=400, detail=f"Unable to read round {round_num} from demo {demo_id}.")
 
 @app.post("/upload")
 async def upload_demo(file: UploadFile = File(...)):
     try:
-        # Save uploaded file to a temp location using the already opened tmp file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".dem", mode="wb") as tmp:
             shutil.copyfileobj(file.file, tmp)
-            temp_path = tmp.name  # Save the path before it closes
+            temp_path = tmp.name
 
-        # Parse the demo using the path
-        success = parser.parse_demo(temp_path)
+        demo_id = parser.parse_demo(temp_path)
 
-        if success:
-            return JSONResponse(content={"success": True, "message": "Demo parsed successfully."})
+        if demo_id:
+            return JSONResponse(content={
+                "success": True,
+                "message": "Demo parsed successfully.",
+                "demo_id": demo_id
+            })
         else:
-            return JSONResponse(status_code=400, content={"success": False, "message": "Failed to parse demo file."})
+            return JSONResponse(status_code=400, content={
+                "success": False,
+                "message": "Failed to parse demo file."
+            })
 
     except Exception as e:
         print(str(e))
-        return JSONResponse(status_code=500, content={"success": False, "message": f"Server error: {str(e)}"})
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "message": f"Server error: {str(e)}"
+        })

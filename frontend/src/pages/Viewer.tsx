@@ -9,6 +9,7 @@ import { BottomBar } from "../component/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/tick_data";
+import { useSearchParams } from "react-router-dom";
 
 type RoundInfo = {
     round_num: number;
@@ -17,6 +18,11 @@ type RoundInfo = {
 };
 
 const Viewer = () => {
+    const [searchParams] = useSearchParams();
+    const demoId = searchParams.get("demo_id");
+
+    console.log("playing demo", demoId);
+
     const [tickData, setTickData] = useState<TickData[]>([]);
     const [roundData, setRoundData] = useState<RoundInfo[]>([]);
     const [selectedRound, setSelectedRound] = useState<number>(1);
@@ -38,7 +44,7 @@ const Viewer = () => {
             try {
                 setLoading(true);
                 const res = await fetch(
-                    `http://127.0.0.1:8000/round/${selectedRound}`
+                    `http://127.0.0.1:8000/demo/${demoId}/round/${selectedRound}`
                 );
                 const data = await res.json();
                 if (data.data) {

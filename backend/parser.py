@@ -35,30 +35,31 @@ def format_clock(seconds: float) -> str:
     m = int(seconds) // 60
     s = int(seconds) % 60
     return f"{m}:{s:02}"
-
+ 
 class Parser:
     def __init__(self):
         self.output_dir = "parsed_demos"
 
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-    
-    def parse_demo(self, file_path: bytes):
+        
+    def parse_demo(self, file_path: bytes) -> str | None:
         try:
             dem = Demo(file_path, verbose=False)
             dem.parse(player_props=["health", "armor_value", "yaw", "inventory"])
             game_times = dem.parse_ticks(other_props=["game_time", "team_clan_name"])
             
-            self.write_demo_rounds(dem, game_times)
+            demo_id = str(uuid.uuid4())
             
-            self.update_parsed_demos(dem, game_times)
+            self.write_demo_rounds(dem, demo_id, game_times)
+            self.update_parsed_demos(dem, demo_id, game_times)
             
-            return True
+            return demo_id
         except Exception as e:
             print(f"Error parsing demo: {e}")
-            return False
+            return None
 
-    def update_parsed_demos(self, dem, game_times):
+    def update_parsed_demos(self, dem: Demo, demo_id: str, game_times: pl.DataFrame) -> None:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
@@ -83,7 +84,7 @@ class Parser:
         cursor.execute('''
         INSERT INTO demos (demo_id, demo_name, team1, team2, rounds, map_name, uploaded_at)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (str(uuid.uuid4()), "temp_name", teams[0], teams[1], num_rounds, map, datetime.datetime.now()))
+        ''', (demo_id, "temp_name", teams[0], teams[1], num_rounds, map, datetime.datetime.now()))
 
         # Commit and close
         conn.commit()
@@ -103,10 +104,9 @@ class Parser:
         finally:
             conn.close()
         
-
-    def read_demo_round(self, round: int):
+    def read_demo_round(self, demo_id: str, round: int):
         try:
-            file_path = os.path.join(self.output_dir, f"demo/r_{round}.parquet")
+            file_path = os.path.join(self.output_dir, f"{demo_id}/r_{round}.parquet")
             if not os.path.exists(file_path):
                 print(f"File not found: {file_path}")
                 return []
@@ -118,9 +118,9 @@ class Parser:
             print(f"Error reading file: {e}")
             return []
 
-    def read_demo_round_info(self):
+    def read_demo_round_info(self, demo_id: str) -> List:
         try:
-            file_path = os.path.join(self.output_dir, f"demo/r_info.parquet")
+            file_path = os.path.join(self.output_dir, f"{demo_id}/r_info.parquet")
             if not os.path.exists(file_path):
                 print(f"File not found: {file_path}")
                 return []
@@ -132,10 +132,10 @@ class Parser:
             print(f"Error reading file: {e}")
             return []
 
-    def write_demo_rounds(self, dem, game_times):
+    def write_demo_rounds(self, dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         try:
             # Define the subdirectory for this demo
-            demo_dir = os.path.join(self.output_dir, "demo")
+            demo_dir = os.path.join(self.output_dir, demo_id)
             os.makedirs(demo_dir, exist_ok=True)  # Create it if it doesn't exist
 
             # Save round info
@@ -158,7 +158,7 @@ class Parser:
             print(f"Error writing file: {e}")
             return False
 
-    def parse_demo_round(self, dem, game_times, round_num: int = 1) -> List[Dict[str, Any]]:
+    def parse_demo_round(self, dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
         round_info = dem.rounds.filter(pl.col("round_num") == round_num)
         start_tick = round_info[0, "freeze_end"]
         end_tick = round_info[0, "end"]
