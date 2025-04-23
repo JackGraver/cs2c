@@ -94,29 +94,14 @@ const App = () => {
             <div className="flex flex-1 overflow-hidden">
                 {/* Left Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {/* {tickData.length > 0 && (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
-                                ),
-                            ]}
-                        />
-                    )} */}
-
-                    {loading || !tickData[currentTickIndex]?.players ? (
-                        <div>Loading...</div>
-                    ) : (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
-                                ),
-                            ]}
-                        />
-                    )}
+                    <Team
+                        key={`t-${currentTickIndex}`}
+                        players={
+                            tickData[currentTickIndex]?.players?.filter(
+                                (p) => p.side === "ct"
+                            ) ?? []
+                        }
+                    />
                 </div>
 
                 {/* Viewer */}
@@ -132,18 +117,14 @@ const App = () => {
 
                 {/* Right Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {loading || !tickData[currentTickIndex]?.players ? (
-                        <div>Loading...</div>
-                    ) : (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "t"
-                                ),
-                            ]}
-                        />
-                    )}
+                    <Team
+                        key={`t-${currentTickIndex}`}
+                        players={
+                            tickData[currentTickIndex]?.players?.filter(
+                                (p) => p.side === "t"
+                            ) ?? []
+                        }
+                    />
                 </div>
             </div>
 
