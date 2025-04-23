@@ -1,6 +1,7 @@
 import { Application, Container, Sprite, Assets, Graphics } from "pixi.js";
 
 import { TextureManager } from "./TextureManager";
+import { getMapInfo, MapInfo } from "./MapData";
 import { Player } from "./types/player_data";
 import { TickData } from "./types/tick_data";
 import { PlayerDot } from "./models/player";
@@ -15,7 +16,9 @@ export class MapViewer {
     private players: Record<string, Player> = {};
     private textureManager: TextureManager;
 
-    constructor(cont: HTMLDivElement) {
+    private mapInfo: MapInfo;
+
+    constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
         this.root = new Container();
         this.root.sortableChildren = true;
@@ -27,6 +30,8 @@ export class MapViewer {
         this.tempLayer.zIndex = 100;
 
         this.textureManager = TextureManager.getInstance();
+
+        this.mapInfo = getMapInfo(map);
     }
 
     async init() {
@@ -52,7 +57,8 @@ export class MapViewer {
     }
 
     private async drawMap() {
-        const texture = await Assets.load("/de_inferno.png");
+        // const texture = await Assets.load("/de_inferno.png");
+        const texture = await Assets.load(this.mapInfo.imagePath);
         const sprite = new Sprite(texture);
 
         // Get container size (could be dynamic if container resizes)
@@ -64,8 +70,8 @@ export class MapViewer {
         const scaleY = containerHeight / texture.height;
 
         // Use the smaller scale factor to maintain aspect ratio
-        // const scale = Math.min(scaleX, scaleY);
-        const scale = (scaleX + scaleY) / 2 - 0.03;
+        const scale = Math.min(scaleX, scaleY);
+        // const scale = (scaleX + scaleY) / 2 - 0.03;
 
         // Apply scaling to the sprite
         sprite.scale.set(scale);
@@ -96,6 +102,8 @@ export class MapViewer {
                 p.yaw,
                 playerSide
             );
+
+            playerDot.dot.zIndex = 120;
 
             this.players[playerName] = {
                 display: playerDot,
@@ -178,11 +186,9 @@ export class MapViewer {
         }
     }
 
+    //X 1908 -> -2020   Y 3248 -> -1821
     private transformCoordinates(x: number, y: number) {
-        const X_MIN = -1750,
-            X_MAX = 2625;
-        const Y_MIN = -900,
-            Y_MAX = 3700;
+        const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
 
         const mapWidth = X_MAX - X_MIN;
         const mapHeight = Y_MAX - Y_MIN;

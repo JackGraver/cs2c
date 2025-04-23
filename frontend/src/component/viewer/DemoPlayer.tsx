@@ -6,12 +6,14 @@ type DemoPlayerProps = {
     currentTick: TickData;
     isPlaying: boolean;
     onAdvanceTick: () => void;
+    map: string;
 };
 
 export function DemoPlayer({
     currentTick,
     isPlaying,
     onAdvanceTick,
+    map,
 }: DemoPlayerProps) {
     useEffect(() => {
         if (!isPlaying) return;
@@ -30,7 +32,7 @@ export function DemoPlayer({
             </div>
 
             {/* Pixi viewer */}
-            <PixiViewer tickData={currentTick} />
+            <PixiViewer tickData={currentTick} map={map} />
         </div>
     );
 }
