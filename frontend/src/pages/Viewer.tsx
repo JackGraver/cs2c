@@ -21,12 +21,11 @@ const Viewer = () => {
     const [searchParams] = useSearchParams();
     const demoId = searchParams.get("demo_id");
 
-    console.log("playing demo", demoId);
-
     const [tickData, setTickData] = useState<TickData[]>([]);
     const [roundData, setRoundData] = useState<RoundInfo[]>([]);
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [isPlaying, setIsPlaying] = useState(true);
+
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
@@ -131,6 +130,11 @@ const Viewer = () => {
                 <div className="w-2/4 aspect-square bg-gray-800 flex items-center justify-center p-2 overflow-hidden">
                     <DemoPlayer
                         currentTick={tickData[currentTickIndex]}
+                        previousTick={
+                            currentTickIndex === 0
+                                ? undefined
+                                : tickData[currentTickIndex - 1]
+                        }
                         isPlaying={isPlaying}
                         onAdvanceTick={() =>
                             setCurrentTickIndex((prev) => prev + 1)

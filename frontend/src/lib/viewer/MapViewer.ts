@@ -97,6 +97,8 @@ export class MapViewer {
                 playerSide
             );
 
+            playerDot.dot.zIndex = 120;
+
             this.players[playerName] = {
                 display: playerDot,
                 X: p.X,
@@ -121,10 +123,70 @@ export class MapViewer {
         return Object.keys(this.players).length !== 0;
     }
 
+    public async interpolateAndRenderPlayers(
+        currentTick: TickData,
+        previousTick: TickData
+    ) {
+        currentTick.players.forEach((player) => {
+            const prevPlayer = previousTick.players.find(
+                (p) => p.name === player.name
+            );
+            if (!prevPlayer) return;
+
+            const deltaX = player.X - prevPlayer.X;
+            const deltaY = player.Y - prevPlayer.Y;
+
+            // Interpolated position
+            const interpolatedX = prevPlayer.X + deltaX * 0.5;
+            const interpolatedY = prevPlayer.Y + deltaY * 0.5;
+
+            // Transform to canvas coordinates
+            const [x, y] = this.transformCoordinates(
+                interpolatedX,
+                interpolatedY
+            );
+
+            const playerSprite = this.players[player.name].display.dot;
+            if (playerSprite) {
+                playerSprite.x = x;
+                playerSprite.y = y;
+            }
+        });
+    }
+
+    public renderInterpolatedFrame(
+        currentTick: TickData,
+        previousTick: TickData,
+        t: number
+    ) {
+        for (const player of currentTick.players) {
+            const prev = previousTick.players.find(
+                (p) => p.name === player.name
+            );
+            if (!prev) continue;
+
+            const interpX = prev.X + (player.X - prev.X) * t;
+            const interpY = prev.Y + (player.Y - prev.Y) * t;
+            const interpYaw = prev.yaw + (player.yaw - prev.yaw) * t; // optional
+
+            const [x, y] = this.transformCoordinates(interpX, interpY);
+            const sprite = this.players[player.name].display.dot;
+
+            if (sprite) {
+                sprite.x = x;
+                sprite.y = y;
+
+                this.players[player.name].display.updatePosition(
+                    x,
+                    y,
+                    interpYaw
+                );
+            }
+        }
+    }
+
     public async drawFrame(tick: TickData) {
-        // Clear previous temporary graphics (smokes/molotovs/flashes)
-        this.tempLayer?.removeChildren(); // You should have a separate container for dynamic effects
-        // If you don't, just call this.container.removeChildren() with caution
+        this.tempLayer?.removeChildren();
 
         // === DRAW PLAYERS ===
         for (let i = 0; i < tick.players.length; i++) {
@@ -142,6 +204,7 @@ export class MapViewer {
             }
 
             this.players[p.name].display.updatePosition(x, y, p.yaw);
+            // this.players[p.name].display.updatePosition(newX, newY, p.yaw);
         }
 
         // === DRAW ACTIVE SMOKES ===

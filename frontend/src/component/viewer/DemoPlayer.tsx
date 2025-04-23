@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { PixiViewer } from "./PixiViewer";
 import { TickData } from "../../lib/viewer/types/tick_data";
 
 type DemoPlayerProps = {
     currentTick: TickData;
+    previousTick: TickData | undefined;
     isPlaying: boolean;
     onAdvanceTick: () => void;
 };
@@ -11,16 +12,18 @@ type DemoPlayerProps = {
 export function DemoPlayer({
     currentTick,
     isPlaying,
+    previousTick,
     onAdvanceTick,
 }: DemoPlayerProps) {
     useEffect(() => {
         if (!isPlaying) return;
+
         const id = setInterval(() => {
             onAdvanceTick();
         }, 400);
 
         return () => clearInterval(id);
-    }, [isPlaying]);
+    }, [isPlaying, onAdvanceTick]);
 
     return (
         <div className="relative w-full h-full">
@@ -30,7 +33,7 @@ export function DemoPlayer({
             </div>
 
             {/* Pixi viewer */}
-            <PixiViewer tickData={currentTick} />
+            <PixiViewer currentTick={currentTick} previousTick={previousTick} />
         </div>
     );
 }
