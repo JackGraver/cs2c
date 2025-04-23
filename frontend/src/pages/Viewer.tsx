@@ -42,12 +42,10 @@ const Viewer = () => {
                 );
                 const data = await res.json();
                 if (data.data) {
-                    console.log("dd", data.data);
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                 }
                 if (data.rounds) {
-                    console.log("dr", data.rounds);
                     setRoundData((prev) => {
                         if (prev.length === 0 && data.rounds) {
                             return data.rounds.map((r: RoundInfo) =>
@@ -77,7 +75,6 @@ const Viewer = () => {
     useEffect(() => {
         if (tickData.length == 0) return;
 
-        console.log("ue", currentTickIndex, tickData.length);
         if (currentTickIndex >= tickData.length) {
             setSelectedRound(selectedRound + 1);
             setCurrentTickIndex(0);

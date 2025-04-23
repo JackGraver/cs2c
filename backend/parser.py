@@ -1,5 +1,8 @@
+import datetime
 import os
+import sqlite3
 from typing import List, Dict, Any
+import uuid
 import polars as pl
 from awpy import Demo  # or from awpy.parser import Demo depending on your version
 
@@ -44,14 +47,62 @@ class Parser:
         try:
             dem = Demo(file_path, verbose=False)
             dem.parse(player_props=["health", "armor_value", "yaw", "inventory"])
-            game_times = dem.parse_ticks(other_props=["game_time"])
+            game_times = dem.parse_ticks(other_props=["game_time", "team_clan_name"])
             
             self.write_demo_rounds(dem, game_times)
+            
+            self.update_parsed_demos(dem, game_times)
             
             return True
         except Exception as e:
             print(f"Error parsing demo: {e}")
             return False
+
+    def update_parsed_demos(self, dem, game_times):
+        conn = sqlite3.connect('database.db')
+        cursor = conn.cursor()
+
+        # Create table for demos
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS demos (
+            demo_id TEXT PRIMARY KEY,
+            demo_name TEXT,
+            team1 TEXT,
+            team2 TEXT,
+            rounds INTEGER,
+            map_name TEXT,
+            uploaded_at TEXT
+        )
+        ''')
+    
+        teams = game_times['team_clan_name'][:10].unique()
+        num_rounds = int(dem.rounds['round_num'].max())
+        map = dem.header['map_name']
+        
+        # Add new demo
+        cursor.execute('''
+        INSERT INTO demos (demo_id, demo_name, team1, team2, rounds, map_name, uploaded_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (str(uuid.uuid4()), "temp_name", teams[0], teams[1], num_rounds, map, datetime.datetime.now()))
+
+        # Commit and close
+        conn.commit()
+        conn.close()
+        
+    def get_all_known_demos(self) -> list[dict]:
+        try:
+            conn = sqlite3.connect("database.db")
+            conn.row_factory = sqlite3.Row  # To return dict-like rows
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM demos")
+            rows = cursor.fetchall()
+            return [dict(row) for row in rows]
+        except Exception as e:
+            print(f"Database error: {e}")
+            return []
+        finally:
+            conn.close()
+        
 
     def read_demo_round(self, round: int):
         try:

@@ -98,3 +98,5 @@ _frontend/
 .prettierrc
 
 parsed_demos/
+
+*.db

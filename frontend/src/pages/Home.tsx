@@ -1,10 +1,33 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type ParsedDemos = {
+    demo_id: number;
+    demo_name: string;
+    map_name: string;
+    rounds: number;
+    team1: string;
+    team2: string;
+    uploaded_at: string;
+};
 
 export default function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+
+    const [parsedDemos, setParsedDemos] = useState<ParsedDemos[]>([]);
+
+    useEffect(() => {
+        const fetchParsedDemos = async () => {
+            const res = await fetch(`http://127.0.0.1:8000/`);
+            const data = await res.json();
+            if (data.demos) {
+                setParsedDemos(data.demos);
+            }
+        };
+        fetchParsedDemos();
+    }, []);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -43,6 +66,57 @@ export default function Home() {
             <input type="file" accept=".dem" onChange={handleUpload} />
             {loading && <p className="mt-4 text-gray-400">Parsing demo...</p>}
             {error && <p className="mt-4 text-red-500">{error}</p>}
+
+            {parsedDemos.length > 0 && (
+                <div className="mt-8 text-left max-w-2xl mx-auto">
+                    <h2 className="text-xl font-semibold mb-4">Parsed Demos</h2>
+                    <table className="w-full border border-gray-600 rounded-lg text-sm">
+                        <thead className="bg-gray-800 text-white">
+                            <tr>
+                                <th className="px-4 py-2 border-b border-gray-700">
+                                    Name
+                                </th>
+                                <th className="px-4 py-2 border-b border-gray-700">
+                                    Map
+                                </th>
+                                <th className="px-4 py-2 border-b border-gray-700">
+                                    Rounds
+                                </th>
+                                <th className="px-4 py-2 border-b border-gray-700">
+                                    Teams
+                                </th>
+                                <th className="px-4 py-2 border-b border-gray-700">
+                                    Uploaded
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {parsedDemos.map((demo) => (
+                                <tr
+                                    key={demo.demo_id}
+                                    className="border-b border-gray-700 hover:bg-gray-700/20"
+                                >
+                                    <td className="px-4 py-2">
+                                        {demo.demo_name}
+                                    </td>
+                                    <td className="px-4 py-2">
+                                        {demo.map_name}
+                                    </td>
+                                    <td className="px-4 py-2">{demo.rounds}</td>
+                                    <td className="px-4 py-2">
+                                        {demo.team1} vs {demo.team2}
+                                    </td>
+                                    <td className="px-4 py-2">
+                                        {new Date(
+                                            demo.uploaded_at
+                                        ).toLocaleString()}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
         </div>
     );
 }

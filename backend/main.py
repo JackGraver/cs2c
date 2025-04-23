@@ -31,6 +31,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def get_demos():
+    demos = parser.get_all_known_demos()
+    return {"demos": demos}
+    
 @app.get("/round/{round_num}")
 def get_player_data(round_num: int):
     round = parser.read_demo_round(round_num)
