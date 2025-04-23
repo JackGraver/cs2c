@@ -49,7 +49,6 @@ export default function Home() {
             setLoading(false);
 
             if (res.ok && data.success) {
-                // navigate("/viewer");
                 navigate(`/viewer?demo_id=${data.demo_id}`);
             } else {
                 setError(data.message || "Failed to parse demo.");
@@ -61,8 +60,21 @@ export default function Home() {
         }
     };
 
+    const [mapFilter, setMapFilter] = useState("");
+    const [team1Filter, setTeam1Filter] = useState("");
+    const [team2Filter, setTeam2Filter] = useState("");
+
+    const filteredDemos = parsedDemos.filter((demo) => {
+        return (
+            demo.map_name.toLowerCase().includes(mapFilter.toLowerCase()) &&
+            demo.team1.toLowerCase().includes(team1Filter.toLowerCase()) &&
+            demo.team2.toLowerCase().includes(team2Filter.toLowerCase())
+        );
+    });
+
     return (
         <div className="p-8 text-center">
+            <h1 className="text-8xl font-bold m-16">CS2C</h1>
             <h1 className="text-2xl font-bold mb-4">Upload a .dem File</h1>
             <input type="file" accept=".dem" onChange={handleUpload} />
             {loading && <p className="mt-4 text-gray-400">Parsing demo...</p>}
@@ -70,6 +82,29 @@ export default function Home() {
 
             {parsedDemos.length > 0 && (
                 <div className="mt-8 text-left max-w-2xl mx-auto">
+                    <div className="mb-4 flex flex-col sm:flex-row gap-2 justify-between">
+                        <input
+                            type="text"
+                            placeholder="Filter by Map"
+                            value={mapFilter}
+                            onChange={(e) => setMapFilter(e.target.value)}
+                            className="p-2 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-600"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Filter by Team 1"
+                            value={team1Filter}
+                            onChange={(e) => setTeam1Filter(e.target.value)}
+                            className="p-2 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-600"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Filter by Team 2"
+                            value={team2Filter}
+                            onChange={(e) => setTeam2Filter(e.target.value)}
+                            className="p-2 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-600"
+                        />
+                    </div>
                     <h2 className="text-xl font-semibold mb-4">Parsed Demos</h2>
                     <table className="w-full border border-gray-600 rounded-lg text-sm">
                         <thead className="bg-gray-800 text-white">
@@ -94,7 +129,7 @@ export default function Home() {
                             </tr>
                         </thead>
                         <tbody>
-                            {parsedDemos.map((demo) => (
+                            {filteredDemos.map((demo) => (
                                 <tr
                                     key={demo.demo_id}
                                     className="border-b border-gray-700 hover:bg-gray-700/20"
