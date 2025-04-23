@@ -72,3 +72,13 @@ async def upload_demo(file: UploadFile = File(...)):
             "success": False,
             "message": f"Server error: {str(e)}"
         })
+        
+@app.delete("/delete/{demo_id}")
+def delete_demo(demo_id: str):
+    db = parser.remove_parsed_demo(demo_id)
+    parser.delete_demo_rounds(demo_id)
+    
+    if db:
+        return {"message": f"Demo {demo_id} deleted successfully."}
+    else:
+        raise HTTPException(status_code=400, detail="Error Deleting Demo")

@@ -74,6 +74,7 @@ export default function Home() {
                     <table className="w-full border border-gray-600 rounded-lg text-sm">
                         <thead className="bg-gray-800 text-white">
                             <tr>
+                                <th className="px-4 py-2 border-b border-gray-700" />
                                 <th className="px-4 py-2 border-b border-gray-700">
                                     Name
                                 </th>
@@ -89,7 +90,7 @@ export default function Home() {
                                 <th className="px-4 py-2 border-b border-gray-700">
                                     Uploaded
                                 </th>
-                                <th className="px-4 py-2 border-b border-gray-700" />
+                                <th className="px-4 py-2 border-b border-gray-700 text-center"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,6 +99,44 @@ export default function Home() {
                                     key={demo.demo_id}
                                     className="border-b border-gray-700 hover:bg-gray-700/20"
                                 >
+                                    <td className="px-4 py-2">
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    const res = await fetch(
+                                                        `http://127.0.0.1:8000/delete/${demo.demo_id}`,
+                                                        {
+                                                            method: "DELETE",
+                                                        }
+                                                    );
+
+                                                    if (res.ok) {
+                                                        // Optional: refresh or remove the deleted demo from state
+                                                        setParsedDemos((prev) =>
+                                                            prev.filter(
+                                                                (d) =>
+                                                                    d.demo_id !==
+                                                                    demo.demo_id
+                                                            )
+                                                        );
+                                                    } else {
+                                                        console.error(
+                                                            "Failed to delete demo"
+                                                        );
+                                                    }
+                                                } catch (err) {
+                                                    console.error(
+                                                        "Error deleting demo:",
+                                                        err
+                                                    );
+                                                }
+                                            }}
+                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
+                                            title="Delete"
+                                        >
+                                            X
+                                        </button>
+                                    </td>
                                     <td className="px-4 py-2">
                                         {demo.demo_name}
                                     </td>
@@ -113,7 +152,7 @@ export default function Home() {
                                             demo.uploaded_at
                                         ).toLocaleString()}
                                     </td>
-                                    <td className="px-4 py-2 text-center">
+                                    <td className="px-4 py-2 text-center space-x-2">
                                         <button
                                             onClick={() =>
                                                 navigate(

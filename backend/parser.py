@@ -1,5 +1,6 @@
 import datetime
 import os
+import shutil
 import sqlite3
 from typing import List, Dict, Any
 import uuid
@@ -52,14 +53,14 @@ class Parser:
             demo_id = str(uuid.uuid4())
             
             self.write_demo_rounds(dem, demo_id, game_times)
-            self.update_parsed_demos(dem, demo_id, game_times)
+            self.add_parsed_demos(dem, demo_id, game_times)
             
             return demo_id
         except Exception as e:
             print(f"Error parsing demo: {e}")
             return None
 
-    def update_parsed_demos(self, dem: Demo, demo_id: str, game_times: pl.DataFrame) -> None:
+    def add_parsed_demos(self, dem: Demo, demo_id: str, game_times: pl.DataFrame) -> None:
         conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
 
@@ -89,6 +90,33 @@ class Parser:
         # Commit and close
         conn.commit()
         conn.close()
+        
+    def remove_parsed_demo(self, demo_id: str) -> bool:
+        conn = sqlite3.connect("database.db")
+        cur = conn.cursor()
+
+        cur.execute("SELECT COUNT(*) FROM demos WHERE demo_id = ?", (demo_id,))
+        if cur.fetchone()[0] == 0:
+            conn.close()
+            return False
+
+        cur.execute("DELETE FROM demos WHERE demo_id = ?", (demo_id,))
+        conn.commit()
+        conn.close()
+        return True
+
+    def delete_demo_rounds(self, demo_id: str):
+        # Path to the demo subdirectory
+        demo_dir = os.path.join(self.output_dir, demo_id)
+
+        # Delete the directory and all its contents if it exists
+        if os.path.exists(demo_dir):
+            shutil.rmtree(demo_dir)
+
+        # Optionally remove the original .dem file (if stored separately)
+        demo_file_path = os.path.join(self.output_dir, f"{demo_id}.dem")
+        if os.path.exists(demo_file_path):
+            os.remove(demo_file_path)
         
     def get_all_known_demos(self) -> list[dict]:
         try:
