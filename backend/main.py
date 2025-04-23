@@ -33,18 +33,15 @@ app.add_middleware(
 
 @app.get("/round/{round_num}")
 def get_player_data(round_num: int):
-    if parser.has_demo:
-        # round = processRoundInformation(round_num)
-        # round_info = dem.rounds['round_num', 'winner']
-        round = parser.get_round(round_num)
-        round_info = parser.dem.rounds['round_num', 'winner']
-        return {"data": round, "rounds": round_info.to_dicts()}
+    round = parser.read_demo_round(round_num)
+    round_info = parser.read_demo_round_info()
+    if round and round_info:
+        return {"data": round, "rounds": round_info}
     else:
-        raise HTTPException(status_code=400, detail="No demo has been uploaded or parsed yet.")
+        raise HTTPException(status_code=400, detail=f"Unable to read round {round_num}.")
 
 @app.post("/upload")
 async def upload_demo(file: UploadFile = File(...)):
-    print("recv upload")
     try:
         # Save uploaded file to a temp location using the already opened tmp file
         with tempfile.NamedTemporaryFile(delete=False, suffix=".dem", mode="wb") as tmp:
@@ -53,9 +50,6 @@ async def upload_demo(file: UploadFile = File(...)):
 
         # Parse the demo using the path
         success = parser.parse_demo(temp_path)
-
-        # # Clean up the file
-        # os.remove(temp_path)
 
         if success:
             return JSONResponse(content={"success": True, "message": "Demo parsed successfully."})

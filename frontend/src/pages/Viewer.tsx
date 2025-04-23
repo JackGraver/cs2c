@@ -42,11 +42,12 @@ const Viewer = () => {
                 );
                 const data = await res.json();
                 if (data.data) {
-                    console.log(data.data);
+                    console.log("dd", data.data);
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                 }
                 if (data.rounds) {
+                    console.log("dr", data.rounds);
                     setRoundData((prev) => {
                         if (prev.length === 0 && data.rounds) {
                             return data.rounds.map((r: RoundInfo) =>
