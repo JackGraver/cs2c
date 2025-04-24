@@ -30,6 +30,8 @@ export function BottomBar({
     };
 
     const handleSliderMouseUp = () => {
+        if (!isPlaying) return;
+
         if (!isPlaying && togglePlay) {
             togglePlay();
         }
