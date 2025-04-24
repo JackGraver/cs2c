@@ -100,6 +100,8 @@ const Viewer = () => {
     };
 
     const togglePlay = () => {
+        setSliderChange(false);
+        setCurrentTickIndex((prev) => prev + 1);
         setIsPlaying((prev) => !prev);
     };
 
