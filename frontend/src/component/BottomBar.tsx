@@ -10,7 +10,7 @@ type BottomBarProps = {
     totalTicks: number;
     isPlaying: boolean;
     onTickChange: (tickIndex: number) => void;
-    togglePlay: () => void;
+    togglePlay: (isSlider: boolean) => void;
     setSelectedRound: (round: number) => void;
 };
 
@@ -25,7 +25,7 @@ export function BottomBar({
 }: BottomBarProps) {
     const handleSliderMouseDown = () => {
         if (isPlaying && togglePlay) {
-            togglePlay();
+            togglePlay(true);
         }
     };
 
@@ -33,7 +33,7 @@ export function BottomBar({
         if (!isPlaying) return;
 
         if (!isPlaying && togglePlay) {
-            togglePlay();
+            togglePlay(true);
         }
     };
 
@@ -51,7 +51,9 @@ export function BottomBar({
         <div className="w-full h-full px-4 py-2 flex flex-col justify-center">
             <div className="flex items-center justify-between gap-4 w-full">
                 <button
-                    onClick={togglePlay}
+                    onClick={() => {
+                        togglePlay(false);
+                    }}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white"
                 >
                     {isPlaying ? (
