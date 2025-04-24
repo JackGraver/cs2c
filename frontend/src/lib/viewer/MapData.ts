@@ -6,28 +6,6 @@ export type MapInfo = {
     Y_MIN: number;
     Y_MAX: number;
 };
-// inferno
-// const X_MIN = -1750,
-//     X_MAX = 2625;
-// const Y_MIN = -900,
-//     Y_MAX = 3700;
-
-// dust
-// const X_MIN = -2300,
-//     X_MAX = 1950;
-// const Y_MIN = -1250,
-//     Y_MAX = 3100;
-
-// anubis
-// const X_MIN = -2050,
-//     X_MAX = 1910;
-// const Y_MIN = -1820,
-//     Y_MAX = 3250;
-
-// {'min_x': -1675.6199951171875, 'max_x': 2519.342041015625,
-// 'min_y': -656.2862548828125, 'max_y': 3481.529296875}
-
-// X 2260 -> -1730   Y 3593 -> 760
 const mapData: Record<string, MapInfo> = {
     de_inferno: {
         name: "de_inferno",
@@ -36,7 +14,7 @@ const mapData: Record<string, MapInfo> = {
         X_MAX: 2250,
         Y_MIN: -760,
         Y_MAX: 3593,
-    },
+    }, // X 2260 -1730 Y 3593 760
     de_mirage: {
         name: "de_mirage",
         imagePath: "/maps/de_mirage.png",
@@ -61,6 +39,30 @@ const mapData: Record<string, MapInfo> = {
         Y_MIN: -1803,
         Y_MAX: 3162,
     }, //X 1803 -1971 Y 3162 -1803
+    de_ancient: {
+        name: "de_ancient",
+        imagePath: "/maps/de_ancient.png",
+        X_MIN: -0,
+        X_MAX: 0,
+        Y_MIN: -0,
+        Y_MAX: 0,
+    }, //
+    de_train: {
+        name: "de_train",
+        imagePath: "/maps/de_train.png",
+        X_MIN: -0,
+        X_MAX: 0,
+        Y_MIN: -0,
+        Y_MAX: 0,
+    }, //
+    de_nuke: {
+        name: "de_nuke",
+        imagePath: "/maps/de_nuke.png",
+        X_MIN: -0,
+        X_MAX: 0,
+        Y_MIN: -0,
+        Y_MAX: 0,
+    },
 };
 
 export function getMapInfo(mapName: string): MapInfo {
