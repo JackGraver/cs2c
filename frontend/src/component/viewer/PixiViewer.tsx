@@ -3,11 +3,12 @@ import { MapViewer } from "../../lib/viewer/MapViewer";
 import { TickData } from "../../lib/viewer/types/tick_data";
 
 type PixiViewerProps = {
-    tickData: TickData | undefined;
+    currentTick: TickData;
+    previousTick: TickData | undefined;
     map: string;
 };
 
-export function PixiViewer({ tickData, map }: PixiViewerProps) {
+export function PixiViewer({ currentTick, previousTick, map }: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
 
@@ -32,17 +33,56 @@ export function PixiViewer({ tickData, map }: PixiViewerProps) {
                 mapViewerRef.current = null;
             }
         };
-    }, []); // Empty dependency array to run once when component mounts
+    }, []);
+
+    // useEffect(() => {
+    //     if (!currentTick || !mapViewerRef.current) return;
+
+    //     if (previousTick) {
+    //         mapViewerRef.current.interpolateAndRenderPlayers(
+    //             currentTick,
+    //             previousTick
+    //         );
+    //     } else {
+    //         mapViewerRef.current.createPlayers(currentTick);
+    //         mapViewerRef.current.drawFrame(currentTick);
+    //     }
+    // }, [currentTick, previousTick]);
 
     useEffect(() => {
-        if (!tickData || !mapViewerRef.current) return;
+        if (!mapViewerRef.current || !currentTick) return;
 
-        // Each time tickData updates, draw the new frame
-        if (!mapViewerRef.current.hasPlayers()) {
-            mapViewerRef.current.createPlayers(tickData);
+        // First-time render (no interpolation needed)
+        if (!previousTick && !mapViewerRef.current.hasPlayers()) {
+            mapViewerRef.current.createPlayers(currentTick);
+            mapViewerRef.current.drawFrame(currentTick);
+            return;
         }
-        mapViewerRef.current.drawFrame(tickData);
-    }, [tickData]);
+
+        // Interpolated animation from previousTick to currentTick
+        let animationFrame: number;
+        const startTime = performance.now();
+        const duration = 600; // ms
+
+        const animate = (now: number) => {
+            const elapsed = now - startTime;
+            const t = Math.min(elapsed / duration, 1); // Clamp between 0 and 1
+
+            mapViewerRef.current?.renderInterpolatedFrame(
+                currentTick,
+                previousTick!,
+                t
+            );
+
+            if (t < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            }
+        };
+
+        animationFrame = requestAnimationFrame(animate);
+
+        return () => cancelAnimationFrame(animationFrame);
+    }, [currentTick, previousTick]);
 
     return (
         <div

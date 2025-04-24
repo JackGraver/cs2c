@@ -240,8 +240,8 @@ class Parser:
                     **inv
                 })
 
-            active_smokes = r1_smokes.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick"]].to_dict("records")
-            active_molly = r1_molly.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick"]].to_dict("records")
+            active_smokes = r1_smokes.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick", "entity_id"]].to_dict("records")
+            active_molly = r1_molly.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick", "entity_id"]].to_dict("records")
             airborne_grenades = grenade_by_tick.get(tick, [])
 
             tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
