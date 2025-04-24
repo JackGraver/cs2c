@@ -1,12 +1,12 @@
 enum GrenadeType {
     Flashbang = "CFlashBangProjetile",
-    Smoke = "CSmokeGrenadeProjectile"
+    Smoke = "CSmokeGrenadeProjectile",
 }
 
 export type InAirGrenade = {
-    X: number,
-    Y: number,
-    id: number,
-    type: GrenadeType,
-    thrower: string
-}
+    X: number;
+    Y: number;
+    entity_id: number;
+    type: GrenadeType;
+    thrower: string;
+};

@@ -13,18 +13,27 @@ export class MapViewer {
     private tempLayer: Container;
 
     private players: Record<string, Player> = {};
+    private inAirGrenades: Record<number, Sprite> = {};
+
     private textureManager: TextureManager;
+
+    // private mapScale: number = -1;
+    // private mapOffsetX: number = -1;
+    // private mapOffsetY: number = -1;
+    // private textureWidth: number = -1;
+    // private textureHeight: number = -1;
 
     constructor(cont: HTMLDivElement) {
         this.container = cont;
         this.root = new Container();
         this.root.sortableChildren = true;
         this.app = new Application();
-        this.tempLayer = new Container();
 
+        this.tempLayer = new Container();
         this.tempLayer.position.set(0, 0);
         this.tempLayer.visible = true;
-        this.tempLayer.zIndex = 100;
+        this.tempLayer.zIndex = 200;
+        this.tempLayer.sortableChildren = true;
 
         this.textureManager = TextureManager.getInstance();
     }
@@ -65,7 +74,9 @@ export class MapViewer {
 
         // Use the smaller scale factor to maintain aspect ratio
         // const scale = Math.min(scaleX, scaleY);
-        const scale = (scaleX + scaleY) / 2 - 0.03;
+        const scale = (scaleX + scaleY) / 2;
+
+        console.log("dm s", scale);
 
         // Apply scaling to the sprite
         sprite.scale.set(scale);
@@ -147,6 +158,15 @@ export class MapViewer {
             );
 
             const playerSprite = this.players[player.name].display.dot;
+
+            if (player.health === 0) {
+                playerSprite.texture = this.textureManager.getTexture("dead")!;
+            } else {
+                playerSprite.texture = this.textureManager.getTexture(
+                    player.side
+                )!;
+            }
+
             if (playerSprite) {
                 playerSprite.x = x;
                 playerSprite.y = y;
@@ -173,6 +193,14 @@ export class MapViewer {
             const sprite = this.players[player.name].display.dot;
 
             if (sprite) {
+                if (player.health === 0) {
+                    sprite.texture = this.textureManager.getTexture("dead")!;
+                } else {
+                    sprite.texture = this.textureManager.getTexture(
+                        player.side
+                    )!;
+                }
+
                 sprite.x = x;
                 sprite.y = y;
 
@@ -183,6 +211,105 @@ export class MapViewer {
                 );
             }
         }
+        // === DRAW ACTIVE SMOKES ===
+        // for (const smoke of currentTick.activeSmokes) {
+        //     const prev = previousTick.activeSmokes.find(
+        //         (s) => s.id === smoke.id
+        //     );
+        //     if (!prev) continue;
+
+        //     const interpX = prev.X + (smoke.X - prev.X) * t;
+        //     const interpY = prev.Y + (smoke.Y - prev.Y) * t;
+
+        //     const [x, y] = this.transformCoordinates(interpX, interpY);
+        //     const g = new Graphics();
+        //     g.circle(0, 0, 20);
+        //     g.fill({ color: 0x888888, alpha: 0.4 });
+
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
+
+        // // === DRAW ACTIVE MOLOTOVS ===
+        // for (const molly of currentTick.activeMolly) {
+        //     const prev = previousTick.activeMolly.find(
+        //         (m) => m.id === molly.id
+        //     );
+        //     if (!prev) continue;
+
+        //     const interpX = prev.X + (molly.X - prev.X) * t;
+        //     const interpY = prev.Y + (molly.Y - prev.Y) * t;
+
+        //     const [x, y] = this.transformCoordinates(interpX, interpY);
+        //     const g = new Graphics();
+        //     g.circle(0, 0, 20);
+        //     g.fill({ color: 0xff4500, alpha: 0.5 });
+
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
+
+        // === DRAW FLASHES ===
+
+        for (const flash of currentTick.activeGrenades) {
+            const prev = previousTick.activeGrenades.find(
+                (f) => f.entity_id === flash.entity_id
+            );
+
+            // Check if we have a corresponding previous state for interpolation
+            if (!prev) continue;
+
+            const interpX = prev.X + (flash.X - prev.X) * t;
+            const interpY = prev.Y + (flash.Y - prev.Y) * t;
+
+            const [x, y] = this.transformCoordinates(interpX, interpY);
+
+            // Check if the sprite already exists in inAirGrenades
+            if (this.inAirGrenades[flash.entity_id]) {
+                const sprite = this.inAirGrenades[flash.entity_id];
+                // Update the sprite position
+                sprite.x = x;
+                sprite.y = y;
+            } else {
+                // If the sprite doesn't exist, create it
+                const sprite = new Sprite(this.textureManager.getTexture("t")); // Use the appropriate texture for your grenade
+                sprite.zIndex = 120;
+                sprite.position.set(x, y);
+                this.inAirGrenades[flash.entity_id] = sprite;
+                this.tempLayer.addChild(sprite);
+            }
+        }
+
+        // If there are grenades in inAirGrenades that are no longer in currentTick, remove them
+        for (const [id, sprite] of Object.entries(this.inAirGrenades)) {
+            const flash = currentTick.activeGrenades.find(
+                (f) => f.entity_id === Number(id)
+            );
+
+            if (!flash) {
+                // Remove the sprite if the grenade is no longer in the current tick
+                this.tempLayer.removeChild(sprite);
+                delete this.inAirGrenades[Number(id)];
+            }
+        }
+
+        // for (const flash of currentTick.activeGrenades) {
+        //     const prev = previousTick.activeGrenades.find(
+        //         (f) => f.id === flash.id
+        //     );
+        //     if (!prev) continue;
+
+        //     const interpX = prev.X + (flash.X - prev.X) * t;
+        //     const interpY = prev.Y + (flash.Y - prev.Y) * t;
+
+        //     const [x, y] = this.transformCoordinates(interpX, interpY);
+        //     const g = new Graphics();
+        //     g.rect(-5, -2, 10, 4);
+        //     g.fill({ color: 0xffff00, alpha: 0.9 });
+
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
     }
 
     public async drawFrame(tick: TickData) {
@@ -207,44 +334,45 @@ export class MapViewer {
             // this.players[p.name].display.updatePosition(newX, newY, p.yaw);
         }
 
-        // === DRAW ACTIVE SMOKES ===
-        for (const smoke of tick.activeSmokes) {
-            const [x, y] = this.transformCoordinates(smoke.X, smoke.Y);
-            const g = new Graphics();
-            g.circle(0, 0, 20);
-            g.fill({ color: 0x888888, alpha: 0.4 });
+        // // === DRAW ACTIVE SMOKES ===
+        // for (const smoke of tick.activeSmokes) {
+        //     const [x, y] = this.transformCoordinates(smoke.X, smoke.Y);
+        //     const g = new Graphics();
+        //     g.circle(0, 0, 20);
+        //     g.fill({ color: 0x888888, alpha: 0.4 });
 
-            g.position.set(x, y);
-            this.tempLayer.addChild(g);
-        }
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
 
-        // // === DRAW ACTIVE MOLOTOVS ===
-        for (const molly of tick.activeMolly) {
-            const [x, y] = this.transformCoordinates(molly.X, molly.Y);
-            const g = new Graphics();
-            g.circle(0, 0, 20);
-            g.fill({ color: 0xff4500, alpha: 0.5 });
+        // // // === DRAW ACTIVE MOLOTOVS ===
+        // for (const molly of tick.activeMolly) {
+        //     const [x, y] = this.transformCoordinates(molly.X, molly.Y);
+        //     const g = new Graphics();
+        //     g.circle(0, 0, 20);
+        //     g.fill({ color: 0xff4500, alpha: 0.5 });
 
-            g.position.set(x, y);
-            this.tempLayer.addChild(g);
-        }
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
 
-        // // === DRAW FLASHES ===
-        for (const flash of tick.activeGrenades) {
-            const [x, y] = this.transformCoordinates(flash.X, flash.Y);
-            const g = new Graphics();
-            g.rect(-5, -2, 10, 4);
-            g.fill({ color: 0xffff00, alpha: 0.9 });
+        // // // === DRAW FLASHES ===
+        // for (const flash of tick.activeGrenades) {
+        //     const [x, y] = this.transformCoordinates(flash.X, flash.Y);
+        //     const g = new Graphics();
+        //     g.rect(-5, -2, 10, 4);
+        //     g.fill({ color: 0xffff00, alpha: 0.9 });
 
-            g.position.set(x, y);
-            this.tempLayer.addChild(g);
-        }
+        //     g.position.set(x, y);
+        //     this.tempLayer.addChild(g);
+        // }
     }
 
+    // x 2660 -> -760   y 3593 -> -1730
     private transformCoordinates(x: number, y: number) {
-        const X_MIN = -1750,
-            X_MAX = 2625;
-        const Y_MIN = -900,
+        const X_MIN = -1850,
+            X_MAX = 2800;
+        const Y_MIN = -1800,
             Y_MAX = 3700;
 
         const mapWidth = X_MAX - X_MIN;
@@ -256,7 +384,8 @@ export class MapViewer {
         // Choose the scale that fits both dimensions
         const scaleX = containerWidth / mapWidth;
         const scaleY = containerHeight / mapHeight;
-        const scale = Math.min(scaleX, scaleY); // Ensures it fits without stretching
+        // const scale = Math.min(scaleX, scaleY); // Ensures it fits without stretching
+        const scale = (scaleX + scaleY) / 2;
 
         // Offset to center the map (optional)
         const xOffset = (containerWidth - mapWidth * scale) / 2;

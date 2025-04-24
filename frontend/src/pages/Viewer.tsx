@@ -47,6 +47,7 @@ const Viewer = () => {
                 );
                 const data = await res.json();
                 if (data.data) {
+                    console.log(data.data);
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                 }

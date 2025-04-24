@@ -20,7 +20,7 @@ export function DemoPlayer({
 
         const id = setInterval(() => {
             onAdvanceTick();
-        }, 400);
+        }, 600);
 
         return () => clearInterval(id);
     }, [isPlaying, onAdvanceTick]);
