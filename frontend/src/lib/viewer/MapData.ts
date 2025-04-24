@@ -18,11 +18,11 @@ const mapData: Record<string, MapInfo> = {
     de_mirage: {
         name: "de_mirage",
         imagePath: "/maps/de_mirage.png",
-        X_MIN: -2000,
-        X_MAX: 2000,
-        Y_MIN: -2000,
-        Y_MAX: 2000,
-    },
+        X_MIN: -2655,
+        X_MAX: 1455,
+        Y_MIN: -2603,
+        Y_MAX: 887,
+    }, // X 1455 -2655 Y 887 -2603
     de_dust2: {
         name: "de_dust2",
         imagePath: "/maps/de_dust2.png",
@@ -42,19 +42,19 @@ const mapData: Record<string, MapInfo> = {
     de_ancient: {
         name: "de_ancient",
         imagePath: "/maps/de_ancient.png",
-        X_MIN: -0,
-        X_MAX: 0,
-        Y_MIN: -0,
-        Y_MAX: 0,
-    }, //
+        X_MIN: -2300,
+        X_MAX: 1395,
+        Y_MIN: -2531,
+        Y_MAX: 1771,
+    }, // X 1395 -2300 Y 1771 -2531
     de_train: {
         name: "de_train",
         imagePath: "/maps/de_train.png",
-        X_MIN: -0,
-        X_MAX: 0,
-        Y_MIN: -0,
-        Y_MAX: 0,
-    }, //
+        X_MIN: -2178,
+        X_MAX: 1767,
+        Y_MIN: -1798,
+        Y_MAX: 1777,
+    }, // X 1767 -2178 Y 1777 -1798
     de_nuke: {
         name: "de_nuke",
         imagePath: "/maps/de_nuke.png",
@@ -62,7 +62,7 @@ const mapData: Record<string, MapInfo> = {
         X_MAX: 0,
         Y_MIN: -0,
         Y_MAX: 0,
-    },
+    }, //
 };
 
 export function getMapInfo(mapName: string): MapInfo {
