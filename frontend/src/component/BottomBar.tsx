@@ -54,7 +54,19 @@ export function BottomBar({
                     onClick={togglePlay}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white"
                 >
-                    {isPlaying ? "Pause" : "Play"}
+                    {isPlaying ? (
+                        <img
+                            src="/icons/pause.svg"
+                            alt="Pause"
+                            className="h-6 w-6"
+                        />
+                    ) : (
+                        <img
+                            src="/icons/play.svg"
+                            alt="Play"
+                            className="h-6 w-6"
+                        />
+                    )}
                 </button>
                 <input
                     type="range"
