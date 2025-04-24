@@ -58,13 +58,13 @@ export function BottomBar({
                         <img
                             src="/icons/pause.svg"
                             alt="Pause"
-                            className="h-6 w-6"
+                            className="w-6 h-6 scale-150" // scales the SVG 1.5x without changing button padding
                         />
                     ) : (
                         <img
                             src="/icons/play.svg"
                             alt="Play"
-                            className="h-6 w-6"
+                            className="w-6 h-6 scale-150"
                         />
                     )}
                 </button>
