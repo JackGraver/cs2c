@@ -99,9 +99,14 @@ const Viewer = () => {
         setCurrentTickIndex(tick);
     };
 
-    const togglePlay = () => {
-        setSliderChange(false);
-        setCurrentTickIndex((prev) => prev + 1);
+    const togglePlay = (isSlider: boolean) => {
+        if (isSlider) {
+            setSliderChange(false);
+            setCurrentTickIndex((prev) => prev + 1);
+        }
+        if (!isPlaying) {
+            setCurrentTickIndex((prev) => prev + 1);
+        }
         setIsPlaying((prev) => !prev);
     };
 
