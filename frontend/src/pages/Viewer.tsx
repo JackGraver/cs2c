@@ -46,6 +46,8 @@ const Viewer = () => {
 
             try {
                 setLoading(true);
+                console.log("demoId", demoId);
+                console.log("selectedRound", selectedRound);
                 const res = await fetch(
                     `http://127.0.0.1:8000/demo/${demoId}/round/${selectedRound}`
                 );
