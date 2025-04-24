@@ -8,13 +8,9 @@ from parsing.demo_parser import parse_demo
 from parsing.parquet_writer import *
 from db.queries import get_all_known_demos
 
-from parser import Parser
-
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 app = FastAPI()
-
-parser = Parser()
 
 origins = [
     "http://localhost",
