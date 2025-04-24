@@ -5,9 +5,10 @@ import { TickData } from "../../lib/viewer/types/tick_data";
 type PixiViewerProps = {
     currentTick: TickData;
     previousTick: TickData | undefined;
+    map: string;
 };
 
-export function PixiViewer({ currentTick, previousTick }: PixiViewerProps) {
+export function PixiViewer({ currentTick, previousTick, map }: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
 
@@ -16,7 +17,7 @@ export function PixiViewer({ currentTick, previousTick }: PixiViewerProps) {
             if (!containerRef.current || mapViewerRef.current) return;
 
             // Create your MapViewer instance once
-            mapViewerRef.current = new MapViewer(containerRef.current);
+            mapViewerRef.current = new MapViewer(containerRef.current, map);
 
             // Wait for init to complete before moving forward
             await mapViewerRef.current.init();

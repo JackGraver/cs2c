@@ -7,6 +7,7 @@ type DemoPlayerProps = {
     previousTick: TickData | undefined;
     isPlaying: boolean;
     onAdvanceTick: () => void;
+    map: string;
 };
 
 export function DemoPlayer({
@@ -14,6 +15,7 @@ export function DemoPlayer({
     isPlaying,
     previousTick,
     onAdvanceTick,
+    map,
 }: DemoPlayerProps) {
     useEffect(() => {
         if (!isPlaying) return;

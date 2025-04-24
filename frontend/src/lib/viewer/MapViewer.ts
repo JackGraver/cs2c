@@ -1,6 +1,7 @@
 import { Application, Container, Sprite, Assets, Graphics } from "pixi.js";
 
 import { TextureManager } from "./TextureManager";
+import { getMapInfo, MapInfo } from "./MapData";
 import { Player } from "./types/player_data";
 import { TickData } from "./types/tick_data";
 import { PlayerDot } from "./models/player";
@@ -17,13 +18,7 @@ export class MapViewer {
 
     private textureManager: TextureManager;
 
-    // private mapScale: number = -1;
-    // private mapOffsetX: number = -1;
-    // private mapOffsetY: number = -1;
-    // private textureWidth: number = -1;
-    // private textureHeight: number = -1;
-
-    constructor(cont: HTMLDivElement) {
+    constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
         this.root = new Container();
         this.root.sortableChildren = true;
@@ -36,6 +31,8 @@ export class MapViewer {
         this.tempLayer.sortableChildren = true;
 
         this.textureManager = TextureManager.getInstance();
+
+        this.mapInfo = getMapInfo(map);
     }
 
     async init() {
@@ -61,7 +58,8 @@ export class MapViewer {
     }
 
     private async drawMap() {
-        const texture = await Assets.load("/de_inferno.png");
+        // const texture = await Assets.load("/de_inferno.png");
+        const texture = await Assets.load(this.mapInfo.imagePath);
         const sprite = new Sprite(texture);
 
         // Get container size (could be dynamic if container resizes)
@@ -75,8 +73,6 @@ export class MapViewer {
         // Use the smaller scale factor to maintain aspect ratio
         // const scale = Math.min(scaleX, scaleY);
         const scale = (scaleX + scaleY) / 2;
-
-        console.log("dm s", scale);
 
         // Apply scaling to the sprite
         sprite.scale.set(scale);
@@ -368,12 +364,8 @@ export class MapViewer {
         // }
     }
 
-    // x 2660 -> -760   y 3593 -> -1730
     private transformCoordinates(x: number, y: number) {
-        const X_MIN = -1850,
-            X_MAX = 2800;
-        const Y_MIN = -1800,
-            Y_MAX = 3700;
+        const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
 
         const mapWidth = X_MAX - X_MIN;
         const mapHeight = Y_MAX - Y_MIN;
