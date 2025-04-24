@@ -22,10 +22,9 @@ const Viewer = () => {
     const [searchParams] = useSearchParams();
     const demoId = searchParams.get("demo_id");
     const map = searchParams.get("map");
-    console.log("searchParams", map);
 
     const navigate = useNavigate();
-  
+
     const [tickData, setTickData] = useState<TickData[]>([]);
     const [roundData, setRoundData] = useState<RoundInfo[]>([]);
     const [selectedRound, setSelectedRound] = useState<number>(1);

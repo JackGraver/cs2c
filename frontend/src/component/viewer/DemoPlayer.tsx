@@ -35,7 +35,11 @@ export function DemoPlayer({
             </div>
 
             {/* Pixi viewer */}
-            <PixiViewer currentTick={currentTick} previousTick={previousTick} />
+            <PixiViewer
+                currentTick={currentTick}
+                previousTick={previousTick}
+                map={map}
+            />
         </div>
     );
 }

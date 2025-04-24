@@ -8,7 +8,11 @@ type PixiViewerProps = {
     map: string;
 };
 
-export function PixiViewer({ currentTick, previousTick, map }: PixiViewerProps) {
+export function PixiViewer({
+    currentTick,
+    previousTick,
+    map,
+}: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
 
@@ -89,5 +93,19 @@ export function PixiViewer({ currentTick, previousTick, map }: PixiViewerProps) 
             ref={containerRef}
             style={{ width: "1024px", height: "768px", position: "relative" }}
         />
+        // <div
+        //     ref={containerRef}
+        //     style={{
+        //         width: "1024px",
+        //         height: "768px",
+        //         position: "relative",
+        //         backgroundImage: 'url("/maps/de_inferno.png")',
+        //         backgroundSize: "contain", // or "cover" if you want it to fill & crop
+        //         backgroundRepeat: "no-repeat",
+        //         backgroundPosition: "center",
+        //     }}
+        // >
+        //     {/* Your content or overlay (like canvas or PixiJS) can go here */}
+        // </div>
     );
 }

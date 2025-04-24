@@ -18,6 +18,11 @@ export class MapViewer {
 
     private textureManager: TextureManager;
 
+    private mapInfo: MapInfo;
+
+    private mapWidth: number;
+    private mapHeight: number;
+
     constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
         this.root = new Container();
@@ -71,16 +76,45 @@ export class MapViewer {
         const scaleY = containerHeight / texture.height;
 
         // Use the smaller scale factor to maintain aspect ratio
-        // const scale = Math.min(scaleX, scaleY);
-        const scale = (scaleX + scaleY) / 2;
+        const scale = Math.min(scaleX, scaleY);
+        // const scale = (scaleX + scaleY) / 2 - 0.03;
+
+        console.log("s", scale);
 
         // Apply scaling to the sprite
         sprite.scale.set(scale);
+        console.log(sprite.width, sprite.height);
+        this.mapWidth = sprite.width;
+        this.mapHeight = sprite.height;
 
         // Position the sprite in the center of the container
         sprite.anchor.set(0.5);
         sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
+        console.log("x y map", containerWidth / 2, containerHeight / 2);
+
+        const g = new Graphics();
+        g.circle(0, 0, 8);
+        g.fill({ color: 0xa9f920 });
+
+        // const [x, y] = this.transformCoordinates(-1675, 351);
+        const [x, y] = this.transformCoordinates(0, 0);
+        console.log("test 1 (t) [170, 545]", x, y);
+        g.position.set(x, y);
+        // g.position.set(170, 545);
+        g.zIndex = 500;
+        this.root.addChild(g);
+
+        // const g2 = new Graphics();
+        // g2.circle(0, 0, 8);
+        // g2.fill({ color: 0xffffff });
+
+        // const [x2, y2] = this.transformCoordinates(2473, 2005);
+        // console.log("test 2 (ct) [850, 270]", x2, y2);
+        // g2.position.set(x2, y2);
+        // // g2.position.set(850, 270);
+        // g2.zIndex = 500;
+        // this.root.addChild(g2);
 
         // Ensure the sprite is at the lowest layer
         sprite.zIndex = 0;
@@ -186,6 +220,7 @@ export class MapViewer {
             const interpYaw = prev.yaw + (player.yaw - prev.yaw) * t; // optional
 
             const [x, y] = this.transformCoordinates(interpX, interpY);
+
             const sprite = this.players[player.name].display.dot;
 
             if (sprite) {
@@ -364,29 +399,36 @@ export class MapViewer {
         // }
     }
 
+    // 2473, 2005 - > 820, 270
+    // -1675, 351 -> 210, 520
+
+    // screenX = zoom_factor*cartX + screen_width/2
+    // screenY = screen_height/2 - zoom_factor*cartY
+
+    // screenx = (cartesianx + screenwidth / 2) / scalefactor;
+    // screeny = (-cartesiany + screenheight / 2) / scalefactor;
+
     private transformCoordinates(x: number, y: number) {
         const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
 
-        const mapWidth = X_MAX - X_MIN;
-        const mapHeight = Y_MAX - Y_MIN;
+        const containerWidth = 1024;
+        const containerHeight = 768;
+        const mapWidth = this.mapWidth;
+        const mapHeight = this.mapHeight;
 
-        const containerWidth = this.container.offsetWidth;
-        const containerHeight = this.container.offsetHeight;
+        const xNorm = (x - X_MIN) / (X_MAX - X_MIN);
+        const yNorm = (y - Y_MIN) / (Y_MAX - Y_MIN);
 
-        // Choose the scale that fits both dimensions
-        const scaleX = containerWidth / mapWidth;
-        const scaleY = containerHeight / mapHeight;
-        // const scale = Math.min(scaleX, scaleY); // Ensures it fits without stretching
-        const scale = (scaleX + scaleY) / 2;
+        const xMap = xNorm * mapWidth;
+        const yMap = (1 - yNorm) * mapHeight; // flip Y
 
-        // Offset to center the map (optional)
-        const xOffset = (containerWidth - mapWidth * scale) / 2;
-        const yOffset = (containerHeight - mapHeight * scale) / 2;
+        const offsetX = (containerWidth - mapWidth) / 2;
+        const offsetY = (containerHeight - mapHeight) / 2;
 
-        const normX = (x - X_MIN) * scale + xOffset;
-        const normY = containerHeight - ((y - Y_MIN) * scale + yOffset); // Flip Y axis
+        const screenX = xMap + offsetX;
+        const screenY = yMap + offsetY;
 
-        return [normX, normY];
+        return [screenX, screenY];
     }
 
     public destroy() {
