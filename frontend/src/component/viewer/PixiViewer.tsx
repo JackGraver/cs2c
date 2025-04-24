@@ -61,6 +61,9 @@ export function PixiViewer({
             mapViewerRef.current.createPlayers(currentTick);
             mapViewerRef.current.drawFrame(currentTick);
             return;
+        } else if (!previousTick && mapViewerRef.current.hasPlayers()) {
+            mapViewerRef.current.drawFrame(currentTick);
+            return;
         }
 
         // Interpolated animation from previousTick to currentTick

@@ -30,6 +30,8 @@ const Viewer = () => {
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [isPlaying, setIsPlaying] = useState(true);
 
+    const [sliderChange, setSliderChange] = useState(false);
+
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
@@ -88,8 +90,14 @@ const Viewer = () => {
         if (currentTickIndex >= tickData.length) {
             setSelectedRound(selectedRound + 1);
             setCurrentTickIndex(0);
+            setSliderChange(false);
         }
     }, [currentTickIndex]);
+
+    const sliderChangeTick = (tick: number) => {
+        setSliderChange(true);
+        setCurrentTickIndex(tick);
+    };
 
     const togglePlay = () => {
         setIsPlaying((prev) => !prev);
@@ -143,6 +151,8 @@ const Viewer = () => {
                         previousTick={
                             currentTickIndex === 0
                                 ? undefined
+                                : sliderChange
+                                ? undefined
                                 : tickData[currentTickIndex - 1]
                         }
                         isPlaying={isPlaying}
@@ -177,7 +187,8 @@ const Viewer = () => {
                     currentTickIndex={currentTickIndex}
                     totalTicks={tickData.length}
                     isPlaying={isPlaying}
-                    onTickChange={setCurrentTickIndex}
+                    // onTickChange={setCurrentTickIndex}
+                    onTickChange={sliderChangeTick}
                     togglePlay={togglePlay}
                     setSelectedRound={setSelectedRound}
                 />

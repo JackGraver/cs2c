@@ -79,11 +79,8 @@ export class MapViewer {
         const scale = Math.min(scaleX, scaleY);
         // const scale = (scaleX + scaleY) / 2 - 0.03;
 
-        console.log("s", scale);
-
         // Apply scaling to the sprite
         sprite.scale.set(scale);
-        console.log(sprite.width, sprite.height);
         this.mapWidth = sprite.width;
         this.mapHeight = sprite.height;
 
@@ -91,19 +88,18 @@ export class MapViewer {
         sprite.anchor.set(0.5);
         sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
-        console.log("x y map", containerWidth / 2, containerHeight / 2);
 
         const g = new Graphics();
         g.circle(0, 0, 8);
         g.fill({ color: 0xa9f920 });
 
         // const [x, y] = this.transformCoordinates(-1675, 351);
-        const [x, y] = this.transformCoordinates(0, 0);
-        console.log("test 1 (t) [170, 545]", x, y);
-        g.position.set(x, y);
-        // g.position.set(170, 545);
-        g.zIndex = 500;
-        this.root.addChild(g);
+        // const [x, y] = this.transformCoordinates(0, 0);
+        // console.log("test 1 (t) [170, 545]", x, y);
+        // g.position.set(x, y);
+        // // g.position.set(170, 545);
+        // g.zIndex = 500;
+        // this.root.addChild(g);
 
         // const g2 = new Graphics();
         // g2.circle(0, 0, 8);
