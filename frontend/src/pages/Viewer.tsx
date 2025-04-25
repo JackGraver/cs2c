@@ -30,6 +30,11 @@ const Viewer = () => {
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [isPlaying, setIsPlaying] = useState(true);
 
+    const speedValues = [0.5, 1, 1.5, 2, 4];
+    const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
+
+    const [sliderChange, setSliderChange] = useState(false);
+
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
@@ -102,6 +107,14 @@ const Viewer = () => {
         setIsPlaying((prev) => !prev);
     };
 
+    const changeSpeed = () => {
+        if (playbackSpeed === speedValues.length - 1) {
+            setPlaybackSpeed(0);
+        } else {
+            setPlaybackSpeed((prev) => prev + 1);
+        }
+    };
+
     return (
         <div className="h-screen flex flex-col">
             {/* Top Bar */}
@@ -153,6 +166,7 @@ const Viewer = () => {
                                 : tickData[currentTickIndex - 1]
                         }
                         isPlaying={isPlaying}
+                        speed={speedValues[playbackSpeed]}
                         onAdvanceTick={() =>
                             setCurrentTickIndex((prev) => prev + 1)
                         }
@@ -184,6 +198,8 @@ const Viewer = () => {
                     currentTickIndex={currentTickIndex}
                     totalTicks={tickData.length}
                     isPlaying={isPlaying}
+                    speed={speedValues[playbackSpeed]}
+                    changeSpeed={changeSpeed}
                     // onTickChange={setCurrentTickIndex}
                     onTickChange={sliderChangeTick}
                     togglePlay={togglePlay}

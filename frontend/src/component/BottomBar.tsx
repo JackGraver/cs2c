@@ -10,8 +10,9 @@ type BottomBarProps = {
     totalTicks: number;
     isPlaying: boolean;
     onTickChange: (tickIndex: number) => void;
-    togglePlay: () => void;
-    setSelectedRound: (round: number) => void;
+    togglePlay: (isSlider: boolean) => void;
+    speed: number;
+    changeSpeed: () => void;
 };
 
 export function BottomBar({
@@ -20,6 +21,8 @@ export function BottomBar({
     totalTicks,
     isPlaying,
     onTickChange,
+    speed,
+    changeSpeed,
     togglePlay,
     setSelectedRound,
 }: BottomBarProps) {
@@ -50,6 +53,12 @@ export function BottomBar({
     return (
         <div className="w-full h-full px-4 py-2 flex flex-col justify-center">
             <div className="flex items-center justify-between gap-4 w-full">
+                <span
+                    onClick={changeSpeed}
+                    className="cursor-pointer text-sm text-gray-200 hover:underline"
+                >
+                    {speed}x
+                </span>
                 <button
                     onClick={() => {
                         togglePlay();
