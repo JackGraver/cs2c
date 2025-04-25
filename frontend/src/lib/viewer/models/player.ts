@@ -1,10 +1,14 @@
-import { Graphics, Sprite, Text, TextStyle, Texture } from "pixi.js";
+import { Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { TextureManager } from "../TextureManager";
 
 export class PlayerDot {
-    dot: Sprite;
+    dot: Sprite | undefined;
     nameText: Text | undefined;
     name: string;
+    x: number;
+    y: number;
+    yaw: number;
+    side: string;
 
     constructor(
         name: string,
@@ -15,50 +19,47 @@ export class PlayerDot {
     ) {
         this.name = name;
 
-        // const [x, y] = this.transformCoordinates(px, py);
-        const [x, y] = [px, py];
+        this.x = px;
+        this.y = py;
 
-        const texture = TextureManager.getInstance().getTexture(side)!;
-        this.dot = new Sprite(texture);
-        this.dot.anchor.set(0.5);
-        this.dot.x = x;
-        this.dot.y = y;
-        this.dot.rotation = yaw * (Math.PI / 180);
+        this.yaw = yaw;
+
+        this.side = side;
     }
 
-    //   async init(x: number, y: number, yaw: number) {
-    //     const texture = TextureManager.getInstance().getTexture("T");
-    //     this.dot.texture = texture!;
-    //     this.dot.anchor.set(0.5);
-    //     this.dot.x = x;
-    //     this.dot.y = y;
-    //     this.dot.rotation = yaw * (Math.PI / 180);
-    //   }
+    async init(texture: Texture) {
+        // Load the SVG and create a Graphics object from it
+
+        this.dot = new Sprite(texture);
+
+        this.dot.scale.set(0.5); // Scale if necessary
+
+        const bounds = this.dot.getLocalBounds();
+
+        this.dot.pivot.set(
+            (bounds.x + bounds.width) / 2,
+            (bounds.y + bounds.height) / 2
+        );
+
+        this.dot.position.set(this.x, this.y);
+
+        this.dot.rotation = this.yaw; //this.yaw * (Math.PI / 180); // Convert yaw to radians
+
+        // this.dot.fill(0xffffff); // Fill color for your graphic (white here)
+
+        // this.dot.addChild(tigerSvg);
+        // this.dot.context = tigerSvg;
+
+        // this.dot.pivot.set(tigerSvg.width / 2, tigerSvg.height / 2);
+
+        // this.dot.position.set(this.x, this.y);
+    }
 
     // Update the position of the circle and the name
     public updatePosition(x: number, y: number, yaw: number) {
-        this.dot.x = x;
-        this.dot.y = y;
-        // this.nameText.x = x - 5; // (this.nameText.width / 3);
-        // this.nameText.y = y - 10; // Update name position relative to the circle
-    }
-
-    private transformCoordinates(x: number, y: number) {
-        const X_MIN = -1750,
-            X_MAX = 2625;
-        const Y_MIN = -900,
-            Y_MAX = 3700;
-
-        // const containerWidth = this.container.width - 24;
-        // const containerHeight = this.container.height + 8;
-        const containerWidth = 744;
-        const containerHeight = 776;
-
-        const normX = (x - X_MIN) * (containerWidth / (X_MAX - X_MIN));
-        const normY =
-            containerHeight - (y - Y_MIN) * (containerHeight / (Y_MAX - Y_MIN));
-
-        return [normX, normY];
+        this.dot!.x = x;
+        this.dot!.y = y;
+        this.dot!.angle = -yaw; // * (Math.PI / 180);
     }
 
     private async createPlayerIconTexture(svgUrl: string): Promise<Texture> {
