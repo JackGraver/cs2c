@@ -12,6 +12,7 @@ export class TextureManager {
         ct: "/map/ct.svg",
         t: "/map/t.svg",
         dead: "/map/dead.svg",
+        grenade: "/map/grenade.svg",
     };
 
     private constructor() {

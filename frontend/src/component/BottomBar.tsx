@@ -13,7 +13,6 @@ type BottomBarProps = {
     togglePlay: (isSlider: boolean) => void;
     speed: number;
     changeSpeed: () => void;
-    setSelectedRound: (round: number) => void;
 };
 
 export function BottomBar({
@@ -29,7 +28,7 @@ export function BottomBar({
 }: BottomBarProps) {
     const handleSliderMouseDown = () => {
         if (isPlaying && togglePlay) {
-            togglePlay(true);
+            togglePlay();
         }
     };
 
@@ -37,7 +36,7 @@ export function BottomBar({
         if (!isPlaying) return;
 
         if (!isPlaying && togglePlay) {
-            togglePlay(true);
+            togglePlay();
         }
     };
 
@@ -62,7 +61,7 @@ export function BottomBar({
                 </span>
                 <button
                     onClick={() => {
-                        togglePlay(false);
+                        togglePlay();
                     }}
                     className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded text-white"
                 >
