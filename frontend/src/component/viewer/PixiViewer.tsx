@@ -5,12 +5,14 @@ import { TickData } from "../../lib/viewer/types/tick_data";
 type PixiViewerProps = {
     currentTick: TickData;
     previousTick: TickData | undefined;
+    speed: number;
     map: string;
 };
 
 export function PixiViewer({
     currentTick,
     previousTick,
+    speed,
     map,
 }: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -39,20 +41,6 @@ export function PixiViewer({
         };
     }, []);
 
-    // useEffect(() => {
-    //     if (!currentTick || !mapViewerRef.current) return;
-
-    //     if (previousTick) {
-    //         mapViewerRef.current.interpolateAndRenderPlayers(
-    //             currentTick,
-    //             previousTick
-    //         );
-    //     } else {
-    //         mapViewerRef.current.createPlayers(currentTick);
-    //         mapViewerRef.current.drawFrame(currentTick);
-    //     }
-    // }, [currentTick, previousTick]);
-
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
 
@@ -69,7 +57,7 @@ export function PixiViewer({
         // Interpolated animation from previousTick to currentTick
         let animationFrame: number;
         const startTime = performance.now();
-        const duration = 600; // ms
+        const duration = 300 / speed; // ms
 
         const animate = (now: number) => {
             const elapsed = now - startTime;
@@ -96,19 +84,5 @@ export function PixiViewer({
             ref={containerRef}
             style={{ width: "1024px", height: "768px", position: "relative" }}
         />
-        // <div
-        //     ref={containerRef}
-        //     style={{
-        //         width: "1024px",
-        //         height: "768px",
-        //         position: "relative",
-        //         backgroundImage: 'url("/maps/de_inferno.png")',
-        //         backgroundSize: "contain", // or "cover" if you want it to fill & crop
-        //         backgroundRepeat: "no-repeat",
-        //         backgroundPosition: "center",
-        //     }}
-        // >
-        //     {/* Your content or overlay (like canvas or PixiJS) can go here */}
-        // </div>
     );
 }

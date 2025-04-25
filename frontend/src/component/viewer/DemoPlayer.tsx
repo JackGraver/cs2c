@@ -6,6 +6,7 @@ type DemoPlayerProps = {
     currentTick: TickData;
     previousTick: TickData | undefined;
     isPlaying: boolean;
+    speed: number;
     onAdvanceTick: () => void;
     map: string;
 };
@@ -14,6 +15,7 @@ export function DemoPlayer({
     currentTick,
     isPlaying,
     previousTick,
+    speed,
     onAdvanceTick,
     map,
 }: DemoPlayerProps) {
@@ -22,7 +24,7 @@ export function DemoPlayer({
 
         const id = setInterval(() => {
             onAdvanceTick();
-        }, 600);
+        }, 300 / speed);
 
         return () => clearInterval(id);
     }, [isPlaying, onAdvanceTick]);
@@ -37,6 +39,7 @@ export function DemoPlayer({
             {/* Pixi viewer */}
             <PixiViewer
                 currentTick={currentTick}
+                speed={speed}
                 previousTick={previousTick}
                 map={map}
             />
