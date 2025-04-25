@@ -48,8 +48,22 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         demo_dir = os.path.join(output_dir, demo_id)
         os.makedirs(demo_dir, exist_ok=True)  # Create it if it doesn't exist
 
+        timeout_ticks = game_times.filter(pl.col('is_ct_timeout') == True).filter(pl.col("is_ct_timeout")).select("tick")
+ 
+        round_info = dem.rounds['round_num', 'start', 'freeze_end', 'winner']
+
+        df_info = round_info.with_columns([
+            pl.struct(["start", "freeze_end"]).map_elements(
+                lambda r: any(
+                    (r["start"] <= t) and (t <= r["freeze_end"])
+                    for t in timeout_ticks["tick"].to_list()
+                ),
+                return_dtype=pl.Boolean
+            ).alias("had_timeout")
+        ])
+
         # Save round info
-        df_info = pl.DataFrame(dem.rounds['round_num', 'winner'])
+        # df_info = pl.DataFrame(dem.rounds['round_num', 'winner'])
         info_path = os.path.join(demo_dir, "r_info.parquet")
         df_info.write_parquet(info_path)
 
