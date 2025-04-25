@@ -119,6 +119,7 @@ export class MapViewer {
                 Y: p.Y,
                 name: p.name,
                 side: p.side as "ct" | "t",
+                team_name: p.team_name,
                 health: Number(p.health),
                 yaw: p.yaw,
                 defuser: false,
@@ -130,6 +131,7 @@ export class MapViewer {
             };
 
             this.root.addChild(playerDot.dot!);
+            this.root.addChild(playerDot.nameText!);
         }
     }
 

@@ -1,5 +1,4 @@
 import { Sprite, Text, TextStyle, Texture } from "pixi.js";
-import { TextureManager } from "../TextureManager";
 
 export class PlayerDot {
     dot: Sprite | undefined;
@@ -43,31 +42,31 @@ export class PlayerDot {
 
         this.dot.position.set(this.x, this.y);
 
-        this.dot.rotation = this.yaw; //this.yaw * (Math.PI / 180); // Convert yaw to radians
+        this.dot.rotation = this.yaw; //this.yaw * (Math.PI / 180); // Convert yaw to radians\
 
-        // this.dot.fill(0xffffff); // Fill color for your graphic (white here)
+        const strokeColour = this.side === "ct" ? "#008CFF" : "#FF7700";
 
-        // this.dot.addChild(tigerSvg);
-        // this.dot.context = tigerSvg;
+        const style = new TextStyle({
+            fontSize: 10,
+            fill: "#ffffff",
+            stroke: { color: strokeColour, width: 5, join: "round" },
+        });
 
-        // this.dot.pivot.set(tigerSvg.width / 2, tigerSvg.height / 2);
-
-        // this.dot.position.set(this.x, this.y);
+        this.nameText = new Text({ text: this.name, style: style });
+        this.nameText.position.set(
+            this.x - this.nameText!.width / 2,
+            this.y - 30
+        );
     }
 
     // Update the position of the circle and the name
     public updatePosition(x: number, y: number, yaw: number) {
         this.dot!.x = x;
         this.dot!.y = y;
+
+        this.nameText!.x = x - this.nameText!.width / 2;
+        this.nameText!.y = y - 30;
+
         this.dot!.angle = -yaw; // * (Math.PI / 180);
-    }
-
-    private async createPlayerIconTexture(svgUrl: string): Promise<Texture> {
-        const img = new Image();
-        img.src = svgUrl;
-        await img.decode(); // Wait for it to load
-
-        const baseTexture = Texture.from(img);
-        return baseTexture;
     }
 }
