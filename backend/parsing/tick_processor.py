@@ -42,6 +42,11 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         (pl.col("round_num") == round_num) & (pl.col("tick").is_in(tick_list))
     ).group_by("tick", maintain_order=True).all()
 
+    steamid_to_team = {
+        row["steamid"]: row["team_clan_name"]
+        for row in game_times.to_dicts()
+    }
+
     grouped_dict = player_ticks.to_dict(as_series=False)
     grouped_dict = {
         tick: {
@@ -51,7 +56,10 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             "health": grouped_dict["health"][i],
             "name": grouped_dict["name"][i],
             "yaw": grouped_dict["yaw"][i],
-            "inventory": grouped_dict.get("inventory", [])[i]
+            "inventory": grouped_dict.get("inventory", [])[i],
+            "team_clan_name": [
+                steamid_to_team.get(sid) for sid in grouped_dict["steamid"][i]
+            ]
         }
         for i, tick in enumerate(grouped_dict["tick"])
     }
@@ -69,8 +77,9 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     tick_data_list = []
 
     for tick in tick_list:
+
         player_row = grouped_dict.get(tick, {
-            "name": [], "X": [], "Y": [], "side": [], "health": [], "yaw": [], "inventory": []
+            "name": [], "X": [], "Y": [], "side": [], "team_clan_name": [], "health": [], "yaw": [], "inventory": []
         })
 
         players = []
@@ -83,6 +92,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "side": player_row["side"][i],
                 "health": player_row["health"][i],
                 "yaw": player_row["yaw"][i],
+                "team_name": player_row['team_clan_name'][i],
                 **inv
             })
 

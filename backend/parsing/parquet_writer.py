@@ -66,7 +66,7 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         # df_info = pl.DataFrame(dem.rounds['round_num', 'winner'])
         info_path = os.path.join(demo_dir, "r_info.parquet")
         df_info.write_parquet(info_path)
-
+        
         # Save tick data per round
         num_rounds = int(dem.rounds['round_num'].max())
         for round_num in range(1, num_rounds + 1):
@@ -75,7 +75,7 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
                 df_round = pl.DataFrame(round_data)
                 round_path = os.path.join(demo_dir, f"r_{round_num}.parquet")
                 df_round.write_parquet(round_path)
-
+                
         return True
 
     except Exception as e:

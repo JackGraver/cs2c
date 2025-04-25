@@ -12,11 +12,11 @@ export function Team({ players }: PlayersProps) {
                 {players.length > 0 &&
                     (players[0].side === "t" ? (
                         <h2 className="text-center text-orange-500 font-bold mb-2">
-                            Terrorists
+                            {players[0].team_name}
                         </h2>
                     ) : (
                         <h2 className="text-center text-blue-500 font-bold mb-2">
-                            Counter-Terrorists
+                            {players[0].team_name}
                         </h2>
                     ))}
 

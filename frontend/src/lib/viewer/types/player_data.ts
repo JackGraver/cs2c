@@ -14,6 +14,7 @@ export type Player = {
     primary: string;
     secondary: string;
     grenades: string[];
+    team_name: string;
 };
 
 // 'name': 'Spinx',
