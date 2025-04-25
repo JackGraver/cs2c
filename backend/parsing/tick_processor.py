@@ -69,6 +69,11 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     active_grenades = dem.grenades.filter(
         (pl.col("round_num") == round_num) & pl.col("X").is_not_null() & pl.col("tick").is_in(tick_list)
     ).to_pandas()
+    
+    not_weapons = ['knife', 'flashbang', 'smokegrenade']
+    r1_shots = dem.events['weapon_fire']['tick', 'user_X', 'user_Y', 'user_yaw', 'weapon'].filter(pl.col('tick') < end_tick).filter(~pl.col('weapon').str.contains("|".join(not_weapons)))
+    r1_shots = r1_shots.with_columns(pl.arange(1, r1_shots.height + 1).alias('shot_id'))
+    r1_shots = r1_shots.to_pandas()
 
     grenade_by_tick = active_grenades.groupby("tick")[["thrower", "grenade_type", "X", "Y", "entity_id"]].apply(
         lambda x: x.to_dict("records")
@@ -99,6 +104,8 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         active_smokes = r1_smokes.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick", "entity_id"]].to_dict("records")
         active_molly = r1_molly.query(f"{tick} >= start_tick and {tick} <= end_tick")[["X", "Y", "start_tick", "end_tick", "entity_id"]].to_dict("records")
         airborne_grenades = grenade_by_tick.get(tick, [])
+        
+        shots = r1_shots.query(f"{tick - 8} <= tick and {tick + 8} >= tick").to_dict("records")
 
         tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
         round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
@@ -112,7 +119,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             "activeSmokes": active_smokes,
             "activeMolly": active_molly,
             "activeGrenades": airborne_grenades,
-            "shots": []
+            "shots": shots
         })
 
     return tick_data_list

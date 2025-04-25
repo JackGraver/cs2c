@@ -4,6 +4,7 @@ export enum GrenadeType {
     Flashbang = "CFlashbangProjectile",
     Smoke = "CSmokeGrenadeProjectile",
     HE = "CHEGrenadeProjectile",
+    Shot = "shot",
 }
 
 export type InAirGrenade = {

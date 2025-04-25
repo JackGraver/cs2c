@@ -25,6 +25,7 @@ export class MapViewer {
     private players: Record<string, Player> = {};
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
+    private activeShots: Record<number, boolean> = {};
 
     private textureManager: TextureManager;
 
@@ -171,11 +172,13 @@ export class MapViewer {
 
             const [x, y] = this.transformCoordinates(interpX, interpY);
 
-            const sprite = this.players[player.name].display.dot;
+            const sprite = this.players[player.name].display;
 
             if (sprite) {
                 if (player.health === 0) {
-                    sprite.texture = this.textureManager.getTexture("dead")!;
+                    sprite.dot!.texture =
+                        this.textureManager.getTexture("dead")!;
+                    sprite.nameText!.visible = false;
                 }
 
                 sprite.x = x;
@@ -188,6 +191,30 @@ export class MapViewer {
                 );
             }
         }
+
+        for (const shot of currentTick.shots) {
+            if (!this.activeShots[shot.shot_id]) {
+                console.log("rendering shot", shot.shot_id);
+                this.activeShots[shot.shot_id] = true;
+                let [x, y] = this.transformCoordinates(
+                    shot.user_X,
+                    shot.user_Y
+                );
+                const yawInRadians = (shot.user_yaw * Math.PI) / 180; // Convert to radians
+                console.log(yawInRadians, shot.user_yaw);
+                // Calculate the direction vector
+                const directionX = Math.cos(yawInRadians); // x-component of the direction
+                const directionY = Math.sin(yawInRadians); // y-component of the direction
+
+                console.log(directionX, directionY);
+
+                x += directionX * 15; // Move 5 units in front of the player in the x direction
+                y += -directionY * 15; // Move 5 units in front of the player in the y direction
+                // console.log("shot", x, y);
+                this.triggerGrenadeEffect(x, y, GrenadeType.Shot);
+            }
+        }
+
         // === DRAW ACTIVE SMOKES ===
         for (const smoke of currentTick.activeSmokes) {
             const prev = previousTick.activeSmokes.find(
@@ -363,17 +390,21 @@ export class MapViewer {
     ) {
         let color: number;
         let alpha: number = 0.8;
+        let size: number = 25;
 
         if (type === GrenadeType.Flashbang) {
             color = 0xffffff; // white
         } else if (type === GrenadeType.HE) {
             color = 0xff4500; // reddish-orange (you can tweak this)
+        } else if (type === GrenadeType.Shot) {
+            color = color = 0xffffff;
+            size = 15;
         } else {
             color = 0xffffff; // fallback/default color
             alpha = 0;
         }
 
-        const effect = new Graphics().circle(0, 0, 25).fill({ color, alpha });
+        const effect = new Graphics().circle(0, 0, size).fill({ color, alpha });
 
         effect.position.set(x, y);
         effect.zIndex = 150;

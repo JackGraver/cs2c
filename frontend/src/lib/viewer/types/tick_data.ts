@@ -16,9 +16,11 @@ export type TickData = {
     activeGrenades: InAirGrenade[];
 
     shots: {
-        id: string;
-        x: number;
-        y: number;
+        tick: number;
+        shot_id: number;
+        user_X: number;
+        user_Y: number;
+        user_yaw: number;
         weapon: string;
     }[];
 };
