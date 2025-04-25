@@ -30,8 +30,6 @@ const Viewer = () => {
     const [selectedRound, setSelectedRound] = useState<number>(1);
     const [isPlaying, setIsPlaying] = useState(true);
 
-    const [sliderChange, setSliderChange] = useState(false);
-
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
@@ -53,7 +51,7 @@ const Viewer = () => {
                 );
                 const data = await res.json();
                 if (data.data) {
-                    console.log("d", data.data);
+                    console.log(data.data);
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                 }
@@ -90,20 +88,14 @@ const Viewer = () => {
         if (currentTickIndex >= tickData.length) {
             setSelectedRound(selectedRound + 1);
             setCurrentTickIndex(0);
-            setSliderChange(false);
         }
     }, [currentTickIndex]);
 
     const sliderChangeTick = (tick: number) => {
-        setSliderChange(true);
         setCurrentTickIndex(tick);
     };
 
-    const togglePlay = (isSlider: boolean) => {
-        if (isSlider) {
-            setSliderChange(false);
-            setCurrentTickIndex((prev) => prev + 1);
-        }
+    const togglePlay = () => {
         if (!isPlaying) {
             setCurrentTickIndex((prev) => prev + 1);
         }
@@ -157,8 +149,6 @@ const Viewer = () => {
                         currentTick={tickData[currentTickIndex]}
                         previousTick={
                             currentTickIndex === 0
-                                ? undefined
-                                : sliderChange
                                 ? undefined
                                 : tickData[currentTickIndex - 1]
                         }

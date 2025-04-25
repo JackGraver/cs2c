@@ -22,7 +22,7 @@ export function DemoPlayer({
 
         const id = setInterval(() => {
             onAdvanceTick();
-        }, 600);
+        }, 300);
 
         return () => clearInterval(id);
     }, [isPlaying, onAdvanceTick]);

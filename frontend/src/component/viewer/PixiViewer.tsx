@@ -61,7 +61,9 @@ export function PixiViewer({
             mapViewerRef.current.createPlayers(currentTick);
             mapViewerRef.current.drawFrame(currentTick);
             return;
+            // new round or ???
         } else if (!previousTick && mapViewerRef.current.hasPlayers()) {
+            mapViewerRef.current.reDrawPlayers();
             mapViewerRef.current.drawFrame(currentTick);
             return;
         }
@@ -69,7 +71,7 @@ export function PixiViewer({
         // Interpolated animation from previousTick to currentTick
         let animationFrame: number;
         const startTime = performance.now();
-        const duration = 600; // ms
+        const duration = 300; // ms
 
         const animate = (now: number) => {
             const elapsed = now - startTime;
