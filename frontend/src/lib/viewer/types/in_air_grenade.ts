@@ -1,12 +1,16 @@
-enum GrenadeType {
-    Flashbang = "CFlashBangProjetile",
+import { InAirGrenadeDot } from "../models/air_grenadedot";
+
+export enum GrenadeType {
+    Flashbang = "CFlashbangProjectile",
     Smoke = "CSmokeGrenadeProjectile",
+    HE = "CHEGrenadeProjectile",
 }
 
 export type InAirGrenade = {
+    display: InAirGrenadeDot;
     X: number;
     Y: number;
     entity_id: number;
-    type: GrenadeType;
+    grenade_type: GrenadeType;
     thrower: string;
 };

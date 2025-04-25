@@ -3,22 +3,22 @@ import { Player } from "./player_data";
 import { SmokeMolly } from "./smoke_molly_data";
 
 export type TickData = {
-  tick: number;
+    tick: number;
 
-  time: string;
+    time: string;
 
-  players: Player[];
+    players: Player[];
 
-  activeSmokes: SmokeMolly[];
+    activeSmokes: SmokeMolly[];
 
-  activeMolly: SmokeMolly[];
+    activeMolly: SmokeMolly[];
 
-  activeGrenades: InAirGrenade[];
+    activeGrenades: InAirGrenade[];
 
-  shots: {
-    id: string;
-    x: number;
-    y: number;
-    weapon: string;
-  }[];
+    shots: {
+        id: string;
+        x: number;
+        y: number;
+        weapon: string;
+    }[];
 };

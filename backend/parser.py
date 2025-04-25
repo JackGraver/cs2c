@@ -189,7 +189,7 @@ class Parser:
     def parse_demo_round(self, dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
         round_info = dem.rounds.filter(pl.col("round_num") == round_num)
         start_tick = round_info[0, "freeze_end"]
-        end_tick = round_info[0, "end"]
+        end_tick = round_info[0, "official_end"]
         tick_list = list(range(start_tick, end_tick + 1, 16))
 
         player_ticks = dem.ticks.filter(
