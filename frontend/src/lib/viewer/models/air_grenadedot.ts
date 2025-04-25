@@ -1,5 +1,5 @@
 import { Sprite, Texture } from "pixi.js";
-import { GrenadeType, InAirGrenade } from "../types/in_air_grenade";
+import { GrenadeType } from "../types/in_air_grenade";
 
 export class InAirGrenadeDot {
     dot: Sprite | undefined;
