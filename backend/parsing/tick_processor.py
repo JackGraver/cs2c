@@ -36,7 +36,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     round_info = dem.rounds.filter(pl.col("round_num") == round_num)
     start_tick = round_info[0, "freeze_end"]
     end_tick = round_info[0, "end"]
-    tick_list = list(range(start_tick, end_tick + 1, 32))
+    tick_list = list(range(start_tick, end_tick + 1, 16))
 
     player_ticks = dem.ticks.filter(
         (pl.col("round_num") == round_num) & (pl.col("tick").is_in(tick_list))

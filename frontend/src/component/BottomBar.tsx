@@ -11,9 +11,10 @@ type BottomBarProps = {
     totalTicks: number;
     isPlaying: boolean;
     onTickChange: (tickIndex: number) => void;
-    togglePlay: (isSlider: boolean) => void;
+    togglePlay: () => void;
     speed: number;
     changeSpeed: () => void;
+    setSelectedRound: (round: number) => void;
 };
 
 export function BottomBar({

@@ -16,6 +16,7 @@ type RoundInfo = {
     round_num: number;
     winner: "t" | "ct";
     loaded?: boolean;
+    had_timeout: boolean;
 };
 
 const Viewer = () => {
@@ -32,8 +33,6 @@ const Viewer = () => {
 
     const speedValues = [0.5, 1, 1.5, 2, 4];
     const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
-
-    const [sliderChange, setSliderChange] = useState(false);
 
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
