@@ -10,8 +10,8 @@ const mapData: Record<string, MapInfo> = {
     de_inferno: {
         name: "de_inferno",
         imagePath: "/maps/de_inferno.png",
-        X_MIN: -1730,
-        X_MAX: 2250,
+        X_MIN: -1780,
+        X_MAX: 2700,
         Y_MIN: -760,
         Y_MAX: 3593,
     }, // X 2260 -1730 Y 3593 760
