@@ -2,6 +2,7 @@ type RoundInfo = {
     round_num: number;
     winner: "t" | "ct";
     loaded?: boolean;
+    had_timeout: boolean;
 };
 
 type BottomBarProps = {

@@ -61,6 +61,7 @@ const Viewer = () => {
                     setTickData(data.data);
                 }
                 if (data.rounds) {
+                    console.log(data.rounds);
                     setRoundData((prev) => {
                         if (prev.length === 0 && data.rounds) {
                             return data.rounds.map((r: RoundInfo) =>
