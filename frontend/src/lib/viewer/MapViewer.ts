@@ -1,4 +1,4 @@
-import { Application, Container, Sprite, Assets, Graphics } from "pixi.js";
+import { Application, Container, Sprite, Assets } from "pixi.js";
 
 import { TextureManager } from "./TextureManager";
 import { getMapInfo, MapInfo } from "./MapData";
@@ -20,8 +20,8 @@ export class MapViewer {
 
     private mapInfo: MapInfo;
 
-    private mapWidth: number;
-    private mapHeight: number;
+    private mapWidth: number = 0;
+    private mapHeight: number = 0;
 
     constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
@@ -35,12 +35,14 @@ export class MapViewer {
         this.tempLayer.zIndex = 200;
         this.tempLayer.sortableChildren = true;
 
-        this.textureManager = TextureManager.getInstance();
-
         this.mapInfo = getMapInfo(map);
+
+        this.textureManager = TextureManager.getInstance();
     }
 
     async init() {
+        await this.textureManager.whenReady();
+
         await this.app.init({
             width: 1024,
             height: 768,
@@ -53,66 +55,29 @@ export class MapViewer {
 
         this.root.addChild(this.tempLayer);
 
-        await this.textureManager.createTextures(
-            this.app.renderer,
-            ["t", "ct", "dead", "smoke"],
-            [0xff0000, 0x0000ff, 0xd3d3d3, 0xffc0cb]
-        );
-
         await this.drawMap();
     }
 
     private async drawMap() {
-        // const texture = await Assets.load("/de_inferno.png");
         const texture = await Assets.load(this.mapInfo.imagePath);
         const sprite = new Sprite(texture);
 
-        // Get container size (could be dynamic if container resizes)
         const containerWidth = this.container.offsetWidth;
         const containerHeight = this.container.offsetHeight;
 
-        // Calculate the scale factor based on the container dimensions
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
-        // Use the smaller scale factor to maintain aspect ratio
         const scale = Math.min(scaleX, scaleY);
-        // const scale = (scaleX + scaleY) / 2 - 0.03;
 
-        // Apply scaling to the sprite
         sprite.scale.set(scale);
         this.mapWidth = sprite.width;
         this.mapHeight = sprite.height;
 
-        // Position the sprite in the center of the container
         sprite.anchor.set(0.5);
         sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
 
-        const g = new Graphics();
-        g.circle(0, 0, 8);
-        g.fill({ color: 0xa9f920 });
-
-        // const [x, y] = this.transformCoordinates(-1675, 351);
-        // const [x, y] = this.transformCoordinates(0, 0);
-        // console.log("test 1 (t) [170, 545]", x, y);
-        // g.position.set(x, y);
-        // // g.position.set(170, 545);
-        // g.zIndex = 500;
-        // this.root.addChild(g);
-
-        // const g2 = new Graphics();
-        // g2.circle(0, 0, 8);
-        // g2.fill({ color: 0xffffff });
-
-        // const [x2, y2] = this.transformCoordinates(2473, 2005);
-        // console.log("test 2 (ct) [850, 270]", x2, y2);
-        // g2.position.set(x2, y2);
-        // // g2.position.set(850, 270);
-        // g2.zIndex = 500;
-        // this.root.addChild(g2);
-
-        // Ensure the sprite is at the lowest layer
         sprite.zIndex = 0;
 
         this.root.addChild(sprite);
@@ -134,7 +99,9 @@ export class MapViewer {
                 playerSide
             );
 
-            playerDot.dot.zIndex = 120;
+            await playerDot.init(this.textureManager.getTexture(playerSide)!);
+
+            playerDot.dot!.zIndex = 120;
 
             this.players[playerName] = {
                 display: playerDot,
@@ -152,7 +119,7 @@ export class MapViewer {
                 grenades: p.grenades,
             };
 
-            this.root.addChild(playerDot.dot);
+            this.root.addChild(playerDot.dot!);
         }
     }
 
@@ -160,44 +127,13 @@ export class MapViewer {
         return Object.keys(this.players).length !== 0;
     }
 
-    public async interpolateAndRenderPlayers(
-        currentTick: TickData,
-        previousTick: TickData
-    ) {
-        currentTick.players.forEach((player) => {
-            const prevPlayer = previousTick.players.find(
-                (p) => p.name === player.name
-            );
-            if (!prevPlayer) return;
+    private interpolateAngle(a: number, b: number, t: number): number {
+        let diff = b - a;
 
-            const deltaX = player.X - prevPlayer.X;
-            const deltaY = player.Y - prevPlayer.Y;
+        while (diff > 180) diff -= 360;
+        while (diff < -180) diff += 360;
 
-            // Interpolated position
-            const interpolatedX = prevPlayer.X + deltaX * 0.5;
-            const interpolatedY = prevPlayer.Y + deltaY * 0.5;
-
-            // Transform to canvas coordinates
-            const [x, y] = this.transformCoordinates(
-                interpolatedX,
-                interpolatedY
-            );
-
-            const playerSprite = this.players[player.name].display.dot;
-
-            if (player.health === 0) {
-                playerSprite.texture = this.textureManager.getTexture("dead")!;
-            } else {
-                playerSprite.texture = this.textureManager.getTexture(
-                    player.side
-                )!;
-            }
-
-            if (playerSprite) {
-                playerSprite.x = x;
-                playerSprite.y = y;
-            }
-        });
+        return a + diff * t;
     }
 
     public renderInterpolatedFrame(
@@ -213,7 +149,7 @@ export class MapViewer {
 
             const interpX = prev.X + (player.X - prev.X) * t;
             const interpY = prev.Y + (player.Y - prev.Y) * t;
-            const interpYaw = prev.yaw + (player.yaw - prev.yaw) * t; // optional
+            const interpYaw = this.interpolateAngle(prev.yaw, player.yaw, t);
 
             const [x, y] = this.transformCoordinates(interpX, interpY);
 
@@ -222,10 +158,6 @@ export class MapViewer {
             if (sprite) {
                 if (player.health === 0) {
                     sprite.texture = this.textureManager.getTexture("dead")!;
-                } else {
-                    sprite.texture = this.textureManager.getTexture(
-                        player.side
-                    )!;
                 }
 
                 sprite.x = x;
@@ -278,47 +210,47 @@ export class MapViewer {
 
         // === DRAW FLASHES ===
 
-        for (const flash of currentTick.activeGrenades) {
-            const prev = previousTick.activeGrenades.find(
-                (f) => f.entity_id === flash.entity_id
-            );
+        // for (const flash of currentTick.activeGrenades) {
+        //     const prev = previousTick.activeGrenades.find(
+        //         (f) => f.entity_id === flash.entity_id
+        //     );
 
-            // Check if we have a corresponding previous state for interpolation
-            if (!prev) continue;
+        //     // Check if we have a corresponding previous state for interpolation
+        //     if (!prev) continue;
 
-            const interpX = prev.X + (flash.X - prev.X) * t;
-            const interpY = prev.Y + (flash.Y - prev.Y) * t;
+        //     const interpX = prev.X + (flash.X - prev.X) * t;
+        //     const interpY = prev.Y + (flash.Y - prev.Y) * t;
 
-            const [x, y] = this.transformCoordinates(interpX, interpY);
+        //     const [x, y] = this.transformCoordinates(interpX, interpY);
 
-            // Check if the sprite already exists in inAirGrenades
-            if (this.inAirGrenades[flash.entity_id]) {
-                const sprite = this.inAirGrenades[flash.entity_id];
-                // Update the sprite position
-                sprite.x = x;
-                sprite.y = y;
-            } else {
-                // If the sprite doesn't exist, create it
-                const sprite = new Sprite(this.textureManager.getTexture("t")); // Use the appropriate texture for your grenade
-                sprite.zIndex = 120;
-                sprite.position.set(x, y);
-                this.inAirGrenades[flash.entity_id] = sprite;
-                this.tempLayer.addChild(sprite);
-            }
-        }
+        //     // Check if the sprite already exists in inAirGrenades
+        //     if (this.inAirGrenades[flash.entity_id]) {
+        //         const sprite = this.inAirGrenades[flash.entity_id];
+        //         // Update the sprite position
+        //         sprite.x = x;
+        //         sprite.y = y;
+        //     } else {
+        //         // If the sprite doesn't exist, create it
+        //         const sprite = new Sprite(this.textureManager.getTexture("t")); // Use the appropriate texture for your grenade
+        //         sprite.zIndex = 120;
+        //         sprite.position.set(x, y);
+        //         this.inAirGrenades[flash.entity_id] = sprite;
+        //         this.tempLayer.addChild(sprite);
+        //     }
+        // }
 
-        // If there are grenades in inAirGrenades that are no longer in currentTick, remove them
-        for (const [id, sprite] of Object.entries(this.inAirGrenades)) {
-            const flash = currentTick.activeGrenades.find(
-                (f) => f.entity_id === Number(id)
-            );
+        // // If there are grenades in inAirGrenades that are no longer in currentTick, remove them
+        // for (const [id, sprite] of Object.entries(this.inAirGrenades)) {
+        //     const flash = currentTick.activeGrenades.find(
+        //         (f) => f.entity_id === Number(id)
+        //     );
 
-            if (!flash) {
-                // Remove the sprite if the grenade is no longer in the current tick
-                this.tempLayer.removeChild(sprite);
-                delete this.inAirGrenades[Number(id)];
-            }
-        }
+        //     if (!flash) {
+        //         // Remove the sprite if the grenade is no longer in the current tick
+        //         this.tempLayer.removeChild(sprite);
+        //         delete this.inAirGrenades[Number(id)];
+        //     }
+        // }
 
         // for (const flash of currentTick.activeGrenades) {
         //     const prev = previousTick.activeGrenades.find(
@@ -351,11 +283,11 @@ export class MapViewer {
 
             const playerGraphic = this.players[p.name].display.dot;
 
-            if (p.health === 0) {
-                playerGraphic.texture = this.textureManager.getTexture("dead")!;
-            } else {
-                playerGraphic.texture = this.textureManager.getTexture(p.side)!;
-            }
+            // if (p.health === 0) {
+            //     playerGraphic.texture = this.textureManager.getTexture("dead")!;
+            // } else {
+            //     playerGraphic.texture = this.textureManager.getTexture(p.side)!;
+            // }
 
             this.players[p.name].display.updatePosition(x, y, p.yaw);
             // this.players[p.name].display.updatePosition(newX, newY, p.yaw);

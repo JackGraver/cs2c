@@ -27,10 +27,6 @@ export function DemoPlayer({
         return () => clearInterval(id);
     }, [isPlaying, onAdvanceTick]);
 
-    if (previousTick === undefined) {
-        console.log("undefined pt", currentTick);
-    }
-
     return (
         <div className="relative w-full h-full">
             {/* Time display */}
