@@ -57,23 +57,22 @@ def remove_parsed_demo(demo_id: str) -> bool:
     try:
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
-
         # Check if the demo_id exists in the database
         cur.execute("SELECT COUNT(*) FROM demos WHERE demo_id = ?", (demo_id,))
         if cur.fetchone()[0] == 0:
             conn.close()
             return False  # Demo does not exist, so no need to delete
-
+        
         # Delete the demo from the database
         cur.execute("DELETE FROM demos WHERE demo_id = ?", (demo_id,))
         conn.commit()
-
+        
         # Check if the deletion was successful by verifying that the demo_id no longer exists
         cur.execute("SELECT COUNT(*) FROM demos WHERE demo_id = ?", (demo_id,))
         if cur.fetchone()[0] != 0:
             conn.close()
             return False  # Failed to delete demo
-
+        
         conn.close()
         return True  # Demo successfully deleted from the database
     except Exception as e:

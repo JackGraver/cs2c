@@ -92,7 +92,6 @@ def _delete_files(demo_id: str) -> bool:
     try:
         # Path to the demo subdirectory
         demo_dir = os.path.join(output_dir, demo_id)
-        
         # Delete the directory and all its contents if it exists
         if os.path.exists(demo_dir):
             shutil.rmtree(demo_dir)
@@ -100,7 +99,7 @@ def _delete_files(demo_id: str) -> bool:
             if os.path.exists(demo_dir):
                 return False  # Failed to delete
         else:
-            return False  # Directory doesn't exist
+            return True  # Directory doesn't exist
         
         # Optionally remove the original .dem file (if stored separately)
         demo_file_path = os.path.join(output_dir, f"{demo_id}.dem")
@@ -110,7 +109,7 @@ def _delete_files(demo_id: str) -> bool:
             if os.path.exists(demo_file_path):
                 return False  # Failed to delete .dem file
         else:
-            return False  # .dem file doesn't exist
+            return True  # .dem file doesn't exist
 
         return True  # All deletions were successful
     except Exception as e:

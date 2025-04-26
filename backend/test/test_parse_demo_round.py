@@ -1,7 +1,7 @@
 from awpy import Demo
-from tick_processor import parse_demo_round
+from parsing.tick_processor import parse_demo_round
 
-dem = Demo("liquid-vs-natus-vincere-m1-anubis.dem", verbose=False)
+dem = Demo("backend/other/liquid-vs-natus-vincere-m1-anubis.dem", verbose=False)
 dem.parse(player_props=["health", "armor_value", "yaw", "inventory"])
 game_times = dem.parse_ticks(other_props=["game_time", "team_clan_name", 'is_terrorist_timeout', 'is_ct_timeout'])   
 
