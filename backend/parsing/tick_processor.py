@@ -75,7 +75,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         he_detonates,
         left_on='entity_id',
         right_on='entityid',
-        how='left'
+        how='left'\
     )
         
     active_grenades = grenades_with_detonate.filter(
@@ -91,6 +91,9 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     r1_shots = dem.events['weapon_fire']['tick', 'user_X', 'user_Y', 'user_yaw', 'weapon'].filter(pl.col('tick') < end_tick).filter(~pl.col('weapon').str.contains("|".join(not_weapons)))
     r1_shots = r1_shots.with_columns(pl.arange(1, r1_shots.height + 1).alias('shot_id'))
     r1_shots = r1_shots.to_pandas()
+
+    r1_kills = dem.events['player_death']['tick', 'assistedflash', 'assister_name', 'assister_side', 'attacker_name', 'attacker_side', 'attackerblind', 'attackerinair', 'headshot', 'noscope', 'penetrated', 'thrusmoke', 'weapon', 'user_name', 'user_side']
+    r1_kills = r1_kills.filter(pl.col('tick').is_between(start_tick, end_tick)).to_pandas()
 
     grenade_by_tick = active_grenades.groupby("tick")[["thrower", "grenade_type", "X", "Y", "entity_id"]].apply(
         lambda x: x.to_dict("records")
@@ -124,19 +127,34 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         
         shots = r1_shots.query(f"{tick - 8} <= tick and {tick + 8} >= tick").to_dict("records")
 
+        kills = r1_kills[(r1_kills['tick'] >= tick - 8) & (r1_kills['tick'] <= tick + 8)].to_dict("records")
+
+        for kill in kills:
+            # If assister_name is None, replace it with 'N/A' or leave it as None
+            kill['assister_name'] = kill.get('assister_name') or 'N/A'
+            kill['assister_side'] = kill.get('assister_side') or 'N/A'
+            kill['attacker_name'] = kill.get('attacker_name') or 'N/A'
+            kill['attacker_side'] = kill.get('attacker_side') or 'N/A'
+
         tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
         round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
         time = 115 - (tick_game_time['game_time'] - round_start_game_time['game_time'])
         time = _format_clock(time[0])
 
-        tick_data_list.append({
-            "tick": tick,
-            "time": time,
-            "players": players,
-            "activeSmokes": active_smokes,
-            "activeMolly": active_molly,
-            "activeGrenades": airborne_grenades,
-            "shots": shots
-        })
+        try:
+            tick_data_list.append({
+                "tick": tick,
+                "time": time,
+                "players": players,
+                "activeSmokes": active_smokes,
+                "activeMolly": active_molly,
+                "activeGrenades": airborne_grenades,
+                "shots": shots,
+                "kills": kills
+            })
+        except Exception as e:
+            print(f"Error serializing at tick {tick}: {e}")
+            print(f"Kills: {kills}")
+            raise
 
     return tick_data_list

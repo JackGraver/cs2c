@@ -1,4 +1,5 @@
 import { InAirGrenade } from "./in_air_grenade";
+import { Kill } from "./kill";
 import { Player } from "./player_data";
 import { SmokeMolly } from "./smoke_molly_data";
 
@@ -23,4 +24,24 @@ export type TickData = {
         user_yaw: number;
         weapon: string;
     }[];
+
+    kills: Kill[];
+
+    // kills: {
+    //     tick: number;
+    //     assistedflash: boolean;
+    //     assister_name: string;
+    //     assister_side: string;
+    //     attacker_name: string;
+    //     attacker_side: string;
+    //     attackerblind: boolean;
+    //     attackerinair: boolean;
+    //     headshot: boolean;
+    //     noscope: boolean;
+    //     penetrated: boolean;
+    //     thrusmoke: boolean;
+    //     weapon: string;
+    //     user_name: string;
+    //     user_side: string;
+    // }[];
 };

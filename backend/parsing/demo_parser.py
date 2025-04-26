@@ -2,7 +2,6 @@ import uuid
 from awpy import Demo
 
 def parse_demo(file_path: bytes) -> str | None:
-    print('parsing demo', file_path)
     try:
         dem = Demo(file_path, verbose=False)
         dem.parse(player_props=["health", "armor_value", "yaw", "inventory"])

@@ -163,7 +163,7 @@ const Viewer = () => {
                 </div>
 
                 {/* Viewer */}
-                <div className="w-2/4 aspect-square bg-gray-800 flex items-center justify-center p-2 overflow-hidden">
+                <div className="w-2/4 aspect-square flex items-center justify-center p-2 overflow-hidden">
                     <DemoPlayer
                         currentTick={tickData[currentTickIndex]}
                         previousTick={

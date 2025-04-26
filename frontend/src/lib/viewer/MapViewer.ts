@@ -205,7 +205,7 @@ export class MapViewer {
                     shot.user_Y
                 );
                 const yawInRadians = (shot.user_yaw * Math.PI) / 180; // Convert to radians
-                console.log(yawInRadians, shot.user_yaw);
+
                 // Calculate the direction vector
                 const directionX = Math.cos(yawInRadians); // x-component of the direction
                 const directionY = Math.sin(yawInRadians); // y-component of the direction
