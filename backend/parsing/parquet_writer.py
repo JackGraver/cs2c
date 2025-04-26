@@ -61,6 +61,11 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
                 return_dtype=pl.Boolean
             ).alias("had_timeout")
         ])
+        
+        df_info = df_info.with_columns(
+            pl.col('round_num').cast(pl.Int16),
+            pl.col('winner').cast(pl.Categorical)
+        )
 
         # Save round info
         # df_info = pl.DataFrame(dem.rounds['round_num', 'winner'])
