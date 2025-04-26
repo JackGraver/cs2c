@@ -2,7 +2,7 @@ from typing import Any, Dict, List
 import polars as pl
 from awpy import Demo
 
-SECONDARIES = {"USP-S", "Glock", "P250", "Five-SeveN", "Dual Berettas", "Tec-9", "Desert Eagle"}
+SECONDARIES = {"USP-S", "Glock-18", "P250", "Five-SeveN", "Dual Berettas", "Tec-9", "Desert Eagle"}
 PRIMARIES = {"AK-47", "M4A1-S", "AWP", "FAMAS", "Galil AR"}
 GRENADES = {"Flashbang", "Smoke Grenade", "Molotov", "High Explosive Grenade", "Decoy", "Incendiary Grenade"}
 
@@ -66,8 +66,25 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
 
     r1_smokes = dem.smokes.filter(pl.col("round_num") == round_num).to_pandas()
     r1_molly = dem.infernos.filter(pl.col("round_num") == round_num).to_pandas()
-    active_grenades = dem.grenades.filter(
-        (pl.col("round_num") == round_num) & pl.col("X").is_not_null() & pl.col("tick").is_in(tick_list)
+    
+    he_detonates = dem.events['hegrenade_detonate'].select(['entityid', 'tick']).rename({'tick': 'detonate_tick'})
+    he_detonates = he_detonates.unique(subset=["entityid"])
+    grenades = dem.grenades.filter(pl.col("X").is_not_null())
+    
+    grenades_with_detonate = grenades.join(
+        he_detonates,
+        left_on='entity_id',
+        right_on='entityid',
+        how='left'
+    )
+        
+    active_grenades = grenades_with_detonate.filter(
+        (pl.col("round_num") == round_num) &
+        pl.col("X").is_not_null() &
+        pl.col("tick").is_in(tick_list) &
+        pl.when(pl.col("grenade_type") == "CHEGrenadeProjectile")
+        .then(pl.col("tick") < pl.col("detonate_tick"))
+        .otherwise(True)
     ).to_pandas()
     
     not_weapons = ['knife', 'flashbang', 'smokegrenade']

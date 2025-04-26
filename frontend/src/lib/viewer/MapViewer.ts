@@ -179,6 +179,11 @@ export class MapViewer {
                     sprite.dot!.texture =
                         this.textureManager.getTexture("dead")!;
                     sprite.nameText!.visible = false;
+                } else {
+                    sprite.dot!.texture = this.textureManager.getTexture(
+                        sprite.side
+                    )!;
+                    sprite.nameText!.visible = true;
                 }
 
                 sprite.x = x;
@@ -194,7 +199,6 @@ export class MapViewer {
 
         for (const shot of currentTick.shots) {
             if (!this.activeShots[shot.shot_id]) {
-                console.log("rendering shot", shot.shot_id);
                 this.activeShots[shot.shot_id] = true;
                 let [x, y] = this.transformCoordinates(
                     shot.user_X,
@@ -284,6 +288,7 @@ export class MapViewer {
 
         // === DRAW FLASHES ===
         for (const flash of currentTick.activeGrenades) {
+            console.log("inair", currentTick.tick);
             const prev = previousTick.activeGrenades.find(
                 (f) => f.entity_id === flash.entity_id
             );
@@ -306,21 +311,6 @@ export class MapViewer {
                 sprite.display.updatePosition(x, y);
             } else {
                 // If the sprite doesn't exist, create it
-                // const sprite = new Sprite(
-                //     this.textureManager.getTexture("grenade")
-                // ); // Use the appropriate texture for your grenade
-                // sprite.scale.set(0.5); // Scale if necessary
-
-                // const bounds = sprite.getLocalBounds();
-
-                // sprite.pivot.set(
-                //     (bounds.x + bounds.width) / 2,
-                //     (bounds.y + bounds.height) / 2
-                // );
-
-                // sprite.zIndex = 120;
-                // sprite.position.set(x, y);
-
                 const grenadeDot = new InAirGrenadeDot(
                     x,
                     y,
