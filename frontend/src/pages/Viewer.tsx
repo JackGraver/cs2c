@@ -23,12 +23,15 @@ const Viewer = () => {
     const [searchParams] = useSearchParams();
     const demoId = searchParams.get("demo_id");
     const map = searchParams.get("map");
+    const round = searchParams.get("round");
 
     const navigate = useNavigate();
 
     const [tickData, setTickData] = useState<TickData[]>([]);
     const [roundData, setRoundData] = useState<RoundInfo[]>([]);
-    const [selectedRound, setSelectedRound] = useState<number>(1);
+    const [selectedRound, setSelectedRound] = useState<number>(
+        round ? parseInt(round) : 1
+    );
     const [isPlaying, setIsPlaying] = useState(true);
 
     const speedValues = [0.5, 1, 1.5, 2, 4];
@@ -37,7 +40,7 @@ const Viewer = () => {
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
-
+    ``;
     const roundCache = useRef<Record<number, TickData[]>>({});
 
     useEffect(() => {
@@ -58,6 +61,9 @@ const Viewer = () => {
                     console.log(data.data);
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
+                    navigate(
+                        `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
+                    );
                 }
                 if (data.rounds) {
                     console.log(data.rounds);

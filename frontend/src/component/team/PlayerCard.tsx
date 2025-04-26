@@ -29,7 +29,12 @@ export function PlayerCard({ p, loading }: PlayerProps) {
             )}
 
             {/* Content */}
-            <div className="relative p-2 z-10">
+            <div
+                className="relative p-2 z-10"
+                onClick={() => {
+                    console.log("here?");
+                }}
+            >
                 <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                         <div className="flex items-center font-bold">

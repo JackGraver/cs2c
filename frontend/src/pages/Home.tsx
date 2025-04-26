@@ -49,7 +49,9 @@ export default function Home() {
             setLoading(false);
 
             if (res.ok && data.success) {
-                navigate(`/viewer?demo_id=${data.demo_id}&map=${data.map}`);
+                navigate(
+                    `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
+                );
             } else {
                 setError(data.message || "Failed to parse demo.");
             }
@@ -191,7 +193,7 @@ export default function Home() {
                                         <button
                                             onClick={() =>
                                                 navigate(
-                                                    `/viewer?demo_id=${demo.demo_id}&map=${demo.map_name}`
+                                                    `/viewer?demo_id=${demo.demo_id}&map=${demo.map_name}&round=1`
                                                 )
                                             }
                                             className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
