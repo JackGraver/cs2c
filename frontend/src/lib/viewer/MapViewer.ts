@@ -210,8 +210,6 @@ export class MapViewer {
                 const directionX = Math.cos(yawInRadians); // x-component of the direction
                 const directionY = Math.sin(yawInRadians); // y-component of the direction
 
-                console.log(directionX, directionY);
-
                 x += directionX * 15; // Move 5 units in front of the player in the x direction
                 y += -directionY * 15; // Move 5 units in front of the player in the y direction
                 // console.log("shot", x, y);
@@ -288,7 +286,6 @@ export class MapViewer {
 
         // === DRAW FLASHES ===
         for (const flash of currentTick.activeGrenades) {
-            console.log("inair", currentTick.tick);
             const prev = previousTick.activeGrenades.find(
                 (f) => f.entity_id === flash.entity_id
             );

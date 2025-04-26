@@ -1,3 +1,4 @@
+import asyncio
 import shutil
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -45,29 +46,38 @@ def get_round_data(demo_id: str, round_num: int):
 @app.post("/upload")
 async def upload_demo(file: UploadFile = File(...)):
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".dem", mode="wb") as tmp:
-            shutil.copyfileobj(file.file, tmp)
-            temp_path = tmp.name
+        temp_path = await asyncio.to_thread(save_temp_file, file)
 
-        demo_id, dem, game_times = parse_demo(temp_path)
-        if write_demo_rounds(dem, demo_id, game_times):
+        result = await asyncio.to_thread(process_demo, temp_path)
+        
+        if result:
+            demo_id, dem = result
             return JSONResponse(content={
                 "success": True,
                 "message": "Demo parsed successfully.",
-                "demo_id": demo_id
+                "demo_id": demo_id,
+                "map": dem.header['map_name']
             })
         else:
             return JSONResponse(status_code=400, content={
                 "success": False,
                 "message": "Failed to parse demo file."
             })
-            
+
     except Exception as e:
-        print(str(e))
-        return JSONResponse(status_code=500, content={
-            "success": False,
-            "message": f"Server error: {str(e)}"
-        })
+        return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
+        
+def save_temp_file(file: UploadFile) -> str:
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".dem", mode="wb") as tmp:
+        shutil.copyfileobj(file.file, tmp)
+        return tmp.name
+
+def process_demo(temp_path: str):
+    demo_id, dem, game_times = parse_demo(temp_path)
+    if write_demo_rounds(dem, demo_id, game_times):
+        return demo_id, dem
+    return None
+
 
 @app.delete("/delete/{demo_id}")
 def delete_demo(demo_id: str):
@@ -75,3 +85,5 @@ def delete_demo(demo_id: str):
         return {"message": f"Demo {demo_id} deleted successfully."}
     else:
         raise HTTPException(status_code=400, detail="Error Deleting Demo")
+    
+    

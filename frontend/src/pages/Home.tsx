@@ -49,7 +49,7 @@ export default function Home() {
             setLoading(false);
 
             if (res.ok && data.success) {
-                navigate(`/viewer?demo_id=${data.demo_id}&map=de_inferno`);
+                navigate(`/viewer?demo_id=${data.demo_id}&map=${data.map}`);
             } else {
                 setError(data.message || "Failed to parse demo.");
             }
