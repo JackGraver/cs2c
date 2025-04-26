@@ -100,7 +100,7 @@ export function BottomBar({
                             onClick={() => handleRoundClick(round.round_num)}
                             className={`px-4 py-2 rounded ${
                                 round.had_timeout
-                                    ? "text-white border-t-2 border-yellow-400"
+                                    ? "text-white border-t-2 border-green-400"
                                     : ""
                             }
                     ${
