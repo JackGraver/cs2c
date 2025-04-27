@@ -28,7 +28,6 @@ export class MapViewer {
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
-    private bombDrawn: boolean;
 
     private textureManager: TextureManager;
 

@@ -17,6 +17,8 @@ type RoundInfo = {
     winner: "t" | "ct";
     loaded?: boolean;
     had_timeout: boolean;
+    ct_wins_during_round: number;
+    t_wins_during_round: number;
 };
 
 const Viewer = () => {
@@ -46,6 +48,9 @@ const Viewer = () => {
     useEffect(() => {
         const fetchRounds = async () => {
             if (roundCache.current[selectedRound]) {
+                navigate(
+                    `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
+                );
                 setTickData(roundCache.current[selectedRound]);
                 setLoading(false);
                 return;
@@ -158,6 +163,10 @@ const Viewer = () => {
                                     (p) => p.side === "ct"
                                 ),
                             ]}
+                            score={
+                                roundData[selectedRound - 1]
+                                    .ct_wins_during_round
+                            }
                         />
                     )}
                 </div>
@@ -192,6 +201,9 @@ const Viewer = () => {
                                     (p) => p.side === "t"
                                 ),
                             ]}
+                            score={
+                                roundData[selectedRound - 1].t_wins_during_round
+                            }
                         />
                     )}
                 </div>
