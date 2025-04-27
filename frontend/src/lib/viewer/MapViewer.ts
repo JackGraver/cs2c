@@ -5,6 +5,7 @@ import {
     Assets,
     Graphics,
     Ticker,
+    // ColorMatrixFilter,
 } from "pixi.js";
 
 import { TextureManager } from "./TextureManager";
@@ -14,6 +15,7 @@ import { TickData } from "./types/tick_data";
 import { PlayerDot } from "./models/playerdot";
 import { GrenadeType, InAirGrenade } from "./types/in_air_grenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
+import { Zi } from "./zIndex";
 
 export class MapViewer {
     private container: HTMLDivElement;
@@ -43,7 +45,7 @@ export class MapViewer {
         this.tempLayer = new Container();
         this.tempLayer.position.set(0, 0);
         this.tempLayer.visible = true;
-        this.tempLayer.zIndex = 200;
+        this.tempLayer.zIndex = Zi.Grenade - 1;
         this.tempLayer.sortableChildren = true;
 
         this.mapInfo = getMapInfo(map);
@@ -89,7 +91,13 @@ export class MapViewer {
         sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
 
-        sprite.zIndex = 0;
+        // const colorMatrix = new ColorMatrixFilter();
+        // colorMatrix.greyscale(0.5, false); // 1 is full greyscale
+
+        // // Apply to sprite
+        // sprite.filters = [colorMatrix];
+
+        sprite.zIndex = Zi.Map;
 
         this.root.addChild(sprite);
     }
@@ -112,7 +120,8 @@ export class MapViewer {
 
             await playerDot.init(this.textureManager.getTexture(playerSide)!);
 
-            playerDot.dot!.zIndex = 120;
+            playerDot.dot!.zIndex = Zi.Player;
+            playerDot.nameText!.zIndex = Zi.PlayerName;
 
             this.players[playerName] = {
                 display: playerDot,
@@ -137,7 +146,7 @@ export class MapViewer {
     }
 
     async reDrawPlayers() {
-        Object.entries(this.players).forEach(([key, p]) => {
+        Object.entries(this.players).forEach(([, p]) => {
             p.display.dot!.texture = this.textureManager.getTexture(p.side)!;
         });
     }
@@ -160,6 +169,7 @@ export class MapViewer {
         previousTick: TickData,
         t: number
     ) {
+        // === UPDATE PLAYERS ===
         for (const player of currentTick.players) {
             const prev = previousTick.players.find(
                 (p) => p.name === player.name
@@ -174,29 +184,27 @@ export class MapViewer {
 
             const sprite = this.players[player.name].display;
 
+            const texture =
+                player.health === 0
+                    ? this.textureManager.getTexture("dead")!
+                    : this.textureManager.getTexture(sprite.side)!;
+
             if (sprite) {
                 if (player.health === 0) {
-                    sprite.dot!.texture =
-                        this.textureManager.getTexture("dead")!;
                     sprite.nameText!.visible = false;
+                    sprite.dot!.zIndex = Zi.DeadPlayer;
                 } else {
-                    sprite.dot!.texture = this.textureManager.getTexture(
-                        sprite.side
-                    )!;
                     sprite.nameText!.visible = true;
+                    sprite.dot!.zIndex = Zi.Player;
                 }
 
-                sprite.x = x;
-                sprite.y = y;
+                sprite.dot!.texture = texture;
 
-                this.players[player.name].display.updatePosition(
-                    x,
-                    y,
-                    interpYaw
-                );
+                sprite.updatePosition(x, y, interpYaw);
             }
         }
 
+        // === DRAW SHOTS ===
         for (const shot of currentTick.shots) {
             if (!this.activeShots[shot.shot_id]) {
                 this.activeShots[shot.shot_id] = true;
@@ -204,15 +212,14 @@ export class MapViewer {
                     shot.user_X,
                     shot.user_Y
                 );
-                const yawInRadians = (shot.user_yaw * Math.PI) / 180; // Convert to radians
+                const yawInRadians = (shot.user_yaw * Math.PI) / 180;
 
-                // Calculate the direction vector
-                const directionX = Math.cos(yawInRadians); // x-component of the direction
-                const directionY = Math.sin(yawInRadians); // y-component of the direction
+                const directionX = Math.cos(yawInRadians);
+                const directionY = Math.sin(yawInRadians);
 
-                x += directionX * 15; // Move 5 units in front of the player in the x direction
-                y += -directionY * 15; // Move 5 units in front of the player in the y direction
-                // console.log("shot", x, y);
+                x += directionX * 15;
+                y += -directionY * 15;
+
                 this.triggerGrenadeEffect(x, y, GrenadeType.Shot);
             }
         }
@@ -238,7 +245,7 @@ export class MapViewer {
                 g.circle(0, 0, 20);
                 g.fill({ color: 0x888888, alpha: 0.4 });
                 g.position.set(x, y);
-                g.zIndex = 50;
+                g.zIndex = Zi.Grenade;
 
                 this.tempLayer.addChild(g);
                 this.activeSmokes[smoke.entity_id] = g;
@@ -277,7 +284,7 @@ export class MapViewer {
                 g.circle(0, 0, 20);
                 g.fill({ color: 0xff4500, alpha: 0.4 });
                 g.position.set(x, y);
-                g.zIndex = 50;
+                g.zIndex = Zi.Grenade;
 
                 this.tempLayer.addChild(g);
                 this.activeSmokes[molly.entity_id] = g;
@@ -318,7 +325,7 @@ export class MapViewer {
                 await grenadeDot.init(
                     this.textureManager.getTexture("grenade")!
                 );
-                grenadeDot.dot!.zIndex = 121;
+                grenadeDot.dot!.zIndex = Zi.Grenade;
 
                 this.inAirGrenades[flash.entity_id] = {
                     display: grenadeDot,
@@ -351,23 +358,6 @@ export class MapViewer {
                 delete this.inAirGrenades[Number(id)];
             }
         }
-        // for (const flash of currentTick.activeGrenades) {
-        //     const prev = previousTick.activeGrenades.find(
-        //         (f) => f.id === flash.id
-        //     );
-        //     if (!prev) continue;
-
-        //     const interpX = prev.X + (flash.X - prev.X) * t;
-        //     const interpY = prev.Y + (flash.Y - prev.Y) * t;
-
-        //     const [x, y] = this.transformCoordinates(interpX, interpY);
-        //     const g = new Graphics();
-        //     g.rect(-5, -2, 10, 4);
-        //     g.fill({ color: 0xffff00, alpha: 0.9 });
-
-        //     g.position.set(x, y);
-        //     this.tempLayer.addChild(g);
-        // }
     }
 
     private triggerGrenadeEffect(
@@ -394,7 +384,7 @@ export class MapViewer {
         const effect = new Graphics().circle(0, 0, size).fill({ color, alpha });
 
         effect.position.set(x, y);
-        effect.zIndex = 150;
+        effect.zIndex = Zi.Grenade;
         this.tempLayer.addChild(effect);
 
         // Fade out and remove
@@ -426,7 +416,7 @@ export class MapViewer {
 
             if (!this.players[p.name]) continue;
 
-            const playerGraphic = this.players[p.name].display.dot;
+            // const playerGraphic = this.players[p.name].display.dot;
 
             // if (p.health === 0) {
             //     playerGraphic.texture = this.textureManager.getTexture("dead")!;
@@ -437,49 +427,7 @@ export class MapViewer {
             this.players[p.name].display.updatePosition(x, y, p.yaw);
             // this.players[p.name].display.updatePosition(newX, newY, p.yaw);
         }
-
-        // // === DRAW ACTIVE SMOKES ===
-        // for (const smoke of tick.activeSmokes) {
-        //     const [x, y] = this.transformCoordinates(smoke.X, smoke.Y);
-        //     const g = new Graphics();
-        //     g.circle(0, 0, 20);
-        //     g.fill({ color: 0x888888, alpha: 0.4 });
-
-        //     g.position.set(x, y);
-        //     this.tempLayer.addChild(g);
-        // }
-
-        // // // === DRAW ACTIVE MOLOTOVS ===
-        // for (const molly of tick.activeMolly) {
-        //     const [x, y] = this.transformCoordinates(molly.X, molly.Y);
-        //     const g = new Graphics();
-        //     g.circle(0, 0, 20);
-        //     g.fill({ color: 0xff4500, alpha: 0.5 });
-
-        //     g.position.set(x, y);
-        //     this.tempLayer.addChild(g);
-        // }
-
-        // // // === DRAW FLASHES ===
-        // for (const flash of tick.activeGrenades) {
-        //     const [x, y] = this.transformCoordinates(flash.X, flash.Y);
-        //     const g = new Graphics();
-        //     g.rect(-5, -2, 10, 4);
-        //     g.fill({ color: 0xffff00, alpha: 0.9 });
-
-        //     g.position.set(x, y);
-        //     this.tempLayer.addChild(g);
-        // }
     }
-
-    // 2473, 2005 - > 820, 270
-    // -1675, 351 -> 210, 520
-
-    // screenX = zoom_factor*cartX + screen_width/2
-    // screenY = screen_height/2 - zoom_factor*cartY
-
-    // screenx = (cartesianx + screenwidth / 2) / scalefactor;
-    // screeny = (-cartesiany + screenheight / 2) / scalefactor;
 
     private transformCoordinates(x: number, y: number) {
         const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
