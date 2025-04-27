@@ -31,6 +31,9 @@ def read_demo_round(demo_id: str, round: int):
             return []
 
         df = pl.read_parquet(file_path)
+        
+        print(df.filter(pl.col('bomb_plant') == [])['bomb_plant'])
+        
         return df.to_dicts()  # Converts to list of dictionaries
     except Exception as e:
         print(f"Error reading file: {e}")
@@ -121,4 +124,5 @@ def _delete_files(demo_id: str) -> bool:
         print(f"Error deleting files: {e}")
         return False
         
-        
+def cleanup_failed_upload():
+    print("FINISH THIS :D")

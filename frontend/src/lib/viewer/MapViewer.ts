@@ -28,6 +28,7 @@ export class MapViewer {
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
+    private bombDrawn: boolean;
 
     private textureManager: TextureManager;
 
@@ -202,6 +203,21 @@ export class MapViewer {
 
                 sprite.updatePosition(x, y, interpYaw);
             }
+        }
+
+        if (currentTick.bomb_plant.length !== 0) {
+            const bomb = currentTick.bomb_plant[0];
+            const [x, y] = this.transformCoordinates(bomb.user_X, bomb.user_Y);
+
+            let b = new Graphics();
+            b = new Graphics();
+            b.rect(0, 0, 10, 15);
+            b.fill({ color: 0xffbf00, alpha: 0.8 });
+            b.position.set(x, y);
+            b.zIndex = Zi.Grenade;
+
+            this.tempLayer.addChild(b);
+            // this.activeSmokes[smoke.entity_id] = g;
         }
 
         // === DRAW SHOTS ===

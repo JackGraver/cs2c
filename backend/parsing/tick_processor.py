@@ -38,6 +38,14 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     end_tick = round_info[0, "official_end"]
     tick_list = list(range(start_tick, end_tick + 1, 16))
 
+    bomb_plant = dem.events['bomb_planted']['tick', 'user_X', 'user_Y'].filter(
+        pl.col('tick').is_between(start_tick, end_tick)
+    )
+    if bomb_plant.height > 0:
+        bomb_plant_tick = bomb_plant[0, 'tick']
+    else:
+        bomb_plant_tick = -1
+
     player_ticks = dem.ticks.filter(
         (pl.col("round_num") == round_num) & (pl.col("tick").is_in(tick_list))
     ).group_by("tick", maintain_order=True).all()
@@ -75,7 +83,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         he_detonates,
         left_on='entity_id',
         right_on='entityid',
-        how='left'\
+        how='left'
     )
         
     active_grenades = grenades_with_detonate.filter(
@@ -138,8 +146,23 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
 
         tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
         round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
-        time = 115 - (tick_game_time['game_time'] - round_start_game_time['game_time'])
+
+        time = 0
+        if bomb_plant_tick != -1 and tick >= bomb_plant_tick:
+            # After bomb planted
+            bomb_tick_time = game_times.filter(pl.col('tick') == bomb_plant_tick)[0]
+            time = 40 - (tick_game_time['game_time'] - bomb_tick_time['game_time'])
+        else:
+            # Normal round clock
+            time = 115 - (tick_game_time['game_time'] - round_start_game_time['game_time'])
+            
         time = _format_clock(time[0])
+
+        if bomb_plant.height > 0 and abs(tick - bomb_plant_tick) <= 8:
+            first_bomb_plant = bomb_plant.to_pandas().to_dict('records')
+        else:
+            # Set a default empty dictionary if no bomb plant data
+            first_bomb_plant = []
 
         try:
             tick_data_list.append({
@@ -150,11 +173,11 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "activeMolly": active_molly,
                 "activeGrenades": airborne_grenades,
                 "shots": shots,
-                "kills": kills
+                "kills": kills,
+                "bomb_plant": first_bomb_plant
             })
         except Exception as e:
             print(f"Error serializing at tick {tick}: {e}")
-            print(f"Kills: {kills}")
             raise
 
     return tick_data_list
