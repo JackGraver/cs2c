@@ -59,6 +59,7 @@ async def upload_demo(file: UploadFile = File(...)):
                 "map": dem.header['map_name']
             })
         else:
+            cleanup_failed_upload()
             return JSONResponse(status_code=400, content={
                 "success": False,
                 "message": "Failed to parse demo file."

@@ -16,6 +16,7 @@ import { PlayerDot } from "./models/playerdot";
 import { GrenadeType, InAirGrenade } from "./types/in_air_grenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./zIndex";
+import { BombPlant } from "./types/bomb_plant";
 
 export class MapViewer {
     private container: HTMLDivElement;
@@ -28,6 +29,7 @@ export class MapViewer {
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
+    private bombPlant: BombPlant | null = null;
 
     private textureManager: TextureManager;
 
@@ -202,6 +204,38 @@ export class MapViewer {
 
                 sprite.updatePosition(x, y, interpYaw);
             }
+        }
+
+        // === Bomb ===
+        if (currentTick.bomb_plant.length !== 0) {
+            if (!this.bombPlant) {
+                const bomb = currentTick.bomb_plant[0];
+                const [x, y] = this.transformCoordinates(
+                    bomb.user_X,
+                    bomb.user_Y
+                );
+
+                let b = new Graphics();
+                b = new Graphics();
+                b.rect(0, 0, 10, 15);
+                b.fill({ color: 0xffbf00, alpha: 0.8 });
+                b.position.set(x, y);
+                b.zIndex = Zi.Grenade;
+
+                this.tempLayer.addChild(b);
+                this.bombPlant = {
+                    display: b,
+                    tick: bomb.tick,
+                    x: bomb.user_X,
+                    y: bomb.user_Y,
+                };
+                // this.activeSmokes[smoke.entity_id] = g;
+            }
+        }
+        if (this.bombPlant && currentTick.tick < this.bombPlant.tick) {
+            console.log("here?");
+            this.tempLayer.removeChild(this.bombPlant.display);
+            this.bombPlant = null;
         }
 
         // === DRAW SHOTS ===

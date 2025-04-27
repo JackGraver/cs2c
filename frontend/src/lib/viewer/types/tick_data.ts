@@ -6,6 +6,12 @@ import { SmokeMolly } from "./smoke_molly_data";
 export type TickData = {
     tick: number;
 
+    bomb_plant: {
+        tick: number;
+        user_X: number;
+        user_Y: number;
+    }[];
+
     time: string;
 
     players: Player[];

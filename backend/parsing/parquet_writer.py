@@ -31,6 +31,7 @@ def read_demo_round(demo_id: str, round: int):
             return []
 
         df = pl.read_parquet(file_path)
+        
         return df.to_dicts()  # Converts to list of dictionaries
     except Exception as e:
         print(f"Error reading file: {e}")
@@ -61,6 +62,31 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
                 return_dtype=pl.Boolean
             ).alias("had_timeout")
         ])
+        
+        df = (dem.rounds['round_num', 'winner'].with_columns([
+                pl.when(pl.col("winner") == "ct").then(1).otherwise(0).alias("ct_wins"),
+                pl.when(pl.col("winner") == "t").then(1).otherwise(0).alias("t_wins")
+            ])
+            .with_columns([
+                pl.col("ct_wins").cum_sum().alias("ct_wins_cumsum"),
+                pl.col("t_wins").cum_sum().alias("t_wins_cumsum")
+            ])
+        )
+
+        # Shift the cumulative columns by 1 to get "wins during the round"
+        df = df.with_columns([
+            pl.col("ct_wins_cumsum").shift(1).fill_null(0).alias("ct_wins_during_round"),
+            pl.col("t_wins_cumsum").shift(1).fill_null(0).alias("t_wins_during_round")
+        ])
+
+        # Select relevant columns and display the result
+        df = df.select([
+            "round_num",
+            "ct_wins_during_round",
+            "t_wins_during_round"
+        ])
+        
+        df_info = df_info.join(df, on="round_num", how="full")
         
         # df_info = df_info.with_columns(
         #     pl.col('round_num').cast(pl.Int16),
@@ -121,4 +147,5 @@ def _delete_files(demo_id: str) -> bool:
         print(f"Error deleting files: {e}")
         return False
         
-        
+def cleanup_failed_upload():
+    print("FINISH THIS :D")
