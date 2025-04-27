@@ -233,7 +233,6 @@ export class MapViewer {
             }
         }
         if (this.bombPlant && currentTick.tick < this.bombPlant.tick) {
-            console.log("here?");
             this.tempLayer.removeChild(this.bombPlant.display);
             this.bombPlant = null;
         }
