@@ -10,7 +10,6 @@ import {
 
 import { TextureManager } from "./TextureManager";
 import { getMapInfo, MapInfo } from "./MapData";
-import { Player } from "./types/player_data";
 import { TickData } from "./types/tick_data";
 import { PlayerDot } from "./models/playerdot";
 import { GrenadeType, InAirGrenade } from "./types/in_air_grenade";
@@ -25,7 +24,7 @@ export class MapViewer {
 
     private tempLayer: Container;
 
-    private players: Record<string, Player> = {};
+    private players: Record<string, PlayerDot> = {};
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
@@ -117,30 +116,14 @@ export class MapViewer {
                 x,
                 y,
                 p.yaw,
-                playerSide
+                playerSide,
+                this.transformCoordinates.bind(this),
+                this.textureManager
             );
 
-            await playerDot.init(this.textureManager.getTexture(playerSide)!);
+            await playerDot.create(this.textureManager.getTexture(playerSide)!);
 
-            playerDot.dot!.zIndex = Zi.Player;
-            playerDot.nameText!.zIndex = Zi.PlayerName;
-
-            this.players[playerName] = {
-                display: playerDot,
-                X: p.X,
-                Y: p.Y,
-                name: p.name,
-                side: p.side as "ct" | "t",
-                team_name: p.team_name,
-                health: Number(p.health),
-                yaw: p.yaw,
-                defuser: false,
-                bomb: false,
-                knife: p.knife,
-                secondary: p.secondary,
-                primary: p.primary,
-                grenades: p.grenades,
-            };
+            this.players[playerName] = playerDot;
 
             this.root.addChild(playerDot.dot!);
             this.root.addChild(playerDot.nameText!);
@@ -149,21 +132,12 @@ export class MapViewer {
 
     async reDrawPlayers() {
         Object.entries(this.players).forEach(([, p]) => {
-            p.display.dot!.texture = this.textureManager.getTexture(p.side)!;
+            p.dot!.texture = this.textureManager.getTexture(p.side)!;
         });
     }
 
     public hasPlayers() {
         return Object.keys(this.players).length !== 0;
-    }
-
-    private interpolateAngle(a: number, b: number, t: number): number {
-        let diff = b - a;
-
-        while (diff > 180) diff -= 360;
-        while (diff < -180) diff += 360;
-
-        return a + diff * t;
     }
 
     public async renderInterpolatedFrame(
@@ -178,32 +152,7 @@ export class MapViewer {
             );
             if (!prev) continue;
 
-            const interpX = prev.X + (player.X - prev.X) * t;
-            const interpY = prev.Y + (player.Y - prev.Y) * t;
-            const interpYaw = this.interpolateAngle(prev.yaw, player.yaw, t);
-
-            const [x, y] = this.transformCoordinates(interpX, interpY);
-
-            const sprite = this.players[player.name].display;
-
-            const texture =
-                player.health === 0
-                    ? this.textureManager.getTexture("dead")!
-                    : this.textureManager.getTexture(sprite.side)!;
-
-            if (sprite) {
-                if (player.health === 0) {
-                    sprite.nameText!.visible = false;
-                    sprite.dot!.zIndex = Zi.DeadPlayer;
-                } else {
-                    sprite.nameText!.visible = true;
-                    sprite.dot!.zIndex = Zi.Player;
-                }
-
-                sprite.dot!.texture = texture;
-
-                sprite.updatePosition(x, y, interpYaw);
-            }
+            this.players[player.name].update(prev, player, t);
         }
 
         // === Bomb ===
@@ -457,12 +406,13 @@ export class MapViewer {
             //     playerGraphic.texture = this.textureManager.getTexture(p.side)!;
             // }
 
-            this.players[p.name].display.updatePosition(x, y, p.yaw);
+            // this.players[p.name].display.updatePosition(x, y, p.yaw);
+            // this.players[p.name].update(tick, tick);
             // this.players[p.name].display.updatePosition(newX, newY, p.yaw);
         }
     }
 
-    private transformCoordinates(x: number, y: number) {
+    private transformCoordinates(x: number, y: number): [number, number] {
         const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
 
         const containerWidth = 1024;
