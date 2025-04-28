@@ -32,6 +32,36 @@ def _format_clock(seconds: float) -> str:
     s = int(seconds) % 60
     return f"{m}:{s:02}"
 
+# get:
+# What information you need (fields/data you care about)
+
+# Where they are currently (which dataframe, dictionary, etc.)
+
+# How they relate to each other (if you know — like tick-based, player-based, event-based, etc.)
+
+
+# maybe helps:
+# Start with a clear "core" data structure (per round? per tick? per player?)
+
+# Attach extra info cleanly (like kill feeds, grenades, utility events)
+
+# Keep it easy to slice for frontend playback (example: "give me tick X info immediately" should be fast)
+
+
+# ex
+# From tick_df:
+# - player positions
+# - player velocity
+# - player health
+
+# From kill_feed:
+# - kill events (time, attacker, victim, weapon)
+
+# From grenades_dict:
+# - active smokes
+# - molotov positions
+
+
 def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
     round_info = dem.rounds.filter(pl.col("round_num") == round_num)
     start_tick = round_info[0, "freeze_end"]

@@ -8,6 +8,7 @@ import tempfile
 from parsing.demo_parser import parse_demo
 from parsing.parquet_writer import *
 from db.queries import get_all_known_demos
+from admin.info import *
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
@@ -88,3 +89,6 @@ def delete_demo(demo_id: str):
         raise HTTPException(status_code=400, detail="Error Deleting Demo")
     
     
+@app.get("/admin")
+def admin():
+    return {"folders": demos()}
