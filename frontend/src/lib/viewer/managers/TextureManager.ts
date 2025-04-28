@@ -13,6 +13,11 @@ export class TextureManager {
         t: "/map/t.svg",
         dead: "/map/dead.svg",
         grenade: "/map/grenade.svg",
+        he: "/map/HE.png",
+        flash: "/map/FLASH.png",
+        molly: "/map/MOLLY.png",
+        incendiary: "/map/INCEND.png",
+        smoke: "/map/INCEND.png",
     };
 
     private constructor() {

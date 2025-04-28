@@ -1,4 +1,4 @@
-import { Kill } from "../../lib/viewer/types/kill";
+import { Kill } from "../../lib/viewer/types/Kill";
 import { KillCard } from "./KillCard";
 
 type PlayerProps = {

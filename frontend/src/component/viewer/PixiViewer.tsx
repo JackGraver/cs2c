@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MapViewer } from "../../lib/viewer/MapViewer";
-import { TickData } from "../../lib/viewer/types/tick_data";
+import { TickData } from "../../lib/viewer/types/TickData";
 
 type PixiViewerProps = {
     currentTick: TickData;
@@ -44,15 +44,12 @@ export function PixiViewer({
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
 
-        // First-time render (no interpolation needed)
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
-            mapViewerRef.current.drawFrame(currentTick);
             return;
             // new round or ???
         } else if (!previousTick && mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.reDrawPlayers();
-            mapViewerRef.current.drawFrame(currentTick);
             return;
         }
 

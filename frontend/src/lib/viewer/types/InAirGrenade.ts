@@ -8,7 +8,7 @@ export enum GrenadeType {
 }
 
 export type InAirGrenade = {
-    display: InAirGrenadeDot;
+    // display: InAirGrenadeDot;
     X: number;
     Y: number;
     entity_id: number;
