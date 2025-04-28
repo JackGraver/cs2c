@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { PixiViewer } from "./PixiViewer";
-import { TickData } from "../../lib/viewer/types/tick_data";
+import { TickData } from "../../lib/viewer/types/TickData";
 import { KillFeed } from "../killfeed/KillFeed";
-import { Kill } from "../../lib/viewer/types/kill";
+import { Kill } from "../../lib/viewer/types/Kill";
 
 type DemoPlayerProps = {
     currentTick: TickData;

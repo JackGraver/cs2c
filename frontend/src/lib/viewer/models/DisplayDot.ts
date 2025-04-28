@@ -1,5 +1,5 @@
 import { Sprite, Texture } from "pixi.js";
-import { TickData } from "../types/tick_data";
+import { TickData } from "../types/TickData";
 import { Player } from "../types/player_data";
 
 export interface DisplayDot<

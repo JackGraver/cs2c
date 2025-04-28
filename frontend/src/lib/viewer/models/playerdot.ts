@@ -1,9 +1,9 @@
 import { Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { DisplayDot } from "./DisplayDot";
-import { TickData } from "../types/tick_data";
-import { Zi } from "../zIndex";
+import { TickData } from "../types/TickData";
+import { Zi } from "../types/zIndex";
 import { Player } from "../types/player_data";
-import { TextureManager } from "../TextureManager";
+import { TextureManager } from "../managers/TextureManager";
 
 export class PlayerDot implements DisplayDot<[Player, Player, number]> {
     dot: Sprite | undefined;

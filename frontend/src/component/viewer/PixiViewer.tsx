@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MapViewer } from "../../lib/viewer/MapViewer";
-import { TickData } from "../../lib/viewer/types/tick_data";
+import { TickData } from "../../lib/viewer/types/TickData";
 
 type PixiViewerProps = {
     currentTick: TickData;

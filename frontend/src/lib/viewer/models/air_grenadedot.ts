@@ -1,7 +1,7 @@
 import { Sprite, Texture } from "pixi.js";
-import { GrenadeType, InAirGrenade } from "../types/in_air_grenade";
+import { GrenadeType, InAirGrenade } from "../types/InAirGrenade";
 import { DisplayDot } from "./DisplayDot";
-import { Zi } from "../zIndex";
+import { Zi } from "../types/zIndex";
 
 export class InAirGrenadeDot
     implements DisplayDot<[InAirGrenade, InAirGrenade, number]>

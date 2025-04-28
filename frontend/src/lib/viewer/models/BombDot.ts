@@ -1,7 +1,7 @@
 import { Graphics, Sprite, Texture } from "pixi.js";
 import { DisplayDot } from "./DisplayDot";
-import { TickData } from "../types/tick_data";
-import { Zi } from "../zIndex";
+import { TickData } from "../types/TickData";
+import { Zi } from "../types/zIndex";
 
 export class BombDot {
     dot: Graphics | undefined;

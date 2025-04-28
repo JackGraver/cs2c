@@ -8,7 +8,7 @@ import { Team } from "../component/team/Team";
 import { BottomBar } from "../component/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
-import { TickData } from "../lib/viewer/types/tick_data";
+import { TickData } from "../lib/viewer/types/TickData";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 

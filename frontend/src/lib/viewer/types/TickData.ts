@@ -1,6 +1,6 @@
-import { BombPlant } from "./bomb_plant";
-import { InAirGrenade } from "./in_air_grenade";
-import { Kill } from "./kill";
+import { BombPlant } from "./BombPlant";
+import { InAirGrenade } from "./InAirGrenade";
+import { Kill } from "./Kill";
 import { Player } from "./player_data";
 import { SmokeMolly } from "./smoke_molly_data";
 

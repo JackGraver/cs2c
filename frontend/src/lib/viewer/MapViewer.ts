@@ -8,14 +8,14 @@ import {
     // ColorMatrixFilter,
 } from "pixi.js";
 
-import { TextureManager } from "./TextureManager";
-import { getMapInfo, MapInfo } from "./MapData";
-import { TickData } from "./types/tick_data";
+import { TextureManager } from "./managers/TextureManager";
+import { getMapInfo, MapInfo } from "./models/MapData";
+import { TickData } from "./types/TickData";
 import { PlayerDot } from "./models/PlayerDot";
-import { GrenadeType, InAirGrenade } from "./types/in_air_grenade";
+import { GrenadeType, InAirGrenade } from "./types/InAirGrenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
-import { Zi } from "./zIndex";
-import { BombPlant } from "./types/bomb_plant";
+import { Zi } from "./types/zIndex";
+import { BombPlant } from "./types/BombPlant";
 import { BombDot } from "./models/BombDot";
 
 export class MapViewer {
