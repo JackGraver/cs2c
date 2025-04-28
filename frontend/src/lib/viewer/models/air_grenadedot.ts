@@ -33,8 +33,9 @@ export class InAirGrenadeDot
     }
 
     create(texture: Texture): void {
+        console.log(texture);
         this.dot = new Sprite(texture);
-        this.dot.scale.set(0.5); // Scale if necessary
+        this.dot.scale.set(0.8); // Scale if necessary
         const bounds = this.dot.getLocalBounds();
         this.dot.pivot.set(
             (bounds.x + bounds.width) / 2,

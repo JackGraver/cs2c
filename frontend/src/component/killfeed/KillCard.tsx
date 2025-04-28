@@ -36,11 +36,37 @@ export function KillCard({ kill }: KillCardProps) {
             {kill.assistedflash && <>(/)</>}
 
             {kill.attackerinair && <>^</>}
-            <> {kill.weapon} </>
+            {/* <> {kill.weapon} </> */}
+            <>
+                <img
+                    src="/map/AK.png"
+                    alt={kill.weapon}
+                    style={{
+                        width: "32px",
+                        height: "32px",
+                        display: "inline",
+                        verticalAlign: "middle",
+                    }}
+                />
+            </>
+
             {/* {kill.noscope && kill.weapon === "awp" && <>(N)</>} */}
             {kill.thrusmoke && <>(S)</>}
             {kill.penetrated && <>(P)</>}
-            {kill.headshot && <>(H)</>}
+            {kill.headshot && (
+                <>
+                    <img
+                        src="/map/HS.png"
+                        alt={kill.weapon}
+                        style={{
+                            width: "24px",
+                            height: "24px",
+                            display: "inline",
+                            verticalAlign: "middle",
+                        }}
+                    />
+                </>
+            )}
 
             <span
                 className={

@@ -53,6 +53,7 @@ export class MapViewer {
         this.mapInfo = getMapInfo(map);
 
         this.textureManager = TextureManager.getInstance();
+        console.log(this.textureManager.getTextures());
     }
 
     async init() {
@@ -272,7 +273,17 @@ export class MapViewer {
                     flash.thrower,
                     this.transformCoordinates.bind(this)
                 );
-                grenadeDot.create(this.textureManager.getTexture("grenade")!);
+                if (grenadeDot.type === GrenadeType.HE) {
+                    console.log("he textr");
+                    grenadeDot.create(this.textureManager.getTexture("he")!);
+                } else if (grenadeDot.type === GrenadeType.Flashbang) {
+                    console.log("flash tex");
+                    grenadeDot.create(this.textureManager.getTexture("flash")!);
+                } else if (grenadeDot.type === GrenadeType.Smoke) {
+                    grenadeDot.create(this.textureManager.getTexture("smoke")!);
+                } else {
+                    grenadeDot.create(this.textureManager.getTexture("molly")!);
+                }
 
                 this.inAirGrenades[flash.entity_id] = grenadeDot;
                 this.tempLayer.addChild(grenadeDot.dot!);
