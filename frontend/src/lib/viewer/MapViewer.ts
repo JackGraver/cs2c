@@ -11,11 +11,12 @@ import {
 import { TextureManager } from "./TextureManager";
 import { getMapInfo, MapInfo } from "./MapData";
 import { TickData } from "./types/tick_data";
-import { PlayerDot } from "./models/playerdot";
+import { PlayerDot } from "./models/PlayerDot";
 import { GrenadeType, InAirGrenade } from "./types/in_air_grenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./zIndex";
 import { BombPlant } from "./types/bomb_plant";
+import { BombDot } from "./models/BombDot";
 
 export class MapViewer {
     private container: HTMLDivElement;
@@ -28,7 +29,7 @@ export class MapViewer {
     private inAirGrenades: Record<number, InAirGrenade> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
-    private bombPlant: BombPlant | null = null;
+    private bomb: BombDot = new BombDot(this.transformCoordinates.bind(this));
 
     private textureManager: TextureManager;
 
@@ -128,6 +129,7 @@ export class MapViewer {
             this.root.addChild(playerDot.dot!);
             this.root.addChild(playerDot.nameText!);
         }
+        this.bomb.create();
     }
 
     async reDrawPlayers() {
@@ -156,34 +158,9 @@ export class MapViewer {
         }
 
         // === Bomb ===
-        if (currentTick.bomb_plant.length !== 0) {
-            if (!this.bombPlant) {
-                const bomb = currentTick.bomb_plant[0];
-                const [x, y] = this.transformCoordinates(
-                    bomb.user_X,
-                    bomb.user_Y
-                );
-
-                let b = new Graphics();
-                b = new Graphics();
-                b.rect(0, 0, 10, 15);
-                b.fill({ color: 0xffbf00, alpha: 0.8 });
-                b.position.set(x, y);
-                b.zIndex = Zi.Grenade;
-
-                this.tempLayer.addChild(b);
-                this.bombPlant = {
-                    display: b,
-                    tick: bomb.tick,
-                    x: bomb.user_X,
-                    y: bomb.user_Y,
-                };
-                // this.activeSmokes[smoke.entity_id] = g;
-            }
-        }
-        if (this.bombPlant && currentTick.tick < this.bombPlant.tick) {
-            this.tempLayer.removeChild(this.bombPlant.display);
-            this.bombPlant = null;
+        this.bomb?.update(currentTick);
+        if (this.bomb.displayed) {
+            this.tempLayer.addChild(this.bomb.dot!);
         }
 
         // === DRAW SHOTS ===
@@ -386,30 +363,6 @@ export class MapViewer {
 
             fade.start();
         });
-    }
-
-    public async drawFrame(tick: TickData) {
-        this.tempLayer?.removeChildren();
-
-        // === DRAW PLAYERS ===
-        for (let i = 0; i < tick.players.length; i++) {
-            const p = tick.players[i];
-            const [x, y] = this.transformCoordinates(p.X, p.Y);
-
-            if (!this.players[p.name]) continue;
-
-            // const playerGraphic = this.players[p.name].display.dot;
-
-            // if (p.health === 0) {
-            //     playerGraphic.texture = this.textureManager.getTexture("dead")!;
-            // } else {
-            //     playerGraphic.texture = this.textureManager.getTexture(p.side)!;
-            // }
-
-            // this.players[p.name].display.updatePosition(x, y, p.yaw);
-            // this.players[p.name].update(tick, tick);
-            // this.players[p.name].display.updatePosition(newX, newY, p.yaw);
-        }
     }
 
     private transformCoordinates(x: number, y: number): [number, number] {

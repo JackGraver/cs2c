@@ -44,15 +44,12 @@ export function PixiViewer({
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
 
-        // First-time render (no interpolation needed)
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
-            mapViewerRef.current.drawFrame(currentTick);
             return;
             // new round or ???
         } else if (!previousTick && mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.reDrawPlayers();
-            mapViewerRef.current.drawFrame(currentTick);
             return;
         }
 

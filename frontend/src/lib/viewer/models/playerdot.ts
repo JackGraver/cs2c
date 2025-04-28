@@ -5,11 +5,11 @@ import { Zi } from "../zIndex";
 import { Player } from "../types/player_data";
 import { TextureManager } from "../TextureManager";
 
-export class PlayerDot implements DisplayDot {
+export class PlayerDot implements DisplayDot<[Player, Player, number]> {
     dot: Sprite | undefined;
     x: number;
     y: number;
-    alpha?: number | undefined;
+
     nameText: Text | undefined;
 
     transformCoordinates: (x: number, y: number) => [number, number];

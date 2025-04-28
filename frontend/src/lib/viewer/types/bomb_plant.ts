@@ -1,8 +1,8 @@
 import { Graphics } from "pixi.js";
 
 export type BombPlant = {
-    display: Graphics;
+    // display: Graphics;
     tick: number;
-    x: number;
-    y: number;
+    user_X: number;
+    user_Y: number;
 };

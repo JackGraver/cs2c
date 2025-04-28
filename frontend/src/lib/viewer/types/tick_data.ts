@@ -1,3 +1,4 @@
+import { BombPlant } from "./bomb_plant";
 import { InAirGrenade } from "./in_air_grenade";
 import { Kill } from "./kill";
 import { Player } from "./player_data";
@@ -6,11 +7,7 @@ import { SmokeMolly } from "./smoke_molly_data";
 export type TickData = {
     tick: number;
 
-    bomb_plant: {
-        tick: number;
-        user_X: number;
-        user_Y: number;
-    }[];
+    bomb_plant: BombPlant[];
 
     time: string;
 
