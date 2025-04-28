@@ -1,45 +1,59 @@
 import { Sprite, Texture } from "pixi.js";
-import { GrenadeType } from "../types/in_air_grenade";
+import { GrenadeType, InAirGrenade } from "../types/in_air_grenade";
+import { DisplayDot } from "./DisplayDot";
+import { Zi } from "../zIndex";
 
-export class InAirGrenadeDot {
+export class InAirGrenadeDot
+    implements DisplayDot<[InAirGrenade, InAirGrenade, number]>
+{
     dot: Sprite | undefined;
     x: number;
     y: number;
+
     id: number;
     type: GrenadeType;
     thrower: string;
+
+    transformCoordinates: (x: number, y: number) => [number, number];
 
     constructor(
         x: number,
         y: number,
         id: number,
         type: GrenadeType,
-        thrower: string
+        thrower: string,
+        transformCoordinates: (x: number, y: number) => [number, number]
     ) {
         this.x = x;
         this.y = y;
         this.id = id;
         this.type = type;
         this.thrower = thrower;
+        this.transformCoordinates = transformCoordinates;
     }
 
-    async init(texture: Texture) {
+    create(texture: Texture): void {
         this.dot = new Sprite(texture);
-
         this.dot.scale.set(0.5); // Scale if necessary
-
         const bounds = this.dot.getLocalBounds();
-
         this.dot.pivot.set(
             (bounds.x + bounds.width) / 2,
             (bounds.y + bounds.height) / 2
         );
-
         this.dot.position.set(this.x, this.y);
+        this.dot.zIndex = Zi.Grenade;
     }
 
-    public updatePosition(x: number, y: number) {
-        this.dot!.x = x;
-        this.dot!.y = y;
+    update(prev: InAirGrenade, curr: InAirGrenade, t: number): void {
+        const interpX = prev.X + (curr.X - prev.X) * t;
+        const interpY = prev.Y + (curr.Y - prev.Y) * t;
+
+        const [x, y] = this.transformCoordinates(interpX, interpY);
+
+        this.dot?.position.set(x, y);
+    }
+
+    destroy(): void {
+        throw new Error("Method not implemented.");
     }
 }
