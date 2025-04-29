@@ -252,6 +252,9 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     ])
 
     grouped_players = p.group_by(pl.col('tick'), maintain_order=True).all()
+    
+    teams = game_times['team_clan_name', 'name'].unique(subset=['team_clan_name'])
+    
     g = dem.grenades['X', 'Y', 'tick', 'grenade_type'].filter(pl.col('Y').is_not_null())
 
     air_grenades = g.with_columns([
@@ -345,6 +348,11 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
 
         for i in range(len(players["name"])):
             curr = players
+            
+            try:
+                team_name = teams.row(by_predicate=(pl.col('name') == curr['name'][i]))[0]
+            except Exception:
+                team_name = ""
         
             p.append({
                 "name": curr['name'][i],
@@ -353,6 +361,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "side": curr['side'][i],
                 "health": curr['health'][i],
                 "yaw": curr['yaw'][i],
+                "team_clan_name": team_name,
                 "inventory": curr['inventory'][i]
             })
         

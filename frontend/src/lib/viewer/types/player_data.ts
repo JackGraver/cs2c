@@ -5,6 +5,6 @@ export type Player = {
     side: boolean;
     health: number;
     yaw: number;
-    // team_name: string;
+    team_clan_name: string;
     inventory: number[];
 };
