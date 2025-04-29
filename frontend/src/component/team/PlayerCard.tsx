@@ -13,7 +13,7 @@ export function PlayerCard({ p, loading }: PlayerProps) {
         return <div></div>;
     }
 
-    const bgColor = p.side === "ct" ? "bg-blue-500" : "bg-orange-500";
+    const bgColor = p.side ? "bg-blue-500" : "bg-orange-500";
     const healthFill = `${p.health}%`;
 
     return (
@@ -39,23 +39,23 @@ export function PlayerCard({ p, loading }: PlayerProps) {
                     <div className="flex flex-col">
                         <div className="flex items-center font-bold">
                             {p.name}
-                            {p.health > 0 && p.bomb && (
+                            {/* {p.health > 0 && p.bomb && (
                                 <span className="ml-2">💣</span>
-                            )}
+                            )} */}
                         </div>
                         <div className="text-sm">
-                            {p.health > 0
+                            {/* {p.health > 0
                                 ? p.primary != null
                                     ? p.primary
                                     : p.secondary
-                                : null}
+                                : null} */}
                         </div>
                     </div>
 
                     <div className="text-sm text-right">
-                        {p.health > 0 &&
+                        {/* {p.health > 0 &&
                             p.grenades.length > 0 &&
-                            p.grenades.join(", ")}
+                            p.grenades.join(", ")} */}
                     </div>
                 </div>
             </div>

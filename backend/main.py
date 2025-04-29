@@ -88,3 +88,10 @@ def delete_demo(demo_id: str):
         raise HTTPException(status_code=400, detail="Error Deleting Demo")
     
     
+@app.get("/test")
+async def testing():
+    demo_id, dem, game_times = parse_demo("other/spirit-vs-natus-vincere-m2-dust2.dem")
+
+    res = parse_demo_round(dem, game_times, 5)
+
+    return {"demo": res}

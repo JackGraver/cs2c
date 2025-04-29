@@ -11,11 +11,10 @@ import {
 import { TextureManager } from "./managers/TextureManager";
 import { getMapInfo, MapInfo } from "./models/MapData";
 import { TickData } from "./types/TickData";
-import { PlayerDot } from "./models/PlayerDot";
-import { GrenadeType, InAirGrenade } from "./types/InAirGrenade";
+import { PlayerDot } from "./models/playerdot";
+import { GrenadeType } from "./types/InAirGrenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./types/zIndex";
-import { BombPlant } from "./types/BombPlant";
 import { BombDot } from "./models/BombDot";
 
 export class MapViewer {
@@ -123,7 +122,9 @@ export class MapViewer {
                 this.textureManager
             );
 
-            await playerDot.create(this.textureManager.getTexture(playerSide)!);
+            await playerDot.create(
+                this.textureManager.getTexture(playerDot.side)!
+            );
 
             this.players[playerName] = playerDot;
 
@@ -168,11 +169,8 @@ export class MapViewer {
         for (const shot of currentTick.shots) {
             if (!this.activeShots[shot.shot_id]) {
                 this.activeShots[shot.shot_id] = true;
-                let [x, y] = this.transformCoordinates(
-                    shot.user_X,
-                    shot.user_Y
-                );
-                const yawInRadians = (shot.user_yaw * Math.PI) / 180;
+                let [x, y] = this.transformCoordinates(shot.X, shot.Y);
+                const yawInRadians = (shot.yaw * Math.PI) / 180;
 
                 const directionX = Math.cos(yawInRadians);
                 const directionY = Math.sin(yawInRadians);
@@ -269,8 +267,9 @@ export class MapViewer {
                     flash.X,
                     flash.Y,
                     flash.entity_id,
-                    flash.grenade_type,
-                    flash.thrower,
+                    // flash.grenade_type,
+                    GrenadeType.Flashbang,
+                    // flash.thrower,
                     this.transformCoordinates.bind(this)
                 );
                 if (grenadeDot.type === GrenadeType.HE) {

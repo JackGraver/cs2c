@@ -12,7 +12,7 @@ export class InAirGrenadeDot
 
     id: number;
     type: GrenadeType;
-    thrower: string;
+    // thrower: string;
 
     transformCoordinates: (x: number, y: number) => [number, number];
 
@@ -21,14 +21,14 @@ export class InAirGrenadeDot
         y: number,
         id: number,
         type: GrenadeType,
-        thrower: string,
+        // thrower: string,
         transformCoordinates: (x: number, y: number) => [number, number]
     ) {
         this.x = x;
         this.y = y;
         this.id = id;
         this.type = type;
-        this.thrower = thrower;
+        // this.thrower = thrower;
         this.transformCoordinates = transformCoordinates;
     }
 

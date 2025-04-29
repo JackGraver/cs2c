@@ -24,7 +24,7 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
         px: number,
         py: number,
         yaw: number,
-        side: string,
+        side: boolean,
         transformCoordinates: (x: number, y: number) => [number, number],
         textureManager: TextureManager
     ) {
@@ -35,7 +35,7 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
 
         this.yaw = yaw;
 
-        this.side = side;
+        this.side = side ? "ct" : "t";
 
         this.transformCoordinates = transformCoordinates;
 

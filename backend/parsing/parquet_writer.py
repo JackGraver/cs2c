@@ -9,6 +9,35 @@ from db.queries import add_parsed_demos, remove_parsed_demo
 
 output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../parsed_demos"))
 
+inventory_map = {
+    1: "M9 Bayonet",
+    2: "Butterfly Knife",
+    3: "Karambit",
+    4: "USP-S",
+    5: "P2000",
+    6: "Glock-18",
+    7: "P250",
+    8: "Dual Berettas",
+    9: "Five-SeveN",
+    10: "Tec-9",
+    11: "Desert Eagle",
+    12: "MAC-10",
+    13: "MP9",
+    14: "AK-47",
+    15: "Galil AR",
+    16: "M4A1-S",
+    17: "M4A4",
+    18: "FAMAS",
+    19: "AWP",
+    20: "SSG 08",
+    21: "High Explosive Grenade",
+    22: "Incendiary Grenade",
+    23: "Flashbang",
+    24: "Molotov",
+    25: "Smoke Grenade",
+    26: "C4 Explosive"
+}
+
 def read_demo_round_info(demo_id: str) -> List:
     try:
         file_path = os.path.join(output_dir, f"{demo_id}/r_info.parquet")
@@ -23,6 +52,15 @@ def read_demo_round_info(demo_id: str) -> List:
         print(f"Error reading file: {e}")
         return []
     
+def convert_inventory(player_list):
+    return [
+        {
+            **player,
+            "inventory": [inventory_map.get(item, "Unknown") for item in player["inventory"]]
+        }
+        for player in player_list
+    ]    
+    
 def read_demo_round(demo_id: str, round: int):
     try:
         file_path = os.path.join(output_dir, f"{demo_id}/r_{round}.parquet")
@@ -31,6 +69,14 @@ def read_demo_round(demo_id: str, round: int):
             return []
 
         df = pl.read_parquet(file_path)
+
+        # print(df["players"][0])
+
+        # df = df.with_columns(
+        #     pl.col("players").map_elements(convert_inventory)
+        # )
+        
+        # print(df["players"]) 
         
         return df.to_dicts()  # Converts to list of dictionaries
     except Exception as e:
@@ -88,11 +134,13 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         
         df_info = df_info.join(df, on="round_num", how="full")
         
-        # df_info = df_info.with_columns(
-        #     pl.col('round_num').cast(pl.Int16),
-        #     pl.col('winner').cast(pl.Categorical)
-        # )
+        team1, team2 = game_times['team_clan_name'].unique()
 
+        df_info = df_info.with_columns([
+            pl.lit(team1).alias('team1'),
+            pl.lit(team2).alias('team2'),
+        ])
+                
         # Save round info
         # df_info = pl.DataFrame(dem.rounds['round_num', 'winner'])
         info_path = os.path.join(demo_dir, "r_info.parquet")

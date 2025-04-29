@@ -99,6 +99,10 @@ const Viewer = () => {
     }, [selectedRound]);
 
     useEffect(() => {
+        console.log("tickData updated", tickData);
+    }, [tickData]);
+
+    useEffect(() => {
         if (tickData.length == 0) return;
 
         if (currentTickIndex >= tickData.length) {
@@ -160,7 +164,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
+                                    (p) => p.side
                                 ),
                             ]}
                             score={
@@ -198,7 +202,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "t"
+                                    (p) => !p.side
                                 ),
                             ]}
                             score={
