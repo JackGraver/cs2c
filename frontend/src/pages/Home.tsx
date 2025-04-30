@@ -1,8 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
+type Series = {
+    series_id: string;
+    demos: ParsedDemos[];
+};
+
 type ParsedDemos = {
     demo_id: string;
+    series_id: string;
     demo_name: string;
     map_name: string;
     rounds: number;
@@ -16,18 +22,40 @@ export default function Home() {
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const [parsedDemos, setParsedDemos] = useState<ParsedDemos[]>([]);
+    // const [parsedDemos, setParsedDemos] = useState<ParsedDemos[]>([]);
+    const [parsedDemos, setParsedDemos] = useState<Series[]>([]);
 
     useEffect(() => {
         const fetchParsedDemos = async () => {
             const res = await fetch(`http://127.0.0.1:8000/`);
             const data = await res.json();
             if (data.demos) {
-                setParsedDemos(data.demos);
+                console.log(data.demos);
+                const transformed: Series[] = Object.entries(data.demos).map(
+                    ([series_id, demos]: [string, any]) => ({
+                        series_id,
+                        demos: demos.map((d: any) => ({
+                            demo_id: d.id,
+                            series_id, // attach the series_id here
+                            demo_name: d.name,
+                            map_name: d.map_name,
+                            rounds: d.rounds,
+                            team1: d.team1,
+                            team2: d.team2,
+                            uploaded_at: d.uploaded_at,
+                        })),
+                    })
+                );
+
+                setParsedDemos(transformed);
             }
         };
         fetchParsedDemos();
     }, []);
+
+    useEffect(() => {
+        console.log("p", parsedDemos);
+    }, [parsedDemos]);
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -66,19 +94,29 @@ export default function Home() {
     const [team1Filter, setTeam1Filter] = useState("");
     const [team2Filter, setTeam2Filter] = useState("");
 
-    const filteredDemos = parsedDemos.filter((demo) => {
-        return (
-            demo.map_name.toLowerCase().includes(mapFilter.toLowerCase()) &&
-            demo.team1.toLowerCase().includes(team1Filter.toLowerCase()) &&
-            demo.team2.toLowerCase().includes(team2Filter.toLowerCase())
-        );
+    const filteredSeries = parsedDemos.filter((series) => {
+        return series.demos.length > 0;
     });
+
+    // const filteredDemos = allDemos.filter((demo) => {
+    //     return (
+    //         demo.map_name.toLowerCase().includes(mapFilter.toLowerCase()) &&
+    //         demo.team1.toLowerCase().includes(team1Filter.toLowerCase()) &&
+    //         demo.team2.toLowerCase().includes(team2Filter.toLowerCase())
+    //     );
+    // });
 
     return (
         <div className="p-8 text-center">
             <h1 className="text-8xl font-bold m-16">CS2C</h1>
-            <h1 className="text-2xl font-bold mb-4">Upload a .dem File</h1>
-            <input type="file" accept=".dem" onChange={handleUpload} />
+            <button
+                onClick={() => navigate("/upload")}
+                className="bg-[#2c2c2c] text-white text-lg px-6 py-3 rounded-md hover:bg-[#3a3a3a] focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
+            >
+                Upload Demo(s)
+            </button>
+            {/* <h1 className="text-2xl font-bold mb-4">Upload a .dem File</h1>
+            <input type="file" accept=".dem" onChange={handleUpload} /> */}
             {loading && <p className="mt-4 text-gray-400">Parsing demo...</p>}
             {error && <p className="mt-4 text-red-500">{error}</p>}
 
@@ -111,69 +149,57 @@ export default function Home() {
                     <table className="w-full border border-gray-600 rounded-lg text-sm">
                         <thead className="bg-gray-800 text-white">
                             <tr>
-                                <th className="px-4 py-2 border-b border-gray-700" />
                                 <th className="px-4 py-2 border-b border-gray-700">
-                                    Name
+                                    Team A
                                 </th>
                                 <th className="px-4 py-2 border-b border-gray-700">
-                                    Map
+                                    Team B
                                 </th>
                                 <th className="px-4 py-2 border-b border-gray-700">
-                                    Rounds
+                                    Maps
                                 </th>
                                 <th className="px-4 py-2 border-b border-gray-700">
-                                    Teams
+                                    Date
                                 </th>
-                                <th className="px-4 py-2 border-b border-gray-700">
+                                {/* <th className="px-4 py-2 border-b border-gray-700">
                                     Uploaded
-                                </th>
+                                </th> */}
                                 <th className="px-4 py-2 border-b border-gray-700 text-center"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredDemos.map((demo) => (
+                            {filteredSeries.map((series) => (
                                 <tr
-                                    key={demo.demo_id}
+                                    key={series.series_id}
                                     className="border-b border-gray-700 hover:bg-gray-700/20"
                                 >
                                     <td className="px-4 py-2">
-                                        <button
-                                            onClick={async () => {
-                                                try {
-                                                    const res = await fetch(
-                                                        `http://127.0.0.1:8000/delete/${demo.demo_id}`,
-                                                        {
-                                                            method: "DELETE",
-                                                        }
-                                                    );
-
-                                                    if (res.ok) {
-                                                        // Optional: refresh or remove the deleted demo from state
-                                                        setParsedDemos((prev) =>
-                                                            prev.filter(
-                                                                (d) =>
-                                                                    d.demo_id !==
-                                                                    demo.demo_id
-                                                            )
-                                                        );
-                                                    } else {
-                                                        console.error(
-                                                            "Failed to delete demo"
-                                                        );
-                                                    }
-                                                } catch (err) {
-                                                    console.error(
-                                                        "Error deleting demo:",
-                                                        err
-                                                    );
-                                                }
-                                            }}
-                                            className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded"
-                                            title="Delete"
-                                        >
-                                            X
-                                        </button>
+                                        {series.demos[0].team1}
                                     </td>
+                                    <td className="px-4 py-2">
+                                        {series.demos[0].team2}
+                                    </td>
+                                    <td>
+                                        <div className="flex flex-row">
+                                            {series.demos.map((game) => (
+                                                <img
+                                                    key={game.demo_id}
+                                                    src={`map_icons/${game.map_name}.png`}
+                                                    className="w-8 h-8"
+                                                />
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {new Date(
+                                            series.demos[0].uploaded_at
+                                        ).toDateString()}
+                                    </td>
+
+                                    {/* <td className="px-4 py-2">
+                                        {demo.uploaded_at}
+                                    </td>
+
                                     <td className="px-4 py-2">
                                         {demo.demo_name}
                                     </td>
@@ -188,12 +214,12 @@ export default function Home() {
                                         {new Date(
                                             demo.uploaded_at
                                         ).toLocaleString()}
-                                    </td>
+                                    </td>*/}
                                     <td className="px-4 py-2 text-center space-x-2">
                                         <button
                                             onClick={() =>
                                                 navigate(
-                                                    `/viewer?demo_id=${demo.demo_id}&map=${demo.map_name}&round=1`
+                                                    `/viewer?demo_id=${series.demos[0].demo_id}&map=${series.demos[0].map_name}&round=1`
                                                 )
                                             }
                                             className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"

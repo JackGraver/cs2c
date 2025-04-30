@@ -295,8 +295,19 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             .then(pl.lit('N/A'))
             .otherwise(pl.col('assister_name'))
             .alias('assister_name'),
-        (pl.col('attacker_side') == 'ct').alias('attacker_side_ct'),
-        (pl.col('user_side') == 'ct').alias('user_side_ct'),
+        pl.when(pl.col('attacker_side') == 'ct')
+            .then(1)
+            .when(pl.col('attacker_side') == 't')
+            .then(0)
+            .otherwise(-1)
+            .cast(pl.Int8)
+            .alias('attacker_side'),
+        pl.when(pl.col('attacker_name').is_null())
+            .then(pl.lit('N/A'))
+            .otherwise(pl.col('attacker_name'))
+            .alias('attacker_name'),
+        # (pl.col('attacker_side') == 'ct').alias('attacker_side'),
+        (pl.col('user_side') == 'ct').alias('user_side'),
         (pl.col('penetrated') == 1).alias('penetrated'),
         pl.col('weapon').replace_strict(weapon_map, default=-1).cast(pl.Int8),
     ])
@@ -390,8 +401,24 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         tick_shots = shots.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
 
         tick_kills = kills.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
+        print('tk', tick_kills)
+        # for kill in kills:
+        #     print('t', kill)
+        #     kill['assister_name'] = kill.get('assister_name') or 'N/A'
+        #     kill['assister_side'] = kill.get('assister_side') or 'N/A'
+        #     kill['attacker_name'] = kill.get('attacker_name') or 'N/A'
+        #     kill['attacker_side'] = kill.get('attacker_side') or 'N/A'
+        #     kill['attacker_side_ct'] = kill.get('attacker_side_ct') or 'N/A'
         
-        tick_plant = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
+        # print(tick_kills)
+        
+        tick_plant_df = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8))
+        tick_plant = tick_plant_df.to_dicts()
+
+        # Ensure it's always a list, even if empty
+        bomb_plant = tick_plant if isinstance(tick_plant, list) else [tick_plant]
+        
+        # print('bp',bomb_plant)
         
         tick_list.append({
             "tick": tick,
@@ -402,7 +429,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             "activeGrenades": airborne_grenades,
             "shots": tick_shots,
             "kills": tick_kills,
-            "bomb_plant": tick_plant
+            "bomb_plant": bomb_plant_tick
         })
         
     return tick_list
@@ -487,7 +514,6 @@ def _parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -
     tick_data_list = []
 
     for tick in tick_list:
-
         player_row = grouped_dict.get(tick, {
             "name": [], "X": [], "Y": [], "side": [], "team_clan_name": [], "health": [], "yaw": [], "inventory": []
         })
@@ -515,12 +541,12 @@ def _parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -
         kills = r_kills[(r_kills['tick'] >= tick - 8) & (r_kills['tick'] <= tick + 8)].to_dict("records")
 
         for kill in kills:
-            # If assister_name is None, replace it with 'N/A' or leave it as None
             kill['assister_name'] = kill.get('assister_name') or 'N/A'
             kill['assister_side'] = kill.get('assister_side') or 'N/A'
             kill['attacker_name'] = kill.get('attacker_name') or 'N/A'
             kill['attacker_side'] = kill.get('attacker_side') or 'N/A'
-
+            kill['attacker_side_ct'] = kill.get('attacker_side_ct') or 'N/A'
+                    
         tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
         round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
 
