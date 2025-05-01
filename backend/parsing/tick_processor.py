@@ -32,7 +32,6 @@ def _format_clock(seconds: float) -> str:
     s = int(seconds) % 60
     return f"{m}:{s:02}"
 
-
 # get:
 # What information you need (fields/data you care about)
 
@@ -61,7 +60,6 @@ def _format_clock(seconds: float) -> str:
 # From grenades_dict:
 # - active smokes
 # - molotov positions
-
 
 # Data I need
 
@@ -237,7 +235,6 @@ weapon_map = {
     
     "C4 Explosive": 26,
 }
-
 
 def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
     p = dem.ticks['tick', 'X', 'Y', 'side', 'health', 'name', 'yaw', 'inventory']

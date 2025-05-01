@@ -11,6 +11,7 @@ import traceback
 
 from parsing.demo_parser import parse_demo
 from parsing.parquet_writer import *
+from admin.info import *
 from db.queries import *
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
@@ -196,3 +197,8 @@ def delete_demo(demo_id: str):
         return {"message": f"Demo {demo_id} deleted successfully."}
     else:
         raise HTTPException(status_code=400, detail="Error Deleting Demo")
+    
+    
+@app.get("/admin")
+def admin():
+    return {"folders": demos()}
