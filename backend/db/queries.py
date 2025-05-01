@@ -1,3 +1,4 @@
+from collections import defaultdict
 import datetime
 import os
 import shutil
@@ -26,7 +27,7 @@ def add_parsed_demos(dem: Demo, demo_id: str, game_times: pl.DataFrame, series_i
         )
         ''')
 
-        teams = game_times['team_clan_name'][:10].unique()
+        teams = game_times['team_clan_name'].drop_nulls().unique()
         num_rounds = int(dem.rounds['round_num'].max())
         map_name = dem.header['map_name']
 
@@ -81,17 +82,25 @@ def remove_parsed_demo(demo_id: str) -> bool:
         print(f"Error removing parsed demo: {e}")
         return False
     
-def get_all_known_demos() -> list[dict]:
+def get_all_known_demos() -> dict[str, list[dict]]:
     try:
         conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row  # To return dict-like rows
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM demos")
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+
+        grouped = defaultdict(list)
+        for row in rows:
+            row_dict = dict(row)
+            series_id = row_dict.get("series_id", "unknown")
+            grouped[series_id].append(row_dict)
+
+        return dict(grouped)
+
     except Exception as e:
         print(f"Database error: {e}")
-        return []
+        return {}
     finally:
         conn.close()
         
