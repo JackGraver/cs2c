@@ -21,6 +21,7 @@ export function DemoPlayer({
     onAdvanceTick,
     map,
 }: DemoPlayerProps) {
+    console.log("dp", map);
     const [displayedKills, setDisplayedKills] = useState<Kill[]>([]);
 
     const processKills = (tickKills: Kill[]) => {
@@ -69,7 +70,7 @@ export function DemoPlayer({
     return (
         <div className="relative w-full h-full">
             {/* Time display */}
-            <div className="absolute top-2 right-2 -translate-x-1/2 bg-black bg-opacity-60 text-white px-3 py-1 rounded text-sm shadow">
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-50 bg-black bg-opacity-60 text-white px-3 py-1 rounded text-sm shadow">
                 {currentTick ? currentTick.time : "0.00"}
             </div>
 

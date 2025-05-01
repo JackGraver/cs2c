@@ -138,9 +138,7 @@ def get_all_tournaments() -> list[dict]:
         return []
     finally:
         conn.close()
-        
-        
-        
+             
 def get_all_series():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row  # Enables dict-like access
@@ -170,3 +168,39 @@ def get_all_series():
         grouped[series_id].append(demo)
 
     return grouped
+
+def get_all_series_maps(demo_id: str):
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+
+    # First, get the series_id for the given demo_id
+    cursor.execute('SELECT series_id FROM demos WHERE demo_id = ?', (demo_id,))
+    result = cursor.fetchone()
+    
+    if result is None:
+        conn.close()
+        return []  # Demo not found
+
+    series_id = result["series_id"]
+
+    # Now fetch all demos with the same series_id
+    cursor.execute('SELECT * FROM demos WHERE series_id = ?', (series_id,))
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Format each row into a dictionary
+    demos = []
+    for row in rows:
+        demo = {
+            "id": row["demo_id"],
+            "name": row["demo_name"],
+            "team1": row["team1"],
+            "team2": row["team2"],
+            "rounds": row["rounds"],
+            "map_name": row["map_name"],
+            "uploaded_at": row["uploaded_at"]
+        }
+        demos.append(demo)
+
+    return demos

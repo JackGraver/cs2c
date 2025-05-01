@@ -401,24 +401,13 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         tick_shots = shots.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
 
         tick_kills = kills.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
-        print('tk', tick_kills)
-        # for kill in kills:
-        #     print('t', kill)
-        #     kill['assister_name'] = kill.get('assister_name') or 'N/A'
-        #     kill['assister_side'] = kill.get('assister_side') or 'N/A'
-        #     kill['attacker_name'] = kill.get('attacker_name') or 'N/A'
-        #     kill['attacker_side'] = kill.get('attacker_side') or 'N/A'
-        #     kill['attacker_side_ct'] = kill.get('attacker_side_ct') or 'N/A'
         
-        # print(tick_kills)
-        
-        tick_plant_df = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8))
-        tick_plant = tick_plant_df.to_dicts()
+        # tick_plant_df = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8))
+        # tick_plant = tick_plant_df.to_dicts()
 
-        # Ensure it's always a list, even if empty
-        bomb_plant = tick_plant if isinstance(tick_plant, list) else [tick_plant]
+        # bomb_plant = tick_plant if isinstance(tick_plant, list) else [tick_plant]
         
-        # print('bp',bomb_plant)
+        tick_plant = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
         
         tick_list.append({
             "tick": tick,
@@ -429,7 +418,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             "activeGrenades": airborne_grenades,
             "shots": tick_shots,
             "kills": tick_kills,
-            "bomb_plant": bomb_plant_tick
+            "bomb_plant": tick_plant
         })
         
     return tick_list

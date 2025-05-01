@@ -22,6 +22,8 @@ export class MapViewer {
     private app: Application;
     private root: Container;
 
+    private mapLayer: Container;
+
     private tempLayer: Container;
 
     private players: Record<string, PlayerDot> = {};
@@ -43,6 +45,10 @@ export class MapViewer {
         this.root.sortableChildren = true;
         this.app = new Application();
 
+        this.mapLayer = new Container();
+
+        this.mapLayer.zIndex = 0;
+
         this.tempLayer = new Container();
         this.tempLayer.position.set(0, 0);
         this.tempLayer.visible = true;
@@ -53,6 +59,12 @@ export class MapViewer {
 
         this.textureManager = TextureManager.getInstance();
         console.log(this.textureManager.getTextures());
+    }
+
+    async updateMap(map: string) {
+        this.mapInfo = getMapInfo(map);
+        this.mapLayer.removeChildren();
+        this.drawMap();
     }
 
     async init() {
@@ -67,6 +79,8 @@ export class MapViewer {
 
         this.app.stage.addChild(this.root);
         this.container.appendChild(this.app.canvas);
+
+        this.root.addChild(this.mapLayer);
 
         this.root.addChild(this.tempLayer);
 
@@ -101,7 +115,7 @@ export class MapViewer {
 
         sprite.zIndex = Zi.Map;
 
-        this.root.addChild(sprite);
+        this.mapLayer.addChild(sprite);
     }
 
     async createPlayers(firstTick: TickData) {

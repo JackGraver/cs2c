@@ -43,8 +43,9 @@ def get_demos():
 def get_round_data(demo_id: str, round_num: int):
     round = read_demo_round(demo_id, round_num)
     round_info = read_demo_round_info(demo_id)
+    series_demos = get_all_series_maps(demo_id)
     if round and round_info:
-        return {"data": round, "rounds": round_info}
+        return {"data": round, "rounds": round_info, "series_demos": series_demos}
     else:
         raise HTTPException(status_code=400, detail=f"Unable to read round {round_num} from demo {demo_id}.")
 

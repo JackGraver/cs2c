@@ -15,8 +15,13 @@ export function PixiViewer({
     speed,
     map,
 }: PixiViewerProps) {
+    console.log("pv", map);
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
+
+    useEffect(() => {
+        mapViewerRef.current?.updateMap(map);
+    }, [map]);
 
     useEffect(() => {
         const initializeMapViewer = async () => {

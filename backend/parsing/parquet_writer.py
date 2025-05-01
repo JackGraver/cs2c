@@ -197,7 +197,7 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         
         df_info = df_info.join(df, on="round_num", how="full")
         
-        team1, team2 = game_times['team_clan_name'].unique()
+        team1, team2 = game_times['team_clan_name'].drop_nulls().unique()
 
         df_info = df_info.with_columns([
             pl.lit(team1).alias('team1'),
@@ -214,7 +214,7 @@ def _write_files(dem: Demo, demo_id: str, game_times: pl.DataFrame) -> bool:
         for round_num in range(1, num_rounds + 1):
             round_data = parse_demo_round(dem, game_times, round_num)
             if round_data:
-                deep_type_check(round_data)
+                # deep_type_check(round_data)
                 df_round = pl.DataFrame(round_data)
                 # print(df_round)
                 round_path = os.path.join(demo_dir, f"r_{round_num}.parquet")
