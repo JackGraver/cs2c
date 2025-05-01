@@ -180,7 +180,7 @@ def init_demo(temp_path: str):
 
     map = dem.header['map_name']
     tournaments = get_all_tournaments()
-    teams = game_times['team_clan_name'].unique().to_list()
+    teams = game_times['team_clan_name'].drop_nulls().unique().to_list()
     
     return map, teams, tournaments
 
@@ -201,4 +201,4 @@ def delete_demo(demo_id: str):
     
 @app.get("/admin")
 def admin():
-    return {"folders": demos()}
+    return {"db_demos": demos(), "storage": storage()}

@@ -1,7 +1,9 @@
+from typing import Tuple
 import uuid
 from awpy import Demo
+from polars import DataFrame
 
-def parse_demo(file_path: bytes) -> str | None:
+def parse_demo(file_path: bytes) -> Tuple[str, Demo, DataFrame]:
     try:
         dem = Demo(file_path, verbose=False)
         dem.parse(player_props=["health", "armor_value", "yaw", "inventory"])
