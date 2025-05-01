@@ -21,7 +21,6 @@ export function DemoPlayer({
     onAdvanceTick,
     map,
 }: DemoPlayerProps) {
-    console.log("dp", map);
     const [displayedKills, setDisplayedKills] = useState<Kill[]>([]);
 
     const processKills = (tickKills: Kill[]) => {

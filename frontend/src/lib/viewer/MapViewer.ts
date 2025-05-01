@@ -97,14 +97,14 @@ export class MapViewer {
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
-        const scale = Math.min(scaleX, scaleY);
+        const scale = Math.min(scaleX, scaleY) - 0.03;
 
         sprite.scale.set(scale);
         this.mapWidth = sprite.width;
         this.mapHeight = sprite.height;
 
         sprite.anchor.set(0.5);
-        sprite.x = containerWidth / 2;
+        sprite.x = containerWidth / 2 - 30;
         sprite.y = containerHeight / 2;
 
         // const colorMatrix = new ColorMatrixFilter();
@@ -384,14 +384,37 @@ export class MapViewer {
         const xMap = xNorm * mapWidth;
         const yMap = (1 - yNorm) * mapHeight; // flip Y
 
-        const offsetX = (containerWidth - mapWidth) / 2;
-        const offsetY = (containerHeight - mapHeight) / 2;
+        const offsetX = (containerWidth - mapWidth) / 2 - 30; // apply -30px X shift
+        const offsetY = (containerHeight - mapHeight) / 2; // no Y shift
 
         const screenX = xMap + offsetX;
         const screenY = yMap + offsetY;
 
         return [screenX, screenY];
     }
+
+    // private transformCoordinates(x: number, y: number): [number, number] {
+    //     const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
+
+    //     const containerWidth = 1024;
+    //     const containerHeight = 768;
+    //     const mapWidth = this.mapWidth;
+    //     const mapHeight = this.mapHeight;
+
+    //     const xNorm = (x - X_MIN) / (X_MAX - X_MIN);
+    //     const yNorm = (y - Y_MIN) / (Y_MAX - Y_MIN);
+
+    //     const xMap = xNorm * mapWidth;
+    //     const yMap = (1 - yNorm) * mapHeight; // flip Y
+
+    //     const offsetX = (containerWidth - mapWidth) / 2;
+    //     const offsetY = (containerHeight - mapHeight) / 2;
+
+    //     const screenX = xMap + offsetX;
+    //     const screenY = yMap + offsetY;
+
+    //     return [screenX, screenY];
+    // }
 
     public destroy() {
         this.app.destroy(true, { children: true });

@@ -5,6 +5,10 @@ type RoundInfo = {
     winner: "t" | "ct";
     loaded?: boolean;
     had_timeout: boolean;
+    ct_wins_during_round: number;
+    t_wins_during_round: number;
+    team1: string;
+    team2: string;
 };
 
 type BottomBarProps = {

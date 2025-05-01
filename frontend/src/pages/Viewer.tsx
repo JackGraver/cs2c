@@ -19,6 +19,8 @@ type RoundInfo = {
     had_timeout: boolean;
     ct_wins_during_round: number;
     t_wins_during_round: number;
+    team1: string;
+    team2: string;
 };
 
 type SeriesGame = {
@@ -64,7 +66,7 @@ const Viewer = () => {
         };
 
         fetchNewGame();
-    }, [demoId, map, round]);
+    }, [demoId]);
 
     const navigate = useNavigate();
 
@@ -113,22 +115,24 @@ const Viewer = () => {
                 if (data.rounds) {
                     console.log(data.rounds);
                     setRoundData((prev) => {
-                        if (prev.length === 0 && data.rounds) {
-                            return data.rounds.map((r: RoundInfo) =>
-                                r.round_num === selectedRound
-                                    ? { ...r, loaded: true }
-                                    : r
-                            );
-                        }
-
-                        return prev.map((r) =>
-                            r.round_num === selectedRound
-                                ? { ...r, loaded: true }
-                                : r
+                        const prevMap = Object.fromEntries(
+                            prev.map((r) => [r.round_num, r])
                         );
+
+                        const updated = data.rounds.map((r: RoundInfo) => {
+                            const existing = prevMap[r.round_num];
+                            const isSelected = r.round_num === selectedRound;
+                            return {
+                                ...r,
+                                loaded: isSelected || existing?.loaded || false,
+                            };
+                        });
+
+                        return updated;
                     });
                 }
                 if (data.series_demos) {
+                    console.log(data.series_demos);
                     const other_demos = data.series_demos.map((demo: any) => ({
                         id: demo.id,
                         map_name: demo.map_name,
@@ -143,11 +147,8 @@ const Viewer = () => {
         };
 
         fetchRounds();
+        console.log(roundCache);
     }, [selectedRound]);
-
-    useEffect(() => {
-        console.log("tickData updated", tickData);
-    }, [tickData]);
 
     useEffect(() => {
         if (tickData.length == 0) return;
@@ -178,25 +179,15 @@ const Viewer = () => {
     };
 
     const handleClick = (game: SeriesGame) => {
+        setCurrentTickIndex(0);
+        setIsPlaying(true);
         navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
     };
 
     return (
         <div className="w-full h-screen pt-12 flex flex-col">
             <div className="flex flex-1 overflow-hidden">
-                {/* Left Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {/* {tickData.length > 0 && (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
-                                ),
-                            ]}
-                        />
-                    )} */}
-
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (

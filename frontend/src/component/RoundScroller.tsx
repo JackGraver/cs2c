@@ -5,6 +5,10 @@ type RoundInfo = {
     winner: "t" | "ct";
     loaded?: boolean;
     had_timeout: boolean;
+    ct_wins_during_round: number;
+    t_wins_during_round: number;
+    team1: string;
+    team2: string;
 };
 
 type RoundScrollerProps = {
@@ -16,6 +20,7 @@ export default function RoundScroller({
     rounds,
     handleRoundClick,
 }: RoundScrollerProps) {
+    console.log("RS", rounds);
     const containerRef = useRef<HTMLDivElement>(null);
     const [visibleStart, setVisibleStart] = useState(0);
     const [buttonsPerPage, setButtonsPerPage] = useState(6); // fallback default
