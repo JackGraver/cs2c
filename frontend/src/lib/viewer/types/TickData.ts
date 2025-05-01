@@ -7,8 +7,6 @@ import { SmokeMolly } from "./smoke_molly_data";
 export type TickData = {
     tick: number;
 
-    bomb_plant: BombPlant[];
-
     time: string;
 
     players: Player[];
@@ -22,29 +20,13 @@ export type TickData = {
     shots: {
         tick: number;
         shot_id: number;
-        user_X: number;
-        user_Y: number;
-        user_yaw: number;
-        weapon: string;
+        X: number;
+        Y: number;
+        yaw: number;
+        weapon: number;
     }[];
 
     kills: Kill[];
 
-    // kills: {
-    //     tick: number;
-    //     assistedflash: boolean;
-    //     assister_name: string;
-    //     assister_side: string;
-    //     attacker_name: string;
-    //     attacker_side: string;
-    //     attackerblind: boolean;
-    //     attackerinair: boolean;
-    //     headshot: boolean;
-    //     noscope: boolean;
-    //     penetrated: boolean;
-    //     thrusmoke: boolean;
-    //     weapon: string;
-    //     user_name: string;
-    //     user_side: string;
-    // }[];
+    bomb_plant: BombPlant[];
 };

@@ -19,6 +19,10 @@ export function PixiViewer({
     const mapViewerRef = useRef<MapViewer | null>(null);
 
     useEffect(() => {
+        mapViewerRef.current?.updateMap(map);
+    }, [map]);
+
+    useEffect(() => {
         const initializeMapViewer = async () => {
             if (!containerRef.current || mapViewerRef.current) return;
 

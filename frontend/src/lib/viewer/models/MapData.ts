@@ -57,7 +57,7 @@ const mapData: Record<string, MapInfo> = {
     }, // X 1767 -2178 Y 1777 -1798
     de_nuke: {
         name: "de_nuke",
-        imagePath: "/maps/de_nuke.png",
+        imagePath: "/maps/de_nuke_upper.png",
         X_MIN: -0,
         X_MAX: 0,
         Y_MIN: -0,

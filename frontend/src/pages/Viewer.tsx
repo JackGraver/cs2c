@@ -9,7 +9,7 @@ import { BottomBar } from "../component/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 type RoundInfo = {
@@ -19,6 +19,13 @@ type RoundInfo = {
     had_timeout: boolean;
     ct_wins_during_round: number;
     t_wins_during_round: number;
+    team1: string;
+    team2: string;
+};
+
+type SeriesGame = {
+    id: string;
+    map_name: string;
 };
 
 const Viewer = () => {
@@ -26,6 +33,40 @@ const Viewer = () => {
     const demoId = searchParams.get("demo_id");
     const map = searchParams.get("map");
     const round = searchParams.get("round");
+
+    useEffect(() => {
+        const fetchNewGame = async () => {
+            try {
+                const res = await fetch(
+                    `http://127.0.0.1:8000/demo/${demoId}/round/${round}`
+                );
+                const data = await res.json();
+
+                if (data.data) {
+                    roundCache.current[Number(round)] = data.data;
+                    setTickData(data.data);
+                }
+
+                if (data.rounds) {
+                    setRoundData(data.rounds);
+                }
+
+                if (data.series_demos) {
+                    const other_demos = data.series_demos.map((demo: any) => ({
+                        id: demo.id,
+                        map_name: demo.map_name,
+                    }));
+                    setSeriesDemos(other_demos);
+                }
+            } catch (err) {
+                console.error("Failed to fetch demo data:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNewGame();
+    }, [demoId]);
 
     const navigate = useNavigate();
 
@@ -42,8 +83,9 @@ const Viewer = () => {
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
     const [loading, setLoading] = useState(false);
-    ``;
     const roundCache = useRef<Record<number, TickData[]>>({});
+
+    const [seriesDemos, setSeriesDemos] = useState<SeriesGame[]>([]);
 
     useEffect(() => {
         const fetchRounds = async () => {
@@ -73,20 +115,29 @@ const Viewer = () => {
                 if (data.rounds) {
                     console.log(data.rounds);
                     setRoundData((prev) => {
-                        if (prev.length === 0 && data.rounds) {
-                            return data.rounds.map((r: RoundInfo) =>
-                                r.round_num === selectedRound
-                                    ? { ...r, loaded: true }
-                                    : r
-                            );
-                        }
-
-                        return prev.map((r) =>
-                            r.round_num === selectedRound
-                                ? { ...r, loaded: true }
-                                : r
+                        const prevMap = Object.fromEntries(
+                            prev.map((r) => [r.round_num, r])
                         );
+
+                        const updated = data.rounds.map((r: RoundInfo) => {
+                            const existing = prevMap[r.round_num];
+                            const isSelected = r.round_num === selectedRound;
+                            return {
+                                ...r,
+                                loaded: isSelected || existing?.loaded || false,
+                            };
+                        });
+
+                        return updated;
                     });
+                }
+                if (data.series_demos) {
+                    console.log(data.series_demos);
+                    const other_demos = data.series_demos.map((demo: any) => ({
+                        id: demo.id,
+                        map_name: demo.map_name,
+                    }));
+                    setSeriesDemos(other_demos);
                 }
             } catch (err) {
                 console.error("Error fetching round data:", err);
@@ -96,6 +147,7 @@ const Viewer = () => {
         };
 
         fetchRounds();
+        console.log(roundCache);
     }, [selectedRound]);
 
     useEffect(() => {
@@ -126,33 +178,16 @@ const Viewer = () => {
         }
     };
 
+    const handleClick = (game: SeriesGame) => {
+        setCurrentTickIndex(0);
+        setIsPlaying(true);
+        navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
+    };
+
     return (
-        <div className="h-screen flex flex-col">
-            {/* Top Bar */}
-            <div className="h-12 text-white flex items-center justify-center border-b border-gray-500">
-                <button
-                    onClick={() => navigate(`/`)}
-                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded"
-                >
-                    Home
-                </button>
-            </div>
-
-            {/* Middle Section (fills remaining height) */}
+        <div className="w-full h-screen pt-12 flex flex-col">
             <div className="flex flex-1 overflow-hidden">
-                {/* Left Team */}
                 <div className="w-1/4 overflow-y-auto p-2">
-                    {/* {tickData.length > 0 && (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
-                                ),
-                            ]}
-                        />
-                    )} */}
-
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -160,7 +195,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "ct"
+                                    (p) => p.side
                                 ),
                             ]}
                             score={
@@ -171,7 +206,6 @@ const Viewer = () => {
                     )}
                 </div>
 
-                {/* Viewer */}
                 <div className="w-2/4 aspect-square flex items-center justify-center p-2 overflow-hidden">
                     <DemoPlayer
                         currentTick={tickData[currentTickIndex]}
@@ -190,7 +224,20 @@ const Viewer = () => {
                 </div>
 
                 {/* Right Team */}
-                <div className="w-1/4 overflow-y-auto p-2">
+                <div className="w-1/4 relative overflow-y-auto p-2">
+                    <div className="absolute top-2 right-2 p-2 flex flex-row gap-2">
+                        {seriesDemos.map((game) => (
+                            <img
+                                key={game.id}
+                                src={`map_icons/${game.map_name}.png`}
+                                alt={game.map_name}
+                                onClick={() => {
+                                    handleClick(game);
+                                }}
+                                className="w-12 h-12 object-cover cursor-pointer rounded"
+                            />
+                        ))}
+                    </div>
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -198,7 +245,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side === "t"
+                                    (p) => !p.side
                                 ),
                             ]}
                             score={

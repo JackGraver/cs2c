@@ -10,9 +10,7 @@ export function KillCard({ kill }: KillCardProps) {
             <>{kill.attackerblind && <>(B)</>}</>
             <span
                 className={
-                    kill.attacker_side === "ct"
-                        ? "text-blue-400"
-                        : "text-orange-400"
+                    kill.attacker_side ? "text-blue-400" : "text-orange-400"
                 }
             >
                 {kill.attacker_name}
@@ -23,7 +21,7 @@ export function KillCard({ kill }: KillCardProps) {
                     {" + "}
                     <span
                         className={
-                            kill.assister_side === "ct"
+                            kill.assister_side
                                 ? "text-blue-400"
                                 : "text-orange-400"
                         }
@@ -38,7 +36,7 @@ export function KillCard({ kill }: KillCardProps) {
             {kill.attackerinair && <>^</>}
             {/* <> {kill.weapon} </> */}
             <>
-                <img
+                {/* <img
                     src="/map/AK.png"
                     alt={kill.weapon}
                     style={{
@@ -47,7 +45,7 @@ export function KillCard({ kill }: KillCardProps) {
                         display: "inline",
                         verticalAlign: "middle",
                     }}
-                />
+                /> */}
             </>
 
             {/* {kill.noscope && kill.weapon === "awp" && <>(N)</>} */}
@@ -55,7 +53,7 @@ export function KillCard({ kill }: KillCardProps) {
             {kill.penetrated && <>(P)</>}
             {kill.headshot && (
                 <>
-                    <img
+                    {/* <img
                         src="/map/HS.png"
                         alt={kill.weapon}
                         style={{
@@ -64,16 +62,12 @@ export function KillCard({ kill }: KillCardProps) {
                             display: "inline",
                             verticalAlign: "middle",
                         }}
-                    />
+                    /> */}
                 </>
             )}
 
             <span
-                className={
-                    kill.user_side === "ct"
-                        ? "text-blue-400"
-                        : "text-orange-400"
-                }
+                className={kill.user_side ? "text-blue-400" : "text-orange-400"}
             >
                 {kill.user_name}
             </span>

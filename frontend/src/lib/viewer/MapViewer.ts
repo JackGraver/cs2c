@@ -11,17 +11,18 @@ import {
 import { TextureManager } from "./managers/TextureManager";
 import { getMapInfo, MapInfo } from "./models/MapData";
 import { TickData } from "./types/TickData";
-import { PlayerDot } from "./models/PlayerDot";
-import { GrenadeType, InAirGrenade } from "./types/InAirGrenade";
+import { PlayerDot } from "./models/playerdot";
+import { GrenadeType } from "./types/InAirGrenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./types/zIndex";
-import { BombPlant } from "./types/BombPlant";
 import { BombDot } from "./models/BombDot";
 
 export class MapViewer {
     private container: HTMLDivElement;
     private app: Application;
     private root: Container;
+
+    private mapLayer: Container;
 
     private tempLayer: Container;
 
@@ -44,6 +45,10 @@ export class MapViewer {
         this.root.sortableChildren = true;
         this.app = new Application();
 
+        this.mapLayer = new Container();
+
+        this.mapLayer.zIndex = 0;
+
         this.tempLayer = new Container();
         this.tempLayer.position.set(0, 0);
         this.tempLayer.visible = true;
@@ -54,6 +59,12 @@ export class MapViewer {
 
         this.textureManager = TextureManager.getInstance();
         console.log(this.textureManager.getTextures());
+    }
+
+    async updateMap(map: string) {
+        this.mapInfo = getMapInfo(map);
+        this.mapLayer.removeChildren();
+        this.drawMap();
     }
 
     async init() {
@@ -68,6 +79,8 @@ export class MapViewer {
 
         this.app.stage.addChild(this.root);
         this.container.appendChild(this.app.canvas);
+
+        this.root.addChild(this.mapLayer);
 
         this.root.addChild(this.tempLayer);
 
@@ -84,14 +97,14 @@ export class MapViewer {
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
-        const scale = Math.min(scaleX, scaleY);
+        const scale = Math.min(scaleX, scaleY) - 0.03;
 
         sprite.scale.set(scale);
         this.mapWidth = sprite.width;
         this.mapHeight = sprite.height;
 
         sprite.anchor.set(0.5);
-        sprite.x = containerWidth / 2;
+        sprite.x = containerWidth / 2 - 30;
         sprite.y = containerHeight / 2;
 
         // const colorMatrix = new ColorMatrixFilter();
@@ -102,7 +115,7 @@ export class MapViewer {
 
         sprite.zIndex = Zi.Map;
 
-        this.root.addChild(sprite);
+        this.mapLayer.addChild(sprite);
     }
 
     async createPlayers(firstTick: TickData) {
@@ -123,7 +136,9 @@ export class MapViewer {
                 this.textureManager
             );
 
-            await playerDot.create(this.textureManager.getTexture(playerSide)!);
+            await playerDot.create(
+                this.textureManager.getTexture(playerDot.side)!
+            );
 
             this.players[playerName] = playerDot;
 
@@ -168,11 +183,8 @@ export class MapViewer {
         for (const shot of currentTick.shots) {
             if (!this.activeShots[shot.shot_id]) {
                 this.activeShots[shot.shot_id] = true;
-                let [x, y] = this.transformCoordinates(
-                    shot.user_X,
-                    shot.user_Y
-                );
-                const yawInRadians = (shot.user_yaw * Math.PI) / 180;
+                let [x, y] = this.transformCoordinates(shot.X, shot.Y);
+                const yawInRadians = (shot.yaw * Math.PI) / 180;
 
                 const directionX = Math.cos(yawInRadians);
                 const directionY = Math.sin(yawInRadians);
@@ -269,8 +281,9 @@ export class MapViewer {
                     flash.X,
                     flash.Y,
                     flash.entity_id,
-                    flash.grenade_type,
-                    flash.thrower,
+                    // flash.grenade_type,
+                    GrenadeType.Flashbang,
+                    // flash.thrower,
                     this.transformCoordinates.bind(this)
                 );
                 if (grenadeDot.type === GrenadeType.HE) {
@@ -371,14 +384,37 @@ export class MapViewer {
         const xMap = xNorm * mapWidth;
         const yMap = (1 - yNorm) * mapHeight; // flip Y
 
-        const offsetX = (containerWidth - mapWidth) / 2;
-        const offsetY = (containerHeight - mapHeight) / 2;
+        const offsetX = (containerWidth - mapWidth) / 2 - 30; // apply -30px X shift
+        const offsetY = (containerHeight - mapHeight) / 2; // no Y shift
 
         const screenX = xMap + offsetX;
         const screenY = yMap + offsetY;
 
         return [screenX, screenY];
     }
+
+    // private transformCoordinates(x: number, y: number): [number, number] {
+    //     const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
+
+    //     const containerWidth = 1024;
+    //     const containerHeight = 768;
+    //     const mapWidth = this.mapWidth;
+    //     const mapHeight = this.mapHeight;
+
+    //     const xNorm = (x - X_MIN) / (X_MAX - X_MIN);
+    //     const yNorm = (y - Y_MIN) / (Y_MAX - Y_MIN);
+
+    //     const xMap = xNorm * mapWidth;
+    //     const yMap = (1 - yNorm) * mapHeight; // flip Y
+
+    //     const offsetX = (containerWidth - mapWidth) / 2;
+    //     const offsetY = (containerHeight - mapHeight) / 2;
+
+    //     const screenX = xMap + offsetX;
+    //     const screenY = yMap + offsetY;
+
+    //     return [screenX, screenY];
+    // }
 
     public destroy() {
         this.app.destroy(true, { children: true });

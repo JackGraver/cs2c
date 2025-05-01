@@ -7,18 +7,19 @@ type PlayersProps = {
 };
 
 export function Team({ players, score }: PlayersProps) {
+    const teamName = players[0].team_clan_name;
     return (
         <div className="flex justify-center gap-10 p-4 h-full">
             <div className="flex flex-col justify-center h-full">
                 {players.length > 0 &&
-                    (players[0].side === "t" ? (
+                    (!players[0].side ? (
                         <h2 className="text-center text-orange-500 font-bold mb-2">
-                            {score !== -1 && <>{score}</>}{" "}
-                            {players[0].team_name}
+                            {score !== -1 && <>{score}</>}
+                            <>{teamName}</>
                         </h2>
                     ) : (
                         <h2 className="text-center text-blue-500 font-bold mb-2">
-                            {players[0].team_name}{" "}
+                            <>{teamName}</>
                             {score !== -1 && <>{score}</>}
                         </h2>
                     ))}
