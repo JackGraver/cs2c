@@ -5,7 +5,7 @@
 // import MapView from "../component/MapView"
 import { Team } from "../component/team/Team";
 // import Player from "./component/Player"
-import { BottomBar } from "../component/BottomBar";
+import { BottomBar } from "../component/viewer/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";

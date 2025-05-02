@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PixiViewer } from "./PixiViewer";
 import { TickData } from "../../lib/viewer/types/TickData";
 import { KillFeed } from "../killfeed/KillFeed";
-import { Kill } from "../../lib/viewer/types/Kill";
+import { Kill } from "../../lib/viewer/types/kill";
 
 type DemoPlayerProps = {
     currentTick: TickData;
@@ -80,7 +80,7 @@ export function DemoPlayer({
                 currentTick={currentTick}
                 speed={speed}
                 previousTick={previousTick}
-                map={map}
+                mapI={map}
             />
         </div>
     );

@@ -6,17 +6,19 @@ type PixiViewerProps = {
     currentTick: TickData;
     previousTick: TickData | undefined;
     speed: number;
-    map: string;
+    mapI: string;
 };
 
 export function PixiViewer({
     currentTick,
     previousTick,
     speed,
-    map,
+    mapI,
 }: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
+
+    const [map, setMap] = useState<string>(mapI);
 
     useEffect(() => {
         mapViewerRef.current?.updateMap(map);
@@ -26,6 +28,9 @@ export function PixiViewer({
         const initializeMapViewer = async () => {
             if (!containerRef.current || mapViewerRef.current) return;
 
+            if (map == "de_nuke") {
+                setMap("de_nuke_upper");
+            }
             // Create your MapViewer instance once
             mapViewerRef.current = new MapViewer(containerRef.current, map);
 
@@ -82,9 +87,23 @@ export function PixiViewer({
         return () => cancelAnimationFrame(animationFrame);
     }, [currentTick, previousTick]);
 
+    const handleDisplayLowerMap = () => {
+        console.log(map);
+        if (map === "de_nuke_upper") {
+            console.log("switch nuke lower");
+            setMap("de_nuke_lower");
+        } else if (map === "de_nuke_lower") {
+            console.log("switch nuke upper");
+            setMap("de_nuke_upper");
+        } else if (map === "de_train") {
+            console.log("switch train inner/outer");
+        }
+    };
+
     return (
         <div
             ref={containerRef}
+            onClick={handleDisplayLowerMap}
             style={{ width: "1024px", height: "768px", position: "relative" }}
         />
     );

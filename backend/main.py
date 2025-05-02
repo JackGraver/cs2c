@@ -1,13 +1,10 @@
 import asyncio
-import shutil
-from typing import Dict
 import uuid
 import zipfile
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import tempfile
-import traceback
 
 from parsing.demo_parser import parse_demo
 from parsing.parquet_writer import *

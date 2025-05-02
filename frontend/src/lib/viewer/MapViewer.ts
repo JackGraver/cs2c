@@ -42,6 +42,7 @@ export class MapViewer {
     constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
         this.root = new Container();
+        this.root.interactive = true;
         this.root.sortableChildren = true;
         this.app = new Application();
 

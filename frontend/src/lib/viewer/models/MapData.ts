@@ -55,14 +55,22 @@ const mapData: Record<string, MapInfo> = {
         Y_MIN: -1798,
         Y_MAX: 1777,
     }, // X 1767 -2178 Y 1777 -1798
-    de_nuke: {
-        name: "de_nuke",
+    de_nuke_upper: {
+        name: "de_nuke_upper",
         imagePath: "/maps/de_nuke_upper.png",
-        X_MIN: -0,
-        X_MAX: 0,
-        Y_MIN: -0,
-        Y_MAX: 0,
-    }, //
+        X_MIN: -2991,
+        X_MAX: 3497,
+        Y_MIN: -2479,
+        Y_MAX: 934,
+    }, // X 3497 -> -2991    Y 934 -> -2479
+    de_nuke_lower: {
+        name: "de_nuke_lower",
+        imagePath: "/maps/de_nuke_lower.png",
+        X_MIN: -2991,
+        X_MAX: 3497,
+        Y_MIN: -2479,
+        Y_MAX: 934,
+    }, // X 3497 -> -2991    Y 934 -> -2479
 };
 
 export function getMapInfo(mapName: string): MapInfo {
