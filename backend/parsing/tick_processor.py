@@ -239,16 +239,20 @@ weapon_map = {
 }
 
 def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
-    p = dem.ticks['tick', 'X', 'Y', 'side', 'health', 'name', 'yaw', 'inventory']
+    p = dem.ticks['tick', 'X', 'Y', 'side', 'health', 'name', 'yaw', 'inventory', 'flash_duration']
 
     p = p.with_columns([
         pl.col('X').cast(pl.Int16),
         pl.col('Y').cast(pl.Int16),
         pl.col('health').cast(pl.UInt8),
         pl.col('yaw').cast(pl.Int16),
+        pl.when(pl.col('side') == 'ct')
+            .then(True)
+            .otherwise(False)
+            .alias('side'),
         pl.col('inventory').list.eval(pl.element().replace_strict(inventory_map, default=-1)),
-        (pl.col('side') == 'ct')
-    ])
+        pl.col('flash_duration').alias('blinded')
+    ]).drop('flash_duration')
 
     grouped_players = p.group_by(pl.col('tick'), maintain_order=True).all()
     
@@ -370,6 +374,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "Y": curr['Y'][i],
                 "side": curr['side'][i],
                 "health": curr['health'][i],
+                "blinded": curr['blinded'][i],
                 "yaw": curr['yaw'][i],
                 "team_clan_name": team_name,
                 "inventory": curr['inventory'][i]

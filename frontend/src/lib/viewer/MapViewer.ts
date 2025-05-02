@@ -12,7 +12,7 @@ import { TextureManager } from "./managers/TextureManager";
 import { getMapInfo, MapInfo } from "./models/MapData";
 import { TickData } from "./types/TickData";
 import { PlayerDot } from "./models/playerdot";
-import { GrenadeType } from "./types/InAirGrenade";
+import { getGrenadeNameFromType, GrenadeType } from "./types/InAirGrenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./types/zIndex";
 import { BombDot } from "./models/BombDot";
@@ -275,12 +275,13 @@ export class MapViewer {
             if (this.inAirGrenades[flash.entity_id]) {
                 this.inAirGrenades[flash.entity_id].update(prev, flash, t);
             } else {
+                console.log(flash);
                 // If the sprite doesn't exist, create it
                 const grenadeDot = new InAirGrenadeDot(
                     flash.X,
                     flash.Y,
                     flash.entity_id,
-                    flash.grenade_type,
+                    getGrenadeNameFromType(flash.grenade_type)!,
                     // GrenadeType.Flashbang,
                     // flash.thrower,
                     this.transformCoordinates.bind(this)
@@ -292,8 +293,10 @@ export class MapViewer {
                     console.log("flash tex");
                     grenadeDot.create(this.textureManager.getTexture("flash")!);
                 } else if (grenadeDot.type === GrenadeType.Smoke) {
+                    console.log("smoke tex");
                     grenadeDot.create(this.textureManager.getTexture("smoke")!);
                 } else {
+                    console.log("molly tex");
                     grenadeDot.create(this.textureManager.getTexture("molly")!);
                 }
 

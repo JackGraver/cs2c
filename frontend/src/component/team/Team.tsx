@@ -8,6 +8,7 @@ type PlayersProps = {
 
 export function Team({ players, score }: PlayersProps) {
     const teamName = players[0].team_clan_name;
+
     return (
         <div className="flex justify-center gap-10 p-4 h-full">
             <div className="flex flex-col justify-center h-full">
