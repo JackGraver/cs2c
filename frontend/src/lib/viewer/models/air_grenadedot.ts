@@ -50,6 +50,7 @@ export class InAirGrenadeDot
         const interpY = prev.Y + (curr.Y - prev.Y) * t;
 
         const [x, y] = this.transformCoordinates(interpX, interpY);
+        console.log("updating loc", interpX, "->", x, interpY, "->", y);
 
         this.dot?.position.set(x, y);
     }

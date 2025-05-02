@@ -20,7 +20,6 @@ export default function RoundScroller({
     rounds,
     handleRoundClick,
 }: RoundScrollerProps) {
-    console.log("RS", rounds);
     const containerRef = useRef<HTMLDivElement>(null);
     const [visibleStart, setVisibleStart] = useState(0);
     const [buttonsPerPage, setButtonsPerPage] = useState(6); // fallback default

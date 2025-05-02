@@ -77,7 +77,7 @@ export default function Upload() {
     }, [tournaments, maps]);
 
     return (
-        <div className="p-8 max-w-xl mx-auto space-y-6">
+        <div className="p-8 max-w-xl mx-auto space-y-6 pt-24">
             <div>
                 <FileDropper setFile={setFile} />
             </div>
@@ -106,8 +106,8 @@ export default function Upload() {
                             />
                         </div>
                         <h2>Maps</h2>
-                        {maps.map((m) => (
-                            <div className="flex flex-row space-x-2">
+                        {maps.map((m, i) => (
+                            <div className="flex flex-row space-x-2" key={i}>
                                 <input
                                     type="text"
                                     placeholder="Map"

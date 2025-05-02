@@ -178,7 +178,7 @@ const Viewer = () => {
         }
     };
 
-    const handleClick = (game: SeriesGame) => {
+    const handleSwitchGame = (game: SeriesGame) => {
         setCurrentTickIndex(0);
         setIsPlaying(true);
         navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
@@ -232,7 +232,7 @@ const Viewer = () => {
                                 src={`map_icons/${game.map_name}.png`}
                                 alt={game.map_name}
                                 onClick={() => {
-                                    handleClick(game);
+                                    handleSwitchGame(game);
                                 }}
                                 className="w-12 h-12 object-cover cursor-pointer rounded"
                             />

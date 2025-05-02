@@ -58,7 +58,6 @@ export class MapViewer {
         this.mapInfo = getMapInfo(map);
 
         this.textureManager = TextureManager.getInstance();
-        console.log(this.textureManager.getTextures());
     }
 
     async updateMap(map: string) {
@@ -281,8 +280,8 @@ export class MapViewer {
                     flash.X,
                     flash.Y,
                     flash.entity_id,
-                    // flash.grenade_type,
-                    GrenadeType.Flashbang,
+                    flash.grenade_type,
+                    // GrenadeType.Flashbang,
                     // flash.thrower,
                     this.transformCoordinates.bind(this)
                 );
@@ -311,11 +310,11 @@ export class MapViewer {
 
             if (!flash) {
                 // Grenade no longer exists, so we assume it just exploded
-                this.triggerGrenadeEffect(
-                    sprite.dot!.x,
-                    sprite.dot!.y,
-                    sprite.type
-                );
+                // this.triggerGrenadeEffect(
+                //     sprite.dot!.x,
+                //     sprite.dot!.y,
+                //     sprite.type
+                // );
 
                 // Remove the grenade sprite
                 this.tempLayer.removeChild(sprite.dot!);

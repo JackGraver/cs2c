@@ -252,7 +252,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     
     teams = game_times['team_clan_name', 'name'].unique(subset=['team_clan_name'])
     
-    g = dem.grenades['X', 'Y', 'tick', 'grenade_type'].filter(pl.col('Y').is_not_null())
+    g = dem.grenades['X', 'Y', 'tick', 'grenade_type', 'entity_id'].filter(pl.col('Y').is_not_null())
 
     air_grenades = g.with_columns([
         pl.col('X').cast(pl.Int16),
