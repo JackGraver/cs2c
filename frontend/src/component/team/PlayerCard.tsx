@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Player } from "../../lib/viewer/types/player_data";
+import { getInventoryItemName } from "../../lib/viewer/models/InventoryData";
 
 // import ak from "../../assets/AK.svg"; // adjust path as needed
 
@@ -53,9 +54,12 @@ export function PlayerCard({ p, loading }: PlayerProps) {
                     </div>
 
                     <div className="text-sm text-right">
-                        {/* {p.health > 0 &&
-                            p.grenades.length > 0 &&
-                            p.grenades.join(", ")} */}
+                        {p.health > 0 &&
+                            p.inventory.length > 0 &&
+                            p.inventory
+                                .map((id) => getInventoryItemName(id))
+                                .filter(Boolean)
+                                .join(", ")}
                     </div>
                 </div>
             </div>

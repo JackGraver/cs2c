@@ -155,6 +155,8 @@ inventory_map = {
     "M9 Bayonet": 1,
     "Butterfly Knife": 2,
     "Karambit": 3,
+    "Stiletto Knife": 27,
+    "Nomad Knife": 28,
 
     
     "USP-S": 4, 

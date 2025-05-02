@@ -11,32 +11,43 @@ from db.queries import add_parsed_demos, remove_parsed_demo
 output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../parsed_demos"))
 
 inventory_map = {
-    1: "M9 Bayonet",
-    2: "Butterfly Knife",
-    3: "Karambit",
-    4: "USP-S",
-    5: "P2000",
-    6: "Glock-18",
-    7: "P250",
-    8: "Dual Berettas",
-    9: "Five-SeveN",
-    10: "Tec-9",
-    11: "Desert Eagle",
-    12: "MAC-10",
-    13: "MP9",
-    14: "AK-47",
-    15: "Galil AR",
-    16: "M4A1-S",
-    17: "M4A4",
-    18: "FAMAS",
-    19: "AWP",
-    20: "SSG 08",
-    21: "High Explosive Grenade",
-    22: "Incendiary Grenade",
-    23: "Flashbang",
-    24: "Molotov",
-    25: "Smoke Grenade",
-    26: "C4 Explosive"
+    "M9 Bayonet": 1,
+    "Butterfly Knife": 2,
+    "Karambit": 3,
+    "Stiletto Knife": 27,
+    "Nomad Knife": 28,
+
+    
+    "USP-S": 4, 
+    "P2000": 5,
+    "Glock-18": 6,
+    "P250": 7, 
+    "Dual Berettas": 8,
+    "Five-SeveN": 9,
+    "Tec-9": 10,
+    "Desert Eagle": 11,
+
+        
+    "MAC-10": 12,
+    "MP9": 13,
+    
+    
+    "AK-47": 14, 
+    "Galil AR": 15,
+    "M4A1-S": 16,
+    "M4A4": 17,
+    "FAMAS": 18,
+    "AWP": 19,
+    "SSG 08": 20,
+    
+    
+    "High Explosive Grenade": 21,
+    "Incendiary Grenade": 22,
+    "Flashbang": 23,
+    "Molotov": 24,
+    "Smoke Grenade": 25,
+    
+    "C4 Explosive": 26,
 }
 
 def read_demo_round_info(demo_id: str) -> List:
