@@ -51,7 +51,7 @@ export default function SideNavBar() {
                             <span
                                 className={`text-sm transition-all duration-300 ${
                                     open
-                                        ? "opacity-100 translate-x-0 delay-100"
+                                        ? "opacity-100 translate-x-2 delay-100"
                                         : "opacity-0 -translate-x-2"
                                 }`}
                             >

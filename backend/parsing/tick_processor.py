@@ -120,11 +120,13 @@ weapon_map = {
 }
 
 def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) -> List[Dict[str, Any]]:
-    p = dem.ticks['tick', 'X', 'Y', 'side', 'health', 'name', 'yaw', 'inventory', 'flash_duration']
+    p = dem.ticks['tick', 'X', 'Y', 'Z', 'side', 'health', 'name', 'yaw', 'inventory',
+    'flash_duration', 'has_helmet', 'has_defuser', 'armor']
 
     p = p.with_columns([
         pl.col('X').cast(pl.Int16),
         pl.col('Y').cast(pl.Int16),
+        pl.col('Z').cast(pl.Int16),
         pl.col('health').cast(pl.UInt8),
         pl.col('yaw').cast(pl.Int16),
         pl.when(pl.col('side') == 'ct')
@@ -132,6 +134,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
             .otherwise(False)
             .alias('side'),
         pl.col('inventory').list.eval(pl.element().replace_strict(inventory_map, default=-1)),
+        pl.col('armor').cast(pl.UInt8),
         pl.col('flash_duration').alias('blinded')
     ]).drop('flash_duration')
 
@@ -256,7 +259,10 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 team_name = teams.row(by_predicate=(pl.col('name') == curr['name'][i]))[0]
             except Exception:
                 team_name = ""
-        
+
+            # ['tick', 'X', 'Y', 'Z', 'side', 'health', 'name', 'yaw', 'inventory',
+            # 'has_helmet', 'has_defuser', 'armor',
+            #  'blinded']
             p.append({
                 "name": curr['name'][i],
                 "X": curr['X'][i],
@@ -266,7 +272,10 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "blinded": curr['blinded'][i],
                 "yaw": curr['yaw'][i],
                 "team_clan_name": team_name,
-                "inventory": curr['inventory'][i]
+                "inventory": curr['inventory'][i],
+                'has_helmet': curr['has_helmet'][i],
+                'has_defuser': curr['has_defuser'][i],
+                'armor': curr['armor'][i],
             })
         
         tick_game_time = game_times.filter(pl.col('tick') == tick)[0]

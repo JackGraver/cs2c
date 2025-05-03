@@ -30,7 +30,7 @@ export function Team({ players, score }: PlayersProps) {
                           <PlayerCard key={`placeholder-${i}`} loading />
                       ))
                     : players.map((player) => (
-                          <PlayerCard key={player.name} p={player} />
+                          <PlayerCard key={player.name} player={player} />
                       ))}
             </div>
         </div>

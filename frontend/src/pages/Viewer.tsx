@@ -1,17 +1,9 @@
-// import { useState } from 'react'
-
-// import "./App.css";
-
-// import MapView from "../component/MapView"
 import { Team } from "../component/team/Team";
-// import Player from "./component/Player"
 import { BottomBar } from "../component/viewer/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { Player } from "../lib/viewer/types/player_data";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type RoundInfo = {
     round_num: number;
@@ -194,12 +186,8 @@ const Viewer = () => {
         navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
     };
 
-    useEffect(() => {
-        console.log("t", tickData[currentTickIndex]?.players);
-    }, [tickData]);
-
     return (
-        <div className="w-full h-screen pt-12 flex flex-col">
+        <div className="w-full h-screen flex flex-col">
             <div className="flex flex-1 overflow-hidden">
                 <div className="w-1/4 overflow-y-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (

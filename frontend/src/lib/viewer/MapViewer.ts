@@ -276,7 +276,6 @@ export class MapViewer {
             if (this.inAirGrenades[flash.entity_id]) {
                 this.inAirGrenades[flash.entity_id].update(prev, flash, t);
             } else {
-                console.log(flash);
                 // If the sprite doesn't exist, create it
                 const grenadeDot = new InAirGrenadeDot(
                     flash.X,
@@ -288,16 +287,12 @@ export class MapViewer {
                     this.transformCoordinates.bind(this)
                 );
                 if (grenadeDot.type === GrenadeType.HE) {
-                    console.log("he textr");
                     grenadeDot.create(this.textureManager.getTexture("he")!);
                 } else if (grenadeDot.type === GrenadeType.Flashbang) {
-                    console.log("flash tex");
                     grenadeDot.create(this.textureManager.getTexture("flash")!);
                 } else if (grenadeDot.type === GrenadeType.Smoke) {
-                    console.log("smoke tex");
                     grenadeDot.create(this.textureManager.getTexture("smoke")!);
                 } else {
-                    console.log("molly tex");
                     grenadeDot.create(this.textureManager.getTexture("molly")!);
                 }
 
