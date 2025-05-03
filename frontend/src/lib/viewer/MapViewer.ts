@@ -170,7 +170,7 @@ export class MapViewer {
             );
             if (!prev) continue;
 
-            this.players[player.name].update(prev, player, t);
+            this.players[player.name]?.update(prev, player, t);
         }
 
         // === Bomb ===

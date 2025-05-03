@@ -27,54 +27,52 @@ export default function Upload() {
         return new Date().toISOString().split("T")[0]; // format: 'YYYY-MM-DD'
     };
 
-    const processDemo = async () => {
-        if (file) {
-            const formData = new FormData();
-            formData.append("file", file);
-
-            const res = await fetch("http://127.0.0.1:8000/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                navigate(
-                    `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
-                );
-            }
-        }
-    };
-
-    // const onFileSelect = (file: File) => {};
     useEffect(() => {
-        const sendFile = async () => {
+        const processDemo = async () => {
             if (file) {
                 const formData = new FormData();
                 formData.append("file", file);
 
-                const res = await fetch("http://127.0.0.1:8000/init_upload", {
+                const res = await fetch("http://127.0.0.1:8000/upload", {
                     method: "POST",
                     body: formData,
                 });
 
                 const data = await res.json();
 
-                if (data) {
-                    console.log(data);
-                    setMaps(data.maps);
-                    setTournaments(data.tournaments);
+                if (res.ok && data.success) {
+                    navigate(
+                        `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
+                    );
                 }
             }
         };
-        sendFile();
+        processDemo();
     }, [file]);
 
-    useEffect(() => {
-        console.log("t", tournaments);
-        console.log("m", maps);
-    }, [tournaments, maps]);
+    // const onFileSelect = (file: File) => {};
+    // useEffect(() => {
+    //     const sendFile = async () => {
+    //         if (file) {
+    //             const formData = new FormData();
+    //             formData.append("file", file);
+
+    //             const res = await fetch("http://127.0.0.1:8000/init_upload", {
+    //                 method: "POST",
+    //                 body: formData,
+    //             });
+
+    //             const data = await res.json();
+
+    //             if (data) {
+    //                 console.log(data);
+    //                 setMaps(data.maps);
+    //                 setTournaments(data.tournaments);
+    //             }
+    //         }
+    //     };
+    //     sendFile();
+    // }, [file]);
 
     return (
         <div className="p-8 max-w-xl mx-auto space-y-6 pt-24">
@@ -132,7 +130,7 @@ export default function Upload() {
                             </div>
                         ))}
                     </div>
-
+                    {/* 
                     <div className="flex justify-center items-center h-32">
                         <button
                             className="bg-gray-500 p-2 px-3 rounded-md hover:bg-gray-600"
@@ -140,7 +138,7 @@ export default function Upload() {
                         >
                             Submit
                         </button>
-                    </div>
+                    </div> */}
                 </div>
             )}
         </div>

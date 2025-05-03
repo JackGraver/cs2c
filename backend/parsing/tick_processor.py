@@ -32,125 +32,6 @@ def _format_clock(seconds: float) -> str:
     s = int(seconds) % 60
     return f"{m}:{s:02}"
 
-# get:
-# What information you need (fields/data you care about)
-
-# Where they are currently (which dataframe, dictionary, etc.)
-
-# How they relate to each other (if you know — like tick-based, player-based, event-based, etc.)
-
-
-# maybe helps:
-# Start with a clear "core" data structure (per round? per tick? per player?)
-
-# Attach extra info cleanly (like kill feeds, grenades, utility events)
-
-# Keep it easy to slice for frontend playback (example: "give me tick X info immediately" should be fast)
-
-
-# ex
-# From tick_df:
-# - player positions
-# - player velocity
-# - player health
-
-# From kill_feed:
-# - kill events (time, attacker, victim, weapon)
-
-# From grenades_dict:
-# - active smokes
-# - molotov positions
-
-# Data I need
-
-# Per Tick Information 
-# - tick #
-# - physical round time
-# - player locations
-# --name
-# --X
-# --y
-# --yaw
-# --health
-# --side
-# --team_name
-# --inventory
-# ---secondary
-# ---primary
-# ---grenades[]
-# -in air grenades
-# --x
-# --y
-# --id
-# --type
-# --thrower
-# -active smokes & molly (same)
-# --x
-# --y
-# --start_tick
-# --end_tick
-# --id
-# -shots
-# --id
-# --x
-# --y
-# --yaw
-# --weapon
-# -bomb_plant
-# --x
-# --y
-# -kills
-# --assistedflash
-# --assister_name
-# --assister_side
-# --attacker_name
-# --attacker_side
-# --attackerblind
-# --attackerinair
-# --headshot
-# --noscope
-# --penetrated
-# --thrusmoke
-# --weapon
-# --user_name
-# --user_side
-
-
-
-# - tick # - dem.ticks
-# - physical round time - game_times
-# - player locations - dem.ticks
-# - in air grenades - dem.grenades
-# - bomb_plant - dem.events
-# - kills - dem.events
-
-
-# data sources
-
-# game_times (dem.parse_ticks(other_props=["game_time", "team_clan_name", 'is_terrorist_timeout', 'is_ct_timeout']))
-
-# dem.rounds (dataframe)
-# - start_tick
-# - end_tick
-# -- calculates tick_list
-
-# dem.events (dictionary)
-# - bomb_plant, columns ['tick', 'user_X', 'user_Y']
-# - he_detonates, columns ['entityid', 'tick']
-# - r_shots, columns ['tick', 'user_X', 'user_Y', 'user_yaw', 'weapon']
-# - r_kills, columns ['tick', 'assistedflash', 'assister_name', 'assister_side', 'attacker_name', 'attacker_side', 'attackerblind', 'attackerinair', 'headshot', 'noscope', 'penetrated', 'thrusmoke', 'weapon', 'user_name', 'user_side']
-
-# dem.ticks (dataframe)
-# - player_ticks
-
-# dem.smokes (dataframe)
-# - r_smokes
- 
-# dem.infernos (dataframe)
-# - r_molly
-
-# dem.grenades (dataframe)
-# - grenades
 inventory_map = {
     "M9 Bayonet": 1,
     "Butterfly Knife": 2,
@@ -257,7 +138,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
     grouped_players = p.group_by(pl.col('tick'), maintain_order=True).all()
     
     teams = game_times['team_clan_name', 'name'].unique(subset=['team_clan_name'])
-    
+
     g = dem.grenades['X', 'Y', 'tick', 'grenade_type', 'entity_id'].filter(pl.col('Y').is_not_null())
 
     air_grenades = g.with_columns([
@@ -265,6 +146,17 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         pl.col('Y').cast(pl.Int16),
         pl.col('grenade_type').replace_strict(grenade_map, default=-1).cast(pl.Int8),
     ])
+
+    hed = dem.events['hegrenade_detonate']['entityid', 'tick'].with_columns(
+        pl.col('entityid').cast(pl.Int16)
+    )
+
+    air_grenades = air_grenades.join(
+        hed,
+        left_on='entity_id',
+        right_on='entityid',
+        how='left',
+    )
 
     b = dem.events['bomb_planted']['user_X', 'user_Y', 'tick']
 
@@ -315,9 +207,6 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         pl.col('weapon').replace_strict(weapon_map, default=-1).cast(pl.Int8),
     ])
 
-    # hed = dem.events['hegrenade_detonate']['entityid', 'tick'].with_columns(
-    #     pl.col('entityid').cast(pl.Int16)
-    # )
 
     smokes = dem.smokes['entity_id', 'start_tick', 'end_tick', 'thrower_side', 'X', 'Y', 'round_num'].filter(pl.col('round_num') == round_num).drop('round_num')
 
@@ -399,9 +288,20 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
 
         tick_mollies = mollies.filter((tick < pl.col('end_tick')) & (tick > pl.col('start_tick')))
         tick_mollies = tick_mollies['entity_id', 'X', 'Y', 'thrower_side'].to_dicts()
-        
-        airborne_grenades = air_grenades.filter(pl.col('tick') == tick).to_dicts()
-        
+
+        # airborne_grenades = air_grenades.filter((pl.col('tick') == tick) & (pl.col('tick') < pl.col('tick_right'))).to_dicts()
+        airborne_grenades = air_grenades.filter(
+            (pl.col('tick') == tick) &
+            pl.when(pl.col('tick_right').is_not_null())
+            .then(pl.col('tick') < pl.col('tick_right'))
+            .otherwise(True)
+        ).drop('tick_right').to_dicts()
+        # airborne_grenades = airborne_grenades.filter(
+        #     pl.when(pl.col('grenade_type') == 4)
+        #     .then(pl.col('tick') < pl.col('tick_right'))
+        #     .otherwise(pl.lit(True))
+        # ).drop('tick_right').to_dicts()
+
         tick_shots = shots.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
 
         tick_kills = kills.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()

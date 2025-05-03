@@ -5,11 +5,12 @@ import Upload from "./pages/Upload";
 import NavBar from "./component/navigation/NavBar";
 import ToCome from "./pages/ToCome";
 import Admin from "./pages/Admin";
+import SideNavBar from "./component/navigation/SideNavBar";
 
 export default function App() {
     return (
         <Router>
-            <NavBar />
+            <SideNavBar />
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/viewer" element={<Viewer />} />

@@ -93,13 +93,14 @@ async def upload_demo(file: UploadFile = File(...)):
 
 @app.post("/upload")
 async def upload_demo(file: UploadFile = File(...)):
+    print('Recv /upload')
     try:
         temp_path = await asyncio.to_thread(save_temp_file, file)
+        series_id = str(uuid.uuid4())
 
         if file.filename.endswith(".zip"):
             first_demo = None
-            series_id = str(uuid.uuid4())
-            
+
             with zipfile.ZipFile(temp_path, 'r') as zip_ref:
                 with tempfile.TemporaryDirectory() as extract_dir:
                     # Extract the files
@@ -144,7 +145,7 @@ async def upload_demo(file: UploadFile = File(...)):
                 })
 
         else:
-            result = await asyncio.to_thread(process_demo, temp_path)
+            result = await asyncio.to_thread(process_demo, temp_path, series_id)
 
             if result:
                 demo_id, dem = result
