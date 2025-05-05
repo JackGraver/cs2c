@@ -6,6 +6,7 @@ import { TickData } from "../lib/viewer/types/TickData";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import TopBar from "../component/viewer/TopBar";
 import { SeriesGame } from "../lib/viewer/types/SeriesGame";
+import { KillFeed } from "../component/killfeed/KillFeed";
 
 type RoundInfo = {
     round_num: number;
@@ -185,16 +186,24 @@ const Viewer = () => {
     };
 
     return (
-        <div className="w-full h-screen flex flex-col">
-            <div className="w-full fixed top-0 left-0 z-10 border-b border-gray-500">
+        <div className="w-full h-screen flex flex-col text-white overflow-hidden">
+            {/* TopBar (fixed height) */}
+            <div className="w-full border-b border-gray-500 z-10">
                 <TopBar
                     currentTick={tickData[currentTickIndex]}
                     series={seriesDemos}
                     handleSwitchGame={handleSwitchGame}
+                    score_ct={
+                        roundData[selectedRound - 1]?.ct_wins_during_round
+                    }
+                    score_t={roundData[selectedRound - 1]?.t_wins_during_round}
                 />
             </div>
+
+            {/* Middle section: fills available space */}
             <div className="flex flex-1 overflow-hidden">
-                <div className="w-1/4 overflow-y-auto p-2">
+                {/* Left Team */}
+                <div className="w-1/4 overflow-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -205,15 +214,12 @@ const Viewer = () => {
                                     (p) => p.side
                                 ),
                             ]}
-                            score={
-                                roundData[selectedRound - 1]
-                                    .ct_wins_during_round
-                            }
                         />
                     )}
                 </div>
 
-                <div className="w-2/4 aspect-square flex items-center justify-center p-2 overflow-hidden">
+                {/* Demo viewer */}
+                <div className="w-2/4 p-2 flex items-center justify-center">
                     <DemoPlayer
                         currentTick={tickData[currentTickIndex]}
                         previousTick={
@@ -230,7 +236,8 @@ const Viewer = () => {
                     />
                 </div>
 
-                <div className="w-1/4 relative overflow-y-auto p-2">
+                {/* Right Team */}
+                <div className="w-1/4 overflow-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -241,15 +248,13 @@ const Viewer = () => {
                                     (p) => !p.side
                                 ),
                             ]}
-                            score={
-                                roundData[selectedRound - 1].t_wins_during_round
-                            }
                         />
                     )}
                 </div>
             </div>
 
-            <div className="h-28 border-t border-gray-500 text-white w-full">
+            {/* BottomBar (fixed height) */}
+            <div className="h-28 border-t border-gray-500 w-full">
                 <BottomBar
                     rounds={roundData}
                     currentTickIndex={currentTickIndex}

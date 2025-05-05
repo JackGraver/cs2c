@@ -105,7 +105,7 @@ export function PixiViewer({
         <div
             ref={containerRef}
             onClick={handleDisplayLowerMap}
-            style={{ width: "1024px", height: "768px", position: "relative" }}
+            className="w-full h-full"
         />
     );
 }

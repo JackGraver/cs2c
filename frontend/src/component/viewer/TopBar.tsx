@@ -5,6 +5,8 @@ type TopBarProps = {
     currentTick: TickData | undefined;
     series: SeriesGame[];
     handleSwitchGame: (game: SeriesGame) => void;
+    score_ct: number;
+    score_t: number;
 };
 
 /*
@@ -19,6 +21,8 @@ export default function TopBar({
     currentTick,
     series,
     handleSwitchGame,
+    score_ct,
+    score_t,
 }: TopBarProps) {
     const formatTime = (time: string | undefined) => {
         if (!time) return "0.00"; // Handle undefined time
@@ -26,11 +30,27 @@ export default function TopBar({
     };
 
     return (
-        <div className="w-full h-12 flex items-center justify-between px-4 text-white shadow-md">
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-50 bg-black bg-opacity-60 text-white px-3 py-1 rounded text-sm shadow">
-                {formatTime(currentTick?.time)}
+        <div className="w-full h-12 flex items-center justify-between px-4 text-white">
+            {/* Centered Scores and Time */}
+            <div className="flex items-center justify-center gap-4 mx-auto">
+                {/* Left Score */}
+                <div className="text-blue-500 text-xl font-bold">
+                    {score_ct}
+                </div>
+
+                {/* Current Time */}
+                <div className="text-white text-lg font-semibold">
+                    {formatTime(currentTick?.time)}
+                </div>
+
+                {/* Right Score */}
+                <div className="text-orange-500 text-xl font-bold">
+                    {score_t}
+                </div>
             </div>
-            <div className="absolute top-2 right-2 flex flex-row gap-2">
+
+            {/* Map Icons */}
+            <div className="absolute top-2 right-4 flex flex-row gap-2">
                 {series.map((game) => (
                     <img
                         key={game.id}
@@ -39,7 +59,7 @@ export default function TopBar({
                         onClick={() => {
                             handleSwitchGame(game);
                         }}
-                        className="w-8 h-8 object-cover cursor-pointer rounded"
+                        className="w-8 h-8 object-cover cursor-pointer rounded hover:scale-110 transition-transform"
                     />
                 ))}
             </div>

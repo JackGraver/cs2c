@@ -49,75 +49,32 @@ export function PlayerCard({ player, loading }: PlayerProps) {
     const healthFill = `${player.health}%`;
 
     return (
-        <div className="space-y-1 text-sm w-80 mt-2 rounded-md p-2 border border-gray-100">
-            {/* Top Row */}
-            <div className="flex justify-between">
-                <span className="text-lg leading-none">{player.name}</span>
-                <span>{player.armor}</span>
-                {player.side ? (
-                    <div> {player.has_defuser ? "Defuser" : "Loser"} </div>
-                ) : (
-                    <div> {player.inventory.includes(26) ? "Bomb" : "No"}</div>
-                )}
-            </div>
+        <div className="relative space-y-1 text-sm w-80 mt-2 rounded-md p-2 overflow-hidden">
+            {/* Health bar background */}
+            <div
+                className={`absolute top-0 left-0 h-full ${bgColor} z-0`}
+                style={{ width: healthFill }}
+            ></div>
 
-            {/* Middle Row */}
-            <div className="flex justify-between">
-                <span>{player.inventory[-1]}</span>
-                <span>GRENADES</span>
-            </div>
+            {/* Content */}
+            <div className="relative z-10">
+                <div className="flex justify-between">
+                    <span className="text-lg leading-none">{player.name}</span>
+                    <span>{player.armor}</span>
+                    {player.side ? (
+                        <div>{player.has_defuser ? "Defuser" : "Loser"}</div>
+                    ) : (
+                        <div>
+                            {player.inventory.includes(26) ? "Bomb" : "No"}
+                        </div>
+                    )}
+                </div>
 
-            {/* Bottom Row: Health Bar */}
-            <div className="flex items-center">
-                <HealthBar health={player.health} fillColor={bgColor} />
+                <div className="flex justify-between">
+                    <span>{player.inventory[-1]}</span>
+                    <span>GRENADES</span>
+                </div>
             </div>
         </div>
-
-        // <div className="relative w-96 m-2 border rounded text-gray-200 shadow overflow-hidden">
-        //     {/* Background: full gray */}
-        //     <div className="absolute inset-0 bg-gray-600" />
-        //     {/* Health fill */}
-        //     {p.health > 0 && (
-        //         <div
-        //             className={`absolute inset-y-0 left-0 ${bgColor}`}
-        //             style={{ width: healthFill }}
-        //         />
-        //     )}
-
-        //     {/* Content */}
-        //     <div
-        //         className="relative p-2 z-10"
-        //         onClick={() => {
-        //             console.log("here?");
-        //         }}
-        //     >
-        //         <div className="flex justify-between items-start">
-        //             <div className="flex flex-col">
-        //                 <div className="flex items-center font-bold">
-        //                     {p.name}
-        //                     {/* {p.health > 0 && p.bomb && (
-        //                         <span className="ml-2">💣</span>
-        //                     )} */}
-        //                 </div>
-        //                 <div className="text-sm">
-        //                     {/* {p.health > 0
-        //                         ? p.primary != null
-        //                             ? p.primary
-        //                             : p.secondary
-        //                         : null} */}
-        //                 </div>
-        //             </div>
-
-        //             <div className="text-sm text-right">
-        //                 {p.health > 0 &&
-        //                     p.inventory.length > 0 &&
-        //                     p.inventory
-        //                         .map((id) => getInventoryItemName(id))
-        //                         .filter(Boolean)
-        //                         .join(", ")}
-        //             </div>
-        //         </div>
-        //     </div>
-        // </div>
     );
 }

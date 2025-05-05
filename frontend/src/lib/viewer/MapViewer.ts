@@ -98,6 +98,9 @@ export class MapViewer {
         const containerWidth = this.container.offsetWidth;
         const containerHeight = this.container.offsetHeight;
 
+        console.log(containerWidth, containerHeight);
+        console.log(texture.width, texture.height);
+
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
@@ -108,7 +111,7 @@ export class MapViewer {
         this.mapHeight = sprite.height;
 
         sprite.anchor.set(0.5);
-        sprite.x = containerWidth / 2 - 30;
+        sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
 
         // const colorMatrix = new ColorMatrixFilter();
