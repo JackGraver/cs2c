@@ -1,144 +1,173 @@
 import { useEffect, useState } from "react";
 import FileDropper from "../component/upload/FileDropper";
-import TournamentSelector from "../component/upload/TournamentSelector";
 import { useNavigate } from "react-router-dom";
-
-type Tournament = {
-    tournament_id: number;
-    tournament_name: string;
-    // date: string;
-};
-
-type Map = {
-    map: string;
-    team1: string;
-    team2: string;
-};
+import TournamentSelector from "../component/upload/TournamentSelector";
 
 export default function Upload() {
     const navigate = useNavigate();
 
     const [file, setFile] = useState<File | null>(null);
+    const [currentStage, setCurrentStage] = useState(0); // Track the current stage (0-3)
+    const [stageProgress, setStageProgress] = useState(0); // Progress within the current stage
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [formData, setFormData] = useState({
+        date: "",
+        team1: "",
+        team2: "",
+    });
+    const [ready, setReady] = useState<string>("");
 
-    const [maps, setMaps] = useState<Map[]>([]);
-    const [tournaments, setTournaments] = useState<Tournament[]>([]);
+    const stages = [
+        "File Transfer",
+        "Demo Processing",
+        "Processing Rounds",
+        "Finishing Touches",
+    ];
 
-    const getTodayDate = () => {
-        return new Date().toISOString().split("T")[0]; // format: 'YYYY-MM-DD'
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     useEffect(() => {
         const processDemo = async () => {
             if (file) {
-                const formData = new FormData();
-                formData.append("file", file);
+                setIsProcessing(true);
+                setCurrentStage(0);
+                setStageProgress(0);
 
-                const res = await fetch("http://127.0.0.1:8000/upload", {
-                    method: "POST",
-                    body: formData,
-                });
+                // Simulate each stage
+                for (let stage = 0; stage < stages.length; stage++) {
+                    setCurrentStage(stage);
+                    for (let progress = 0; progress <= 100; progress += 10) {
+                        setStageProgress(progress);
+                        await new Promise((resolve) =>
+                            setTimeout(resolve, 200)
+                        );
+                    }
+                }
 
-                const data = await res.json();
+                // Simulate backend response
+                const res = {
+                    ok: true,
+                    success: true,
+                    demo_id: "123",
+                    map: "de_dust2",
+                };
 
-                if (res.ok && data.success) {
-                    navigate(
-                        `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
+                if (res.ok && res.success) {
+                    setIsProcessing(false);
+                    setReady(
+                        `/viewer?demo_id=${res.demo_id}&map=${res.map}&round=1`
                     );
+                    setCurrentStage(stages.length - 1);
+                    setStageProgress(100);
                 }
             }
         };
         processDemo();
     }, [file]);
 
-    // const onFileSelect = (file: File) => {};
-    // useEffect(() => {
-    //     const sendFile = async () => {
-    //         if (file) {
-    //             const formData = new FormData();
-    //             formData.append("file", file);
-
-    //             const res = await fetch("http://127.0.0.1:8000/init_upload", {
-    //                 method: "POST",
-    //                 body: formData,
-    //             });
-
-    //             const data = await res.json();
-
-    //             if (data) {
-    //                 console.log(data);
-    //                 setMaps(data.maps);
-    //                 setTournaments(data.tournaments);
-    //             }
-    //         }
-    //     };
-    //     sendFile();
-    // }, [file]);
-
     return (
-        <div className="p-8 max-w-xl mx-auto space-y-6 pt-24">
-            <div>
-                <FileDropper setFile={setFile} />
-            </div>
+        <div className="p-8 max-w-4xl mx-auto pt-24 space-y-10">
+            <FileDropper setFile={setFile} />
 
-            {maps.length > 0 && tournaments && (
-                <div>
-                    <div className="w-full bg-gray-300 rounded-full h-4">
+            {/* Progress Bar */}
+            <div className="space-y-4">
+                <h2 className="text-white text-lg font-semibold">
+                    Upload Progress
+                </h2>
+                <div className="space-y-2">
+                    <div className="w-full bg-gray-700 rounded-full h-4">
                         <div
-                            className="bg-blue-600 h-4 rounded-full"
-                            style={{ width: "69%" }}
-                        />
+                            className="bg-blue-500 h-4 rounded-full transition-all"
+                            style={{
+                                width: `${
+                                    (currentStage * 100 + stageProgress) /
+                                    stages.length
+                                }%`,
+                            }}
+                        ></div>
                     </div>
-                    <div className="space-y-4 flex flex-col">
-                        <div className="flex flex-row">
-                            <TournamentSelector
-                                tournaments={tournaments}
-                                onSelect={(t) =>
-                                    console.log("Selected tournament:", t)
+                    <div className="flex justify-between text-sm text-gray-400">
+                        {stages.map((stage, index) => (
+                            <span
+                                key={index}
+                                className={
+                                    index === currentStage
+                                        ? "text-white font-bold"
+                                        : ""
                                 }
-                            />
-                            <input
-                                type="date"
-                                value={getTodayDate()}
-                                onChange={() => {}}
-                                className="w-full p-2 border rounded-md"
-                            />
-                        </div>
-                        <h2>Maps</h2>
-                        {maps.map((m, i) => (
-                            <div className="flex flex-row space-x-2" key={i}>
-                                <input
-                                    type="text"
-                                    placeholder="Map"
-                                    value={m.map}
-                                    onChange={() => {}}
-                                    className="w-full p-2 border rounded-md"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Team 1"
-                                    value={m.team1}
-                                    onChange={() => {}}
-                                    className="w-full p-2 border rounded-md"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Team 2"
-                                    value={m.team2}
-                                    onChange={() => {}}
-                                    className="w-full p-2 border rounded-md"
-                                />
-                            </div>
+                            >
+                                {stage}
+                            </span>
                         ))}
                     </div>
-                    {/* 
-                    <div className="flex justify-center items-center h-32">
-                        <button
-                            className="bg-gray-500 p-2 px-3 rounded-md hover:bg-gray-600"
-                            onClick={processDemo}
-                        >
-                            Submit
-                        </button>
-                    </div> */}
+                </div>
+            </div>
+
+            {/* Demo Info Inputs */}
+            <div className="space-y-4">
+                <h2 className="text-white text-lg font-semibold">
+                    Demo Information{" "}
+                    <span className="text-gray-400 text-sm">(optional)</span>
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {/* Tournament Selector styled to match */}
+                    <div className="col-span-1 md:col-span-2">
+                        <TournamentSelector
+                            tournaments={[]}
+                            onSelect={() => {}}
+                            disabled={!file}
+                        />
+                    </div>
+                    <input
+                        type="text"
+                        name="date"
+                        placeholder="Date"
+                        value={formData.date}
+                        onChange={handleInputChange}
+                        disabled={!file}
+                        className="px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    />
+                    <input
+                        type="text"
+                        name="team1"
+                        placeholder="Team 1"
+                        value={formData.team1}
+                        onChange={handleInputChange}
+                        disabled={!file}
+                        className="px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    />
+                    <input
+                        type="text"
+                        name="team2"
+                        placeholder="Team 2"
+                        value={formData.team2}
+                        onChange={handleInputChange}
+                        disabled={!file}
+                        className="px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+                    />
+                </div>
+            </div>
+
+            {/* Loading Spinner */}
+            {isProcessing && (
+                <div className="flex items-center justify-center space-x-2">
+                    <div className="w-6 h-6 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-white">Processing file...</span>
+                </div>
+            )}
+            {ready !== "" && (
+                <div className="flex justify-center">
+                    <button
+                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl shadow-lg hover:from-blue-500 hover:to-blue-300 transition-all duration-200 font-semibold text-lg"
+                        onClick={() => {
+                            navigate(ready);
+                        }}
+                    >
+                        ▶ Watch Demo
+                    </button>
                 </div>
             )}
         </div>

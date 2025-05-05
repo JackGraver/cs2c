@@ -179,6 +179,9 @@ const Viewer = () => {
     };
 
     const handleSwitchGame = (game: SeriesGame) => {
+        if (game.id === demoId) {
+            return;
+        }
         setCurrentTickIndex(0);
         setSelectedRound(1);
         setIsPlaying(true);
