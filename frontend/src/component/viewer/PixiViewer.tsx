@@ -21,10 +21,6 @@ export function PixiViewer({
     const [map, setMap] = useState<string>(mapI);
 
     useEffect(() => {
-        mapViewerRef.current?.updateMap(map);
-    }, [map]);
-
-    useEffect(() => {
         const initializeMapViewer = async () => {
             if (!containerRef.current || mapViewerRef.current) return;
 
@@ -52,6 +48,11 @@ export function PixiViewer({
 
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
+
+        if (mapI !== mapViewerRef.current.currentMap()) {
+            mapViewerRef.current.updateMap(mapI);
+            setMap(mapI);
+        }
 
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);

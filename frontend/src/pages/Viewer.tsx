@@ -4,6 +4,8 @@ import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import TopBar from "../component/viewer/TopBar";
+import { SeriesGame } from "../lib/viewer/types/SeriesGame";
 
 type RoundInfo = {
     round_num: number;
@@ -14,11 +16,6 @@ type RoundInfo = {
     t_wins_during_round: number;
     team1: string;
     team2: string;
-};
-
-type SeriesGame = {
-    id: string;
-    map_name: string;
 };
 
 const Viewer = () => {
@@ -182,12 +179,20 @@ const Viewer = () => {
 
     const handleSwitchGame = (game: SeriesGame) => {
         setCurrentTickIndex(0);
+        setSelectedRound(1);
         setIsPlaying(true);
         navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
     };
 
     return (
         <div className="w-full h-screen flex flex-col">
+            <div className="w-full fixed top-0 left-0 z-10 border-b border-gray-500">
+                <TopBar
+                    currentTick={tickData[currentTickIndex]}
+                    series={seriesDemos}
+                    handleSwitchGame={handleSwitchGame}
+                />
+            </div>
             <div className="flex flex-1 overflow-hidden">
                 <div className="w-1/4 overflow-y-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (
@@ -225,21 +230,7 @@ const Viewer = () => {
                     />
                 </div>
 
-                {/* Right Team */}
                 <div className="w-1/4 relative overflow-y-auto p-2">
-                    <div className="absolute top-2 right-2 p-2 flex flex-row gap-2">
-                        {seriesDemos.map((game) => (
-                            <img
-                                key={game.id}
-                                src={`map_icons/${game.map_name}.png`}
-                                alt={game.map_name}
-                                onClick={() => {
-                                    handleSwitchGame(game);
-                                }}
-                                className="w-12 h-12 object-cover cursor-pointer rounded"
-                            />
-                        ))}
-                    </div>
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -258,7 +249,6 @@ const Viewer = () => {
                 </div>
             </div>
 
-            {/* Bottom Bar */}
             <div className="h-28 border-t border-gray-500 text-white w-full">
                 <BottomBar
                     rounds={roundData}
@@ -267,7 +257,6 @@ const Viewer = () => {
                     isPlaying={isPlaying}
                     speed={speedValues[playbackSpeed]}
                     changeSpeed={changeSpeed}
-                    // onTickChange={setCurrentTickIndex}
                     onTickChange={sliderChangeTick}
                     togglePlay={togglePlay}
                     setSelectedRound={setSelectedRound}

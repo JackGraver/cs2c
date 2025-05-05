@@ -28,7 +28,7 @@ export default function SideNavBar() {
 
             {/* Sidebar itself */}
             <div
-                className={`fixed top-0 left-0 z-50 h-1/4  text-white transition-all duration-300 ${
+                className={`fixed top-0 left-0 z-50 h-1/4 text-white transition-all duration-300 ${
                     open ? "w-32" : "w-12"
                 }`}
                 onMouseEnter={() => setOpen(true)}

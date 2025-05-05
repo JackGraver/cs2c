@@ -61,6 +61,10 @@ export class MapViewer {
         this.textureManager = TextureManager.getInstance();
     }
 
+    currentMap() {
+        return this.mapInfo.name;
+    }
+
     async updateMap(map: string) {
         this.mapInfo = getMapInfo(map);
         this.mapLayer.removeChildren();

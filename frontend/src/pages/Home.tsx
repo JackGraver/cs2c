@@ -18,12 +18,13 @@ type ParsedDemos = {
 };
 
 export default function Home() {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    // const [parsedDemos, setParsedDemos] = useState<ParsedDemos[]>([]);
     const [parsedDemos, setParsedDemos] = useState<Series[]>([]);
+
+    const [mapFilter, setMapFilter] = useState("");
+    const [team1Filter, setTeam1Filter] = useState("");
+    const [team2Filter, setTeam2Filter] = useState("");
 
     useEffect(() => {
         const fetchParsedDemos = async () => {
@@ -57,43 +58,6 @@ export default function Home() {
         console.log("p", parsedDemos);
     }, [parsedDemos]);
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const formData = new FormData();
-        formData.append("file", file);
-
-        setLoading(true);
-        setError(null); // reset error
-
-        try {
-            const res = await fetch("http://127.0.0.1:8000/upload", {
-                method: "POST",
-                body: formData,
-            });
-
-            const data = await res.json();
-            setLoading(false);
-
-            if (res.ok && data.success) {
-                navigate(
-                    `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
-                );
-            } else {
-                setError(data.message || "Failed to parse demo.");
-            }
-        } catch (err) {
-            console.error(err);
-            setLoading(false);
-            setError("An unexpected error occurred.");
-        }
-    };
-
-    const [mapFilter, setMapFilter] = useState("");
-    const [team1Filter, setTeam1Filter] = useState("");
-    const [team2Filter, setTeam2Filter] = useState("");
-
     const filteredSeries = parsedDemos.filter((series) => {
         return series.demos.length > 0;
     });
@@ -109,16 +73,6 @@ export default function Home() {
     return (
         <div className="p-8 text-center">
             <h1 className="text-8xl font-bold m-16">CS2C</h1>
-            <button
-                onClick={() => navigate("/upload")}
-                className="bg-[#2c2c2c] text-white text-lg px-6 py-3 rounded-md hover:bg-[#3a3a3a] focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-            >
-                Upload Demo(s)
-            </button>
-            {/* <h1 className="text-2xl font-bold mb-4">Upload a .dem File</h1>
-            <input type="file" accept=".dem" onChange={handleUpload} /> */}
-            {loading && <p className="mt-4 text-gray-400">Parsing demo...</p>}
-            {error && <p className="mt-4 text-red-500">{error}</p>}
 
             {parsedDemos.length > 0 && (
                 <div className="mt-8 text-left max-w-2xl mx-auto">
