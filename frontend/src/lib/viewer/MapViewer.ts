@@ -98,9 +98,6 @@ export class MapViewer {
         const containerWidth = this.container.offsetWidth;
         const containerHeight = this.container.offsetHeight;
 
-        console.log(containerWidth, containerHeight);
-        console.log(texture.width, texture.height);
-
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 

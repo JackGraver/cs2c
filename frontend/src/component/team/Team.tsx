@@ -9,7 +9,6 @@ export function Team({ players }: PlayersProps) {
     const teamName = players[0].team_clan_name;
 
     const justifyClass = players[0].side ? "text-start" : "text-end";
-    console.log(players[0], justifyClass);
 
     return (
         <div className={`flex justify-center gap-10 p-4 h-full`}>
