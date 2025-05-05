@@ -178,6 +178,7 @@ def init_demo(temp_path: str):
 
     map = dem.header['map_name']
     tournaments = get_all_tournaments()
+
     teams = sorted(game_times['team_clan_name'].drop_nulls().unique().to_list())
     
     return map, teams, tournaments
