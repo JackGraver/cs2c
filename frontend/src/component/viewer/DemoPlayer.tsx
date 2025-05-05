@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { PixiViewer } from "./PixiViewer";
 import { TickData } from "../../lib/viewer/types/TickData";
 import { KillFeed } from "../killfeed/KillFeed";
-import { Kill } from "../../lib/viewer/types/Kill";
+import { Kill } from "../../lib/viewer/types/kill";
 
 type DemoPlayerProps = {
     currentTick: TickData;
@@ -67,12 +67,7 @@ export function DemoPlayer({
     }, [isPlaying, onAdvanceTick]);
 
     return (
-        <div className="relative w-full h-full">
-            {/* Time display */}
-            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-50 bg-black bg-opacity-60 text-white px-3 py-1 rounded text-sm shadow">
-                {currentTick ? currentTick.time : "0.00"}
-            </div>
-
+        <div className="relative pt-8 w-full h-full">
             <KillFeed kills={displayedKills}></KillFeed>
 
             {/* Pixi viewer */}
@@ -80,7 +75,7 @@ export function DemoPlayer({
                 currentTick={currentTick}
                 speed={speed}
                 previousTick={previousTick}
-                map={map}
+                mapI={map}
             />
         </div>
     );

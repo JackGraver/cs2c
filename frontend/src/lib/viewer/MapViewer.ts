@@ -12,7 +12,7 @@ import { TextureManager } from "./managers/TextureManager";
 import { getMapInfo, MapInfo } from "./models/MapData";
 import { TickData } from "./types/TickData";
 import { PlayerDot } from "./models/playerdot";
-import { GrenadeType } from "./types/InAirGrenade";
+import { getGrenadeNameFromType, GrenadeType } from "./types/InAirGrenade";
 import { InAirGrenadeDot } from "./models/air_grenadedot";
 import { Zi } from "./types/zIndex";
 import { BombDot } from "./models/BombDot";
@@ -42,6 +42,7 @@ export class MapViewer {
     constructor(cont: HTMLDivElement, map: string) {
         this.container = cont;
         this.root = new Container();
+        this.root.interactive = true;
         this.root.sortableChildren = true;
         this.app = new Application();
 
@@ -58,7 +59,10 @@ export class MapViewer {
         this.mapInfo = getMapInfo(map);
 
         this.textureManager = TextureManager.getInstance();
-        console.log(this.textureManager.getTextures());
+    }
+
+    currentMap() {
+        return this.mapInfo.name;
     }
 
     async updateMap(map: string) {
@@ -94,6 +98,9 @@ export class MapViewer {
         const containerWidth = this.container.offsetWidth;
         const containerHeight = this.container.offsetHeight;
 
+        console.log(containerWidth, containerHeight);
+        console.log(texture.width, texture.height);
+
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
@@ -104,7 +111,7 @@ export class MapViewer {
         this.mapHeight = sprite.height;
 
         sprite.anchor.set(0.5);
-        sprite.x = containerWidth / 2 - 30;
+        sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
 
         // const colorMatrix = new ColorMatrixFilter();
@@ -170,7 +177,7 @@ export class MapViewer {
             );
             if (!prev) continue;
 
-            this.players[player.name].update(prev, player, t);
+            this.players[player.name]?.update(prev, player, t);
         }
 
         // === Bomb ===
@@ -281,16 +288,14 @@ export class MapViewer {
                     flash.X,
                     flash.Y,
                     flash.entity_id,
-                    // flash.grenade_type,
-                    GrenadeType.Flashbang,
+                    getGrenadeNameFromType(flash.grenade_type)!,
+                    // GrenadeType.Flashbang,
                     // flash.thrower,
                     this.transformCoordinates.bind(this)
                 );
                 if (grenadeDot.type === GrenadeType.HE) {
-                    console.log("he textr");
                     grenadeDot.create(this.textureManager.getTexture("he")!);
                 } else if (grenadeDot.type === GrenadeType.Flashbang) {
-                    console.log("flash tex");
                     grenadeDot.create(this.textureManager.getTexture("flash")!);
                 } else if (grenadeDot.type === GrenadeType.Smoke) {
                     grenadeDot.create(this.textureManager.getTexture("smoke")!);
@@ -311,11 +316,11 @@ export class MapViewer {
 
             if (!flash) {
                 // Grenade no longer exists, so we assume it just exploded
-                this.triggerGrenadeEffect(
-                    sprite.dot!.x,
-                    sprite.dot!.y,
-                    sprite.type
-                );
+                // this.triggerGrenadeEffect(
+                //     sprite.dot!.x,
+                //     sprite.dot!.y,
+                //     sprite.type
+                // );
 
                 // Remove the grenade sprite
                 this.tempLayer.removeChild(sprite.dot!);

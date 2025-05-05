@@ -1,4 +1,4 @@
-import { Kill } from "../../lib/viewer/types/Kill";
+import { Kill } from "../../lib/viewer/types/kill";
 import { KillCard } from "./KillCard";
 
 type PlayerProps = {
@@ -6,14 +6,13 @@ type PlayerProps = {
 };
 
 export function KillFeed({ kills }: PlayerProps) {
-    if (kills.length === 0) {
-        return <></>;
-    }
+    if (!kills || kills.length === 0) return null;
+
     return (
-        <div className="absolute top-2 left-2">
-            {kills.map((kill, i) => {
-                return <KillCard kill={kill} key={i} />;
-            })}
+        <div className="absolute flex flex-col gap-1 w-fit">
+            {kills.map((kill, i) => (
+                <KillCard kill={kill} key={i} />
+            ))}
         </div>
     );
 }

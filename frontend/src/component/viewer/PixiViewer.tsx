@@ -6,26 +6,27 @@ type PixiViewerProps = {
     currentTick: TickData;
     previousTick: TickData | undefined;
     speed: number;
-    map: string;
+    mapI: string;
 };
 
 export function PixiViewer({
     currentTick,
     previousTick,
     speed,
-    map,
+    mapI,
 }: PixiViewerProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapViewerRef = useRef<MapViewer | null>(null);
 
-    useEffect(() => {
-        mapViewerRef.current?.updateMap(map);
-    }, [map]);
+    const [map, setMap] = useState<string>(mapI);
 
     useEffect(() => {
         const initializeMapViewer = async () => {
             if (!containerRef.current || mapViewerRef.current) return;
 
+            if (map == "de_nuke") {
+                setMap("de_nuke_upper");
+            }
             // Create your MapViewer instance once
             mapViewerRef.current = new MapViewer(containerRef.current, map);
 
@@ -47,6 +48,11 @@ export function PixiViewer({
 
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
+
+        if (mapI !== mapViewerRef.current.currentMap()) {
+            mapViewerRef.current.updateMap(mapI);
+            setMap(mapI);
+        }
 
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
@@ -82,10 +88,24 @@ export function PixiViewer({
         return () => cancelAnimationFrame(animationFrame);
     }, [currentTick, previousTick]);
 
+    const handleDisplayLowerMap = () => {
+        console.log(map);
+        if (map === "de_nuke_upper") {
+            console.log("switch nuke lower");
+            setMap("de_nuke_lower");
+        } else if (map === "de_nuke_lower") {
+            console.log("switch nuke upper");
+            setMap("de_nuke_upper");
+        } else if (map === "de_train") {
+            console.log("switch train inner/outer");
+        }
+    };
+
     return (
         <div
             ref={containerRef}
-            style={{ width: "1024px", height: "768px", position: "relative" }}
+            onClick={handleDisplayLowerMap}
+            className="w-full h-full"
         />
     );
 }

@@ -1,4 +1,4 @@
-import { Sprite, Text, TextStyle, Texture } from "pixi.js";
+import { ColorMatrixFilter, Sprite, Text, TextStyle, Texture } from "pixi.js";
 import { DisplayDot } from "./DisplayDot";
 import { TickData } from "../types/TickData";
 import { Zi } from "../types/zIndex";
@@ -97,6 +97,16 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
         } else {
             this.nameText!.visible = true;
             this.dot!.zIndex = Zi.Player;
+        }
+
+        if (curr.blinded && this.dot) {
+            const colorMatrix = new ColorMatrixFilter();
+            colorMatrix.brightness(2, false); // values > 1.0 brighten
+            this.dot.filters = [colorMatrix];
+        } else {
+            if (this.dot) {
+                this.dot.filters = [];
+            }
         }
 
         this.dot!.texture = texture;

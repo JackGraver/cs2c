@@ -20,7 +20,6 @@ export default function RoundScroller({
     rounds,
     handleRoundClick,
 }: RoundScrollerProps) {
-    console.log("RS", rounds);
     const containerRef = useRef<HTMLDivElement>(null);
     const [visibleStart, setVisibleStart] = useState(0);
     const [buttonsPerPage, setButtonsPerPage] = useState(6); // fallback default
@@ -75,10 +74,11 @@ export default function RoundScroller({
 
             <div className="flex space-x-2 overflow-hidden">
                 {visibleRounds.map((round, i) => (
-                    <button
-                        key={round.round_num}
-                        onClick={() => handleRoundClick(round.round_num)}
-                        className={`px-4 py-2 w-14 text-center rounded whitespace-nowrap
+                    <>
+                        <button
+                            key={round.round_num}
+                            onClick={() => handleRoundClick(round.round_num)}
+                            className={`px-4 py-2 w-14 text-center rounded whitespace-nowrap
                             ${
                                 round.had_timeout
                                     ? "text-white border-t-2 border-green-400"
@@ -91,9 +91,15 @@ export default function RoundScroller({
                                         : "bg-blue-500 hover:bg-blue-600"
                                     : "bg-gray-500 hover:bg-gray-600"
                             }`}
-                    >
-                        {round.round_num}
-                    </button>
+                        >
+                            {round.round_num}
+                        </button>
+
+                        {/* Add a divider between rounds 12 and 13 */}
+                        {round.round_num === 12 && (
+                            <div className="w-0.5 h-10 bg-gray-200 mx-2"></div>
+                        )}
+                    </>
                 ))}
             </div>
 

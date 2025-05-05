@@ -1,16 +1,12 @@
-// import { useState } from 'react'
-
-// import "./App.css";
-
-// import MapView from "../component/MapView"
 import { Team } from "../component/team/Team";
-// import Player from "./component/Player"
-import { BottomBar } from "../component/BottomBar";
+import { BottomBar } from "../component/viewer/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
 import { useEffect, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";
-import { useLocation, useSearchParams } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import TopBar from "../component/viewer/TopBar";
+import { SeriesGame } from "../lib/viewer/types/SeriesGame";
+import { KillFeed } from "../component/killfeed/KillFeed";
 
 type RoundInfo = {
     round_num: number;
@@ -21,11 +17,6 @@ type RoundInfo = {
     t_wins_during_round: number;
     team1: string;
     team2: string;
-};
-
-type SeriesGame = {
-    id: string;
-    map_name: string;
 };
 
 const Viewer = () => {
@@ -106,6 +97,15 @@ const Viewer = () => {
                 const data = await res.json();
                 if (data.data) {
                     console.log(data.data);
+                    // const transformedList: TickData[] = data.data.map(
+                    //     (tick: any) => ({
+                    //         ...tick,
+                    //         players: tick.players.map((player: any) => ({
+                    //             ...player,
+                    //             side: player.side === "ct",
+                    //         })),
+                    //     })
+                    // );
                     roundCache.current[selectedRound] = data.data;
                     setTickData(data.data);
                     navigate(
@@ -178,16 +178,35 @@ const Viewer = () => {
         }
     };
 
-    const handleClick = (game: SeriesGame) => {
+    const handleSwitchGame = (game: SeriesGame) => {
+        if (game.id === demoId) {
+            return;
+        }
         setCurrentTickIndex(0);
+        setSelectedRound(1);
         setIsPlaying(true);
         navigate(`/viewer?demo_id=${game.id}&map=${game.map_name}&round=1`);
     };
 
     return (
-        <div className="w-full h-screen pt-12 flex flex-col">
+        <div className="w-full h-screen flex flex-col text-white overflow-hidden">
+            {/* TopBar (fixed height) */}
+            <div className="w-full border-b border-gray-500 z-10">
+                <TopBar
+                    currentTick={tickData[currentTickIndex]}
+                    series={seriesDemos}
+                    handleSwitchGame={handleSwitchGame}
+                    score_ct={
+                        roundData[selectedRound - 1]?.ct_wins_during_round
+                    }
+                    score_t={roundData[selectedRound - 1]?.t_wins_during_round}
+                />
+            </div>
+
+            {/* Middle section: fills available space */}
             <div className="flex flex-1 overflow-hidden">
-                <div className="w-1/4 overflow-y-auto p-2">
+                {/* Left Team */}
+                <div className="w-1/4 overflow-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -198,15 +217,12 @@ const Viewer = () => {
                                     (p) => p.side
                                 ),
                             ]}
-                            score={
-                                roundData[selectedRound - 1]
-                                    .ct_wins_during_round
-                            }
                         />
                     )}
                 </div>
 
-                <div className="w-2/4 aspect-square flex items-center justify-center p-2 overflow-hidden">
+                {/* Demo viewer */}
+                <div className="w-2/4 p-2 flex items-center justify-center">
                     <DemoPlayer
                         currentTick={tickData[currentTickIndex]}
                         previousTick={
@@ -224,20 +240,7 @@ const Viewer = () => {
                 </div>
 
                 {/* Right Team */}
-                <div className="w-1/4 relative overflow-y-auto p-2">
-                    <div className="absolute top-2 right-2 p-2 flex flex-row gap-2">
-                        {seriesDemos.map((game) => (
-                            <img
-                                key={game.id}
-                                src={`map_icons/${game.map_name}.png`}
-                                alt={game.map_name}
-                                onClick={() => {
-                                    handleClick(game);
-                                }}
-                                className="w-12 h-12 object-cover cursor-pointer rounded"
-                            />
-                        ))}
-                    </div>
+                <div className="w-1/4 overflow-auto p-2">
                     {loading || !tickData[currentTickIndex]?.players ? (
                         <div>Loading...</div>
                     ) : (
@@ -248,16 +251,13 @@ const Viewer = () => {
                                     (p) => !p.side
                                 ),
                             ]}
-                            score={
-                                roundData[selectedRound - 1].t_wins_during_round
-                            }
                         />
                     )}
                 </div>
             </div>
 
-            {/* Bottom Bar */}
-            <div className="h-28 border-t border-gray-500 text-white w-full">
+            {/* BottomBar (fixed height) */}
+            <div className="h-28 border-t border-gray-500 w-full">
                 <BottomBar
                     rounds={roundData}
                     currentTickIndex={currentTickIndex}
@@ -265,7 +265,6 @@ const Viewer = () => {
                     isPlaying={isPlaying}
                     speed={speedValues[playbackSpeed]}
                     changeSpeed={changeSpeed}
-                    // onTickChange={setCurrentTickIndex}
                     onTickChange={sliderChangeTick}
                     togglePlay={togglePlay}
                     setSelectedRound={setSelectedRound}

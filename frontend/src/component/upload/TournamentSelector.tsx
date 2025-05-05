@@ -9,12 +9,12 @@ type Tournament = {
 export default function TournamentSelector({
     tournaments,
     onSelect,
+    disabled,
 }: {
     tournaments: Tournament[];
     onSelect: (tournament: Tournament) => void;
+    disabled?: boolean;
 }) {
-    console.log("t", tournaments);
-
     const [query, setQuery] = useState("");
     const [showDropdown, setShowDropdown] = useState(false);
 
@@ -31,18 +31,16 @@ export default function TournamentSelector({
                 type="text"
                 placeholder="Tournament"
                 value={query}
-                onClick={() => {
-                    setShowDropdown(true);
-                }}
+                disabled={disabled}
+                onClick={() => setShowDropdown(true)}
                 onChange={(e) => {
                     setQuery(e.target.value);
                     setShowDropdown(true);
                 }}
-                onBlur={() => {
-                    // Optional: delay to allow click
-                    setTimeout(() => setShowDropdown(false), 100);
-                }}
-                className="w-full p-2 border rounded-md"
+                onBlur={() => setTimeout(() => setShowDropdown(false), 100)}
+                className={`w-full px-4 py-2 rounded bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                    disabled ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             />
 
             {showDropdown && filtered.length > 0 && (

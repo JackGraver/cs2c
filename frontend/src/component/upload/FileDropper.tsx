@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function FileDropper({
     setFile,
@@ -28,7 +28,7 @@ export default function FileDropper({
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors hover:border-gray-400
+            className={`border-2 border-dashed border-gray-600 p-12 rounded-lg text-center hover:border-blue-500 transition-colors
                 ${
                     isDragging
                         ? "bg-gray-700 border-gray-400"
