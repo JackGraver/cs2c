@@ -5,6 +5,7 @@ import {
     Assets,
     Graphics,
     Ticker,
+    ColorMatrixFilter,
     // ColorMatrixFilter,
 } from "pixi.js";
 
@@ -92,7 +93,6 @@ export class MapViewer {
     }
 
     private async drawMap() {
-        console.log("Drawing map", this.mapInfo.imagePath);
         const texture = await Assets.load(this.mapInfo.imagePath);
         const sprite = new Sprite(texture);
 
@@ -102,7 +102,7 @@ export class MapViewer {
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
-        const scale = Math.min(scaleX, scaleY) - 0.03;
+        const scale = Math.min(scaleX, scaleY) + 0.03;
 
         sprite.scale.set(scale);
         this.mapWidth = sprite.width;
@@ -113,9 +113,9 @@ export class MapViewer {
         sprite.y = containerHeight / 2;
 
         // const colorMatrix = new ColorMatrixFilter();
-        // colorMatrix.greyscale(0.5, false); // 1 is full greyscale
+        // colorMatrix.greyscale(0.3, false); // 1 is full greyscale
 
-        // // Apply to sprite
+        // Apply to sprite
         // sprite.filters = [colorMatrix];
 
         sprite.zIndex = Zi.Map;
@@ -179,8 +179,8 @@ export class MapViewer {
                 prev,
                 player,
                 t,
-                this.mapInfo.Z_SWITCH,
-                this.mapInfo.name === "de_nuke_upper" ? true : false
+                this.mapInfo.Z_SWITCH ? this.mapInfo.Z_SWITCH : NaN,
+                this.mapInfo.name === "de_nuke" ? true : false
             );
         }
 

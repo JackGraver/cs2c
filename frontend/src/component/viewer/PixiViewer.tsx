@@ -22,41 +22,30 @@ export function PixiViewer({
 
     useEffect(() => {
         const initializeMapViewer = async () => {
-            if (!containerRef.current || mapViewerRef.current) return;
-
-            if (map == "de_nuke") {
-                setMap("de_nuke_upper");
-            }
-            // Create your MapViewer instance once
-            mapViewerRef.current = new MapViewer(containerRef.current, map);
-
-            // Wait for init to complete before moving forward
-            await mapViewerRef.current.init();
-        };
-
-        // Call the async initialization function
-        initializeMapViewer();
-
-        // Cleanup function (if needed)
-        return () => {
+            // Cleanup before re-creating
             if (mapViewerRef.current) {
                 mapViewerRef.current.destroy();
                 mapViewerRef.current = null;
             }
-        };
-    }, []);
 
-    // useEffect(() => {
-    //     mapViewerRef.current?.updateMap(mapI);
-    // }, [map]);
+            if (!containerRef.current) return;
+
+            setMap(mapI);
+            mapViewerRef.current = new MapViewer(containerRef.current, mapI);
+            await mapViewerRef.current.init();
+        };
+
+        initializeMapViewer();
+
+        // Cleanup function (if needed)
+        return () => {
+            mapViewerRef.current?.destroy();
+            mapViewerRef.current = null;
+        };
+    }, [mapI]);
 
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
-
-        // if (mapI !== mapViewerRef.current.currentMap()) {
-        //     mapViewerRef.current.updateMap(mapI);
-        //     setMap(mapI);
-        // }
 
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
@@ -94,14 +83,14 @@ export function PixiViewer({
 
     const handleDisplayLowerMap = () => {
         console.log(map);
-        if (map === "de_nuke_upper") {
+        if (map === "de_nuke") {
             console.log("switch nuke lower");
             setMap("de_nuke_lower");
             mapViewerRef.current?.updateMap("de_nuke_lower");
         } else if (map === "de_nuke_lower") {
             console.log("switch nuke upper");
-            setMap("de_nuke_upper");
-            mapViewerRef.current?.updateMap("de_nuke_upper");
+            setMap("de_nuke");
+            mapViewerRef.current?.updateMap("de_nuke");
         } else if (map === "de_train") {
             console.log("switch train inner/outer");
         }
