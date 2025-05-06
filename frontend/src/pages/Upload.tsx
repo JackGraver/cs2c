@@ -48,17 +48,20 @@ export default function Upload() {
                 }
 
                 // Simulate backend response
-                const res = {
-                    ok: true,
-                    success: true,
-                    demo_id: "123",
-                    map: "de_dust2",
-                };
+                const formData = new FormData();
+                formData.append("file", file);
+                console.log("Uploading file:", file.name);
+                const res = await fetch("http://127.0.0.1:8000/upload", {
+                    method: "POST",
+                    body: formData,
+                });
 
-                if (res.ok && res.success) {
+                const data = await res.json();
+
+                if (res.ok && data.success) {
                     setIsProcessing(false);
                     setReady(
-                        `/viewer?demo_id=${res.demo_id}&map=${res.map}&round=1`
+                        `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
                     );
                     setCurrentStage(stages.length - 1);
                     setStageProgress(100);

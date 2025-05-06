@@ -76,7 +76,13 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
         this.nameText.zIndex = Zi.PlayerName;
     }
 
-    update(prev: Player, curr: Player, t: number): void {
+    update(
+        prev: Player,
+        curr: Player,
+        t: number,
+        Z_SWITCH?: number,
+        showingUpper: boolean = false
+    ): void {
         const interpX = prev.X + (curr.X - prev.X) * t;
         const interpY = prev.Y + (curr.Y - prev.Y) * t;
         const interpYaw = this.interpolateAngle(prev.yaw, curr.yaw, t);
@@ -106,6 +112,25 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
         } else {
             if (this.dot) {
                 this.dot.filters = [];
+            }
+        }
+
+        if (Z_SWITCH) {
+            const isAbove = curr.Z >= Z_SWITCH;
+            const shouldBeVisible = showingUpper ? isAbove : !isAbove;
+
+            if (shouldBeVisible) {
+                this.dot!.alpha = 1.0;
+                this.dot!.tint = 0xffffff; // or team color
+                this.nameText!.visible = true;
+                // this.nameText!.alpha = 1.0;
+                // this.nameText!.tint = 0xffffff;
+            } else {
+                this.dot!.alpha = 0.8;
+                this.dot!.tint = 0x888888;
+                this.nameText!.visible = false;
+                // this.nameText!.alpha = 0.8;
+                // this.nameText!.tint = 0x888888;
             }
         }
 

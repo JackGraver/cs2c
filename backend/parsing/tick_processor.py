@@ -267,6 +267,7 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
                 "name": curr['name'][i],
                 "X": curr['X'][i],
                 "Y": curr['Y'][i],
+                "Z": curr['Z'][i],
                 "side": curr['side'][i],
                 "health": curr['health'][i],
                 "blinded": curr['blinded'][i],

@@ -92,6 +92,7 @@ export class MapViewer {
     }
 
     private async drawMap() {
+        console.log("Drawing map", this.mapInfo.imagePath);
         const texture = await Assets.load(this.mapInfo.imagePath);
         const sprite = new Sprite(texture);
 
@@ -174,7 +175,13 @@ export class MapViewer {
             );
             if (!prev) continue;
 
-            this.players[player.name]?.update(prev, player, t);
+            this.players[player.name]?.update(
+                prev,
+                player,
+                t,
+                this.mapInfo.Z_SWITCH,
+                this.mapInfo.name === "de_nuke_upper" ? true : false
+            );
         }
 
         // === Bomb ===

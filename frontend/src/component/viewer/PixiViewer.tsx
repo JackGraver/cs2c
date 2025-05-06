@@ -46,13 +46,17 @@ export function PixiViewer({
         };
     }, []);
 
+    // useEffect(() => {
+    //     mapViewerRef.current?.updateMap(mapI);
+    // }, [map]);
+
     useEffect(() => {
         if (!mapViewerRef.current || !currentTick) return;
 
-        if (mapI !== mapViewerRef.current.currentMap()) {
-            mapViewerRef.current.updateMap(mapI);
-            setMap(mapI);
-        }
+        // if (mapI !== mapViewerRef.current.currentMap()) {
+        //     mapViewerRef.current.updateMap(mapI);
+        //     setMap(mapI);
+        // }
 
         if (!previousTick && !mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
@@ -93,9 +97,11 @@ export function PixiViewer({
         if (map === "de_nuke_upper") {
             console.log("switch nuke lower");
             setMap("de_nuke_lower");
+            mapViewerRef.current?.updateMap("de_nuke_lower");
         } else if (map === "de_nuke_lower") {
             console.log("switch nuke upper");
             setMap("de_nuke_upper");
+            mapViewerRef.current?.updateMap("de_nuke_upper");
         } else if (map === "de_train") {
             console.log("switch train inner/outer");
         }

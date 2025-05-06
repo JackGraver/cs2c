@@ -5,6 +5,8 @@ export type MapInfo = {
     X_MAX: number;
     Y_MIN: number;
     Y_MAX: number;
+    Z_SWITCH?: number;
+    lower?: boolean;
 };
 const mapData: Record<string, MapInfo> = {
     de_inferno: {
@@ -62,6 +64,8 @@ const mapData: Record<string, MapInfo> = {
         X_MAX: 3497,
         Y_MIN: -2479,
         Y_MAX: 934,
+        Z_SWITCH: -438,
+        lower: false,
     }, // X 3497 -> -2991    Y 934 -> -2479
     de_nuke_lower: {
         name: "de_nuke_lower",
@@ -70,6 +74,8 @@ const mapData: Record<string, MapInfo> = {
         X_MAX: 3497,
         Y_MIN: -2479,
         Y_MAX: 934,
+        Z_SWITCH: -438,
+        lower: true,
     }, // X 3497 -> -2991    Y 934 -> -2479
 };
 
