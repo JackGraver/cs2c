@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { MapPicker } from "../component/filtering/MapPicker";
+import parse from "parse-svg-path";
 
 type Series = {
     series_id: string;
@@ -22,7 +24,7 @@ export default function Home() {
 
     const [parsedDemos, setParsedDemos] = useState<Series[]>([]);
 
-    const [mapFilter, setMapFilter] = useState("");
+    const [mapFilter, setMapFilter] = useState<string | null>(null);
     const [team1Filter, setTeam1Filter] = useState("");
     const [team2Filter, setTeam2Filter] = useState("");
 
@@ -55,20 +57,35 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        console.log("p", parsedDemos);
-    }, [parsedDemos]);
+        console.log("p", mapFilter);
+        console.log(parsedDemos);
+    }, [mapFilter]);
 
-    const filteredSeries = parsedDemos.filter((series) => {
-        return series.demos.length > 0;
-    });
+    const filteredSeries = parsedDemos
+        .filter((series) => {
+            if (!series.demos.length) return false;
 
-    // const filteredDemos = allDemos.filter((demo) => {
-    //     return (
-    //         demo.map_name.toLowerCase().includes(mapFilter.toLowerCase()) &&
-    //         demo.team1.toLowerCase().includes(team1Filter.toLowerCase()) &&
-    //         demo.team2.toLowerCase().includes(team2Filter.toLowerCase())
-    //     );
-    // });
+            const seriesMaps = series.demos.map((demo) =>
+                demo.map_name.toLowerCase()
+            );
+
+            const mapMatch =
+                !mapFilter || seriesMaps.includes(mapFilter.toLowerCase());
+
+            const team1Match = series.demos[0].team1
+                .toLowerCase()
+                .includes(team1Filter.toLowerCase());
+            const team2Match = series.demos[0].team2
+                .toLowerCase()
+                .includes(team2Filter.toLowerCase());
+
+            return mapMatch && team1Match && team2Match;
+        })
+        .sort((a, b) => {
+            const dateA = new Date(a.demos[0].uploaded_at).getTime();
+            const dateB = new Date(b.demos[0].uploaded_at).getTime();
+            return dateB - dateA; // descending
+        });
 
     return (
         <div className="p-8 text-center">
@@ -77,12 +94,16 @@ export default function Home() {
             {parsedDemos.length > 0 && (
                 <div className="mt-8 text-left max-w-2xl mx-auto">
                     <div className="mb-4 flex flex-col sm:flex-row gap-2 justify-between">
-                        <input
+                        {/* <input
                             type="text"
                             placeholder="Filter by Map"
                             value={mapFilter}
                             onChange={(e) => setMapFilter(e.target.value)}
                             className="p-2 rounded bg-gray-800 text-white placeholder-gray-400 border border-gray-600"
+                        /> */}
+                        <MapPicker
+                            selectedMap={mapFilter}
+                            onSelectedMapChange={setMapFilter}
                         />
                         <input
                             type="text"
