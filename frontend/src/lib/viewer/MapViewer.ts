@@ -5,16 +5,18 @@ import {
     Assets,
     Graphics,
     Ticker,
-    ColorMatrixFilter,
-    // ColorMatrixFilter,
 } from "pixi.js";
 
 import { TextureManager } from "./managers/TextureManager";
 import { getMapInfo, MapInfo } from "./models/MapData";
 import { TickData } from "./types/TickData";
-import { PlayerDot } from "./models/playerdot";
-import { getGrenadeNameFromType, GrenadeType } from "./types/InAirGrenade";
-import { InAirGrenadeDot } from "./models/air_grenadedot";
+import { PlayerDot } from "./models/PlayerDot";
+import {
+    getGrenadeNameFromType,
+    GrenadeType,
+    textureMap,
+} from "./types/InAirGrenade";
+import { InAirGrenadeDot } from "./models/InAirGrenadeDot";
 import { Zi } from "./types/zIndex";
 import { BombDot } from "./models/BombDot";
 
@@ -26,6 +28,8 @@ export class MapViewer {
     private mapLayer: Container;
 
     private tempLayer: Container;
+
+    private trailContainer: Container;
 
     private players: Record<string, PlayerDot> = {};
     private inAirGrenades: Record<number, InAirGrenadeDot> = {};
@@ -57,13 +61,15 @@ export class MapViewer {
         this.tempLayer.zIndex = Zi.Grenade - 1;
         this.tempLayer.sortableChildren = true;
 
+        this.trailContainer = new Container();
+        this.tempLayer.position.set(0, 0);
+        this.tempLayer.visible = true;
+        this.tempLayer.zIndex = Zi.Grenade - 2;
+        this.tempLayer.sortableChildren = true;
+
         this.mapInfo = getMapInfo(map);
 
         this.textureManager = TextureManager.getInstance();
-    }
-
-    currentMap() {
-        return this.mapInfo.name;
     }
 
     async updateMap(map: string) {
@@ -89,6 +95,8 @@ export class MapViewer {
 
         this.root.addChild(this.tempLayer);
 
+        this.root.addChild(this.trailContainer);
+
         await this.drawMap();
     }
 
@@ -102,7 +110,7 @@ export class MapViewer {
         const scaleX = containerWidth / texture.width;
         const scaleY = containerHeight / texture.height;
 
-        const scale = Math.min(scaleX, scaleY) + 0.03;
+        const scale = Math.min(scaleX, scaleY);
 
         sprite.scale.set(scale);
         this.mapWidth = sprite.width;
@@ -111,12 +119,6 @@ export class MapViewer {
         sprite.anchor.set(0.5);
         sprite.x = containerWidth / 2;
         sprite.y = containerHeight / 2;
-
-        // const colorMatrix = new ColorMatrixFilter();
-        // colorMatrix.greyscale(0.3, false); // 1 is full greyscale
-
-        // Apply to sprite
-        // sprite.filters = [colorMatrix];
 
         sprite.zIndex = Zi.Map;
 
@@ -232,6 +234,10 @@ export class MapViewer {
 
                 this.tempLayer.addChild(g);
                 this.activeSmokes[smoke.entity_id] = g;
+
+                this.inAirGrenades[smoke.entity_id]?.deleteTrail(
+                    this.trailContainer
+                );
             }
         }
 
@@ -275,39 +281,46 @@ export class MapViewer {
         }
 
         // === DRAW IN AIR GRENADES ===
-        for (const flash of currentTick.activeGrenades) {
+        for (const tickGrenade of currentTick.activeGrenades) {
             const prev = previousTick.activeGrenades.find(
-                (f) => f.entity_id === flash.entity_id
+                (f) => f.entity_id === tickGrenade.entity_id
             );
 
             // Check if we have a corresponding previous state for interpolation
             if (!prev) continue;
 
+            const grenade = this.inAirGrenades[tickGrenade.entity_id];
             // Check if the sprite already exists in inAirGrenades
-            if (this.inAirGrenades[flash.entity_id]) {
-                this.inAirGrenades[flash.entity_id].update(prev, flash, t);
+            if (grenade) {
+                grenade.update(prev, tickGrenade, t);
+
+                const origin = grenade.trail.getOrigin();
+                if (origin) {
+                    this.trailContainer.addChild(origin);
+                }
+
+                for (const point of this.inAirGrenades[
+                    tickGrenade.entity_id
+                ].trail.getTrail()) {
+                    setTimeout(() => {
+                        this.trailContainer.addChild(point.line);
+                        point.rendered = true;
+                    }, 100); // 100ms delay (adjust as needed)
+                }
             } else {
                 // If the sprite doesn't exist, create it
                 const grenadeDot = new InAirGrenadeDot(
-                    flash.X,
-                    flash.Y,
-                    flash.entity_id,
-                    getGrenadeNameFromType(flash.grenade_type)!,
-                    // GrenadeType.Flashbang,
-                    // flash.thrower,
+                    tickGrenade.X,
+                    tickGrenade.Y,
+                    tickGrenade.entity_id,
+                    getGrenadeNameFromType(tickGrenade.grenade_type)!,
                     this.transformCoordinates.bind(this)
                 );
-                if (grenadeDot.type === GrenadeType.HE) {
-                    grenadeDot.create(this.textureManager.getTexture("he")!);
-                } else if (grenadeDot.type === GrenadeType.Flashbang) {
-                    grenadeDot.create(this.textureManager.getTexture("flash")!);
-                } else if (grenadeDot.type === GrenadeType.Smoke) {
-                    grenadeDot.create(this.textureManager.getTexture("smoke")!);
-                } else {
-                    grenadeDot.create(this.textureManager.getTexture("molly")!);
-                }
 
-                this.inAirGrenades[flash.entity_id] = grenadeDot;
+                const textureKey = textureMap[grenadeDot.type]; // fallback
+                grenadeDot.create(this.textureManager.getTexture(textureKey)!);
+
+                this.inAirGrenades[tickGrenade.entity_id] = grenadeDot;
                 this.tempLayer.addChild(grenadeDot.dot!);
             }
         }
@@ -320,11 +333,11 @@ export class MapViewer {
 
             if (!flash) {
                 // Grenade no longer exists, so we assume it just exploded
-                // this.triggerGrenadeEffect(
-                //     sprite.dot!.x,
-                //     sprite.dot!.y,
-                //     sprite.type
-                // );
+                this.triggerGrenadeEffect(
+                    sprite.dot!.x,
+                    sprite.dot!.y,
+                    sprite.type
+                );
 
                 // Remove the grenade sprite
                 this.tempLayer.removeChild(sprite.dot!);
@@ -382,8 +395,9 @@ export class MapViewer {
     private transformCoordinates(x: number, y: number): [number, number] {
         const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
 
-        const containerWidth = 1024;
-        const containerHeight = 768;
+        const containerWidth = this.container.offsetWidth;
+        const containerHeight = this.container.offsetHeight;
+
         const mapWidth = this.mapWidth;
         const mapHeight = this.mapHeight;
 
@@ -393,7 +407,7 @@ export class MapViewer {
         const xMap = xNorm * mapWidth;
         const yMap = (1 - yNorm) * mapHeight; // flip Y
 
-        const offsetX = (containerWidth - mapWidth) / 2 - 30; // apply -30px X shift
+        const offsetX = (containerWidth - mapWidth) / 2; // apply -30px X shift
         const offsetY = (containerHeight - mapHeight) / 2; // no Y shift
 
         const screenX = xMap + offsetX;
@@ -401,29 +415,6 @@ export class MapViewer {
 
         return [screenX, screenY];
     }
-
-    // private transformCoordinates(x: number, y: number): [number, number] {
-    //     const { X_MIN, X_MAX, Y_MIN, Y_MAX } = this.mapInfo;
-
-    //     const containerWidth = 1024;
-    //     const containerHeight = 768;
-    //     const mapWidth = this.mapWidth;
-    //     const mapHeight = this.mapHeight;
-
-    //     const xNorm = (x - X_MIN) / (X_MAX - X_MIN);
-    //     const yNorm = (y - Y_MIN) / (Y_MAX - Y_MIN);
-
-    //     const xMap = xNorm * mapWidth;
-    //     const yMap = (1 - yNorm) * mapHeight; // flip Y
-
-    //     const offsetX = (containerWidth - mapWidth) / 2;
-    //     const offsetY = (containerHeight - mapHeight) / 2;
-
-    //     const screenX = xMap + offsetX;
-    //     const screenY = yMap + offsetY;
-
-    //     return [screenX, screenY];
-    // }
 
     public destroy() {
         this.app.destroy(true, { children: true });
