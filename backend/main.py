@@ -6,10 +6,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import tempfile
 
-from parsing.demo_parser import parse_demo
-from parsing.parquet_writer import *
-from admin.info import *
-from db.queries import *
+from v1.parsing.demo_parser import parse_demo
+from v1.parsing.parquet_writer import *
+from v1.admin.info import *
+from v1.db.queries import *
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
