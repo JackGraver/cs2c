@@ -5,8 +5,8 @@ from typing import List
 import polars as pl
 from awpy import Demo
 
-from parsing.tick_processor import parse_demo_round
-from db.queries import add_parsed_demos, remove_parsed_demo
+from v1.parsing.tick_processor import parse_demo_round
+from v1.db.queries import add_parsed_demos, remove_parsed_demo
 
 output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../parsed_demos"))
 

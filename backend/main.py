@@ -11,6 +11,8 @@ from v1.parsing.parquet_writer import *
 from v1.admin.info import *
 from v1.db.queries import *
 
+from v2.parsers.tick_parsing import parse_demo_round
+
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
 app = FastAPI()
@@ -30,6 +32,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/v2")
+def v2_test():
+    print('recv v2')
+    _, dem, game_times = parse_demo('v2/testing/mouz-vs-pain-m1-nuke.dem')
+    print('parsed dem')
+    res = parse_demo_round(dem, game_times, 5)
+    
+    return [res[0].players]
 
 @app.get("/")
 def get_demos():
