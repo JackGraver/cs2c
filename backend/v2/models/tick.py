@@ -36,14 +36,15 @@ class Tick:
     def parse_tick_players(self, players: DataFrame):
         for row in players.iter_rows(named=True):
             for i in range(0, len(row['name'])):
-                print('creating player for i', i)
                 curr_player = Player(
                     row['X'][i],
                     row['Y'][i],
+                    row['Z'][i],
                     row['yaw'][i],
-                    row['side'][i],
+                    row['side'][i] == 'ct',
                     row['health'][i],
                     row['name'][i],
+                    "temp",
                     row['inventory'][i],
                     row['blinded'][i],
                     row['has_helmet'][i],
@@ -117,6 +118,6 @@ class Tick:
             self.kills.append(curr_kill)
 
     def set_plant(self, plant: DataFrame):
-        plant = plant.row(0, named=True)
-        print(plant)
-        self.bomb_plant = BombPlant(plant['user_X'], plant['user_Y'])
+        if not plant.is_empty():
+            plant = plant.row(0, named=True)
+            self.bomb_plant = BombPlant(plant['X'], plant['Y'])

@@ -3,7 +3,7 @@ export type Player = {
     Y: number;
     Z: number;
     name: string;
-    side: boolean;
+    is_ct: boolean;
     health: number;
     blinded: number;
     armor: number;

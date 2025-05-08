@@ -1,4 +1,6 @@
 import asyncio
+from dataclasses import asdict
+import dataclasses
 import uuid
 import zipfile
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -11,7 +13,11 @@ from v1.parsing.parquet_writer import *
 from v1.admin.info import *
 from v1.db.queries import *
 
-from v2.parsers.tick_parsing import parse_demo_round
+from v2.parsers.parser import parse
+
+from v2.parsers.round_parser import parse_demo_round
+
+from v2.storage.read_demo import read_demo_round
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
@@ -34,22 +40,34 @@ app.add_middleware(
 )
 
 
-@app.get("/v2")
+@app.get("/v2/")
 def v2_test():
     print('recv v2')
     _, dem, game_times = parse_demo('v2/testing/mouz-vs-pain-m1-nuke.dem')
     print('parsed dem')
     res = parse_demo_round(dem, game_times, 5)
-    
-    return [res[0].players]
 
-@app.get("/")
+    return [asdict(tick) for tick in res]
+
+@app.post("/v2/upload")
+async def upload(file: UploadFile = File(...)):
+    # receive demo
+    parse(file)
+
+@app.get("/v2/demo/{demo_id}/round/{round_num}")
+def get_round(demo_id: str, round_num: int):
+    tick_data = read_demo_round(demo_id, round_num)
+    return {'data': [dataclasses.asdict(t) for t in tick_data] }
+    
+
+
+@app.get("/v1/")
 def get_demos():
     # demos = get_all_known_demos()
     demos = get_all_series()
     return {"demos": demos}
     
-@app.get("/demo/{demo_id}/round/{round_num}")
+@app.get("/v1/demo/{demo_id}/round/{round_num}")
 def get_round_data(demo_id: str, round_num: int):
     round = read_demo_round(demo_id, round_num)
     round_info = read_demo_round_info(demo_id)
@@ -59,7 +77,7 @@ def get_round_data(demo_id: str, round_num: int):
     else:
         raise HTTPException(status_code=400, detail=f"Unable to read round {round_num} from demo {demo_id}.")
 
-@app.post("/init_upload")
+@app.post("/v1/init_upload")
 async def upload_demo(file: UploadFile = File(...)):
     maps = []
     
@@ -103,7 +121,7 @@ async def upload_demo(file: UploadFile = File(...)):
         traceback.print_exc()
         return JSONResponse(status_code=500, content={"success": False, "error": str(e)})
 
-@app.post("/upload")
+@app.post("/v1/upload")
 async def upload_demo(file: UploadFile = File(...)):
     print('Recv /upload')
     try:
@@ -202,7 +220,7 @@ def process_demo(temp_path: str, series_id: str = "") -> tuple[str, Demo]:
     return None
 
 
-@app.delete("/delete/{demo_id}")
+@app.delete("/v1/delete/{demo_id}")
 def delete_demo(demo_id: str):
     if delete_demo_rounds(demo_id):
         return {"message": f"Demo {demo_id} deleted successfully."}

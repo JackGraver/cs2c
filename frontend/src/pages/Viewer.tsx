@@ -29,7 +29,7 @@ const Viewer = () => {
         const fetchNewGame = async () => {
             try {
                 const res = await fetch(
-                    `http://127.0.0.1:8000/demo/${demoId}/round/${round}`
+                    `http://127.0.0.1:8000/v2/demo/${demoId}/round/${round}`
                 );
                 const data = await res.json();
 
@@ -92,7 +92,7 @@ const Viewer = () => {
             try {
                 setLoading(true);
                 const res = await fetch(
-                    `http://127.0.0.1:8000/demo/${demoId}/round/${selectedRound}`
+                    `http://127.0.0.1:8000/v2/demo/${demoId}/round/${selectedRound}`
                 );
                 const data = await res.json();
                 if (data.data) {
@@ -214,7 +214,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side
+                                    (p) => p.is_ct
                                 ),
                             ]}
                         />
@@ -248,7 +248,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => !p.side
+                                    (p) => !p.is_ct
                                 ),
                             ]}
                         />

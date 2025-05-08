@@ -37,21 +37,21 @@ export default function Upload() {
                 setStageProgress(0);
 
                 // Simulate each stage
-                for (let stage = 0; stage < stages.length; stage++) {
-                    setCurrentStage(stage);
-                    for (let progress = 0; progress <= 100; progress += 10) {
-                        setStageProgress(progress);
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 200)
-                        );
-                    }
-                }
+                // for (let stage = 0; stage < stages.length; stage++) {
+                //     setCurrentStage(stage);
+                //     for (let progress = 0; progress <= 100; progress += 10) {
+                //         setStageProgress(progress);
+                //         await new Promise((resolve) =>
+                //             setTimeout(resolve, 200)
+                //         );
+                //     }
+                // }
 
                 // Simulate backend response
                 const formData = new FormData();
                 formData.append("file", file);
                 console.log("Uploading file:", file.name);
-                const res = await fetch("http://127.0.0.1:8000/upload", {
+                const res = await fetch("http://127.0.0.1:8000/v2/upload", {
                     method: "POST",
                     body: formData,
                 });
