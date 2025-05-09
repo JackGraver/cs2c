@@ -31,17 +31,28 @@ def parse_demo_round(dem: Demo, game_times: DataFrame, round_num: int = 1) -> Li
     round_plant = get_plant(dem)
     
     round_info = dem.rounds.filter(pl.col("round_num") == round_num)
-    start_tick = round_info[0, "freeze_end"]
+    start_tick = round_info[0, "freeze_end"] 
     end_tick = round_info[0, "official_end"]
     round_ticks = list(range(start_tick, end_tick + 1, 16))
-
+    
+    start_time = game_times.filter(pl.col('tick') == start_tick)[0]['game_time'].unique()[0]
+    
+    bomb_plant_tick = round_plant.filter(pl.col('tick').is_between(start_tick, end_tick))['tick']
+    bomb_plant_time = -1
+    if len(bomb_plant_tick) > 0:
+        bomb_plant_time = game_times.filter(pl.col('tick') == bomb_plant_tick)[0]['game_time'].unique()[0]
+        
     tick_list: List[Tick] = []
 
     for tick in round_ticks:
         curr_tick = tick_builder(tick, "0.00")
         
+        # players: List[Player]
         tick_players = round_players.filter(pl.col('tick') == tick)
         curr_tick.parse_tick_players(tick_players)
+        
+        # logical_time: str
+        curr_tick.logical_time = get_tick_time(game_times, tick, start_time, bomb_plant_time)
         
         # in_air_grenades: List[InAirGrenade]
         tick_in_air_grenades = round_in_air_grenades.filter(
@@ -86,6 +97,53 @@ def get_round_players(dem: Demo):
     ]).drop('flash_duration')
 
     return p.group_by(pl.col('tick'), maintain_order=True).all()
+
+def _format_clock(seconds: float) -> str:
+    m = int(seconds) // 60
+    s = int(seconds) % 60
+    return f"{m}:{s:02}"
+
+def get_tick_time(game_times: DataFrame, tick: int, start_time: float, bomb_plant_time: float = -1.0):
+    curr_time = game_times.filter(pl.col('tick') == tick)
+    
+    if curr_time.is_empty():
+        return "0.00"
+    
+    curr_time = curr_time[0]['game_time'].unique()[0]
+    
+    if bomb_plant_time == -1:
+        return _format_clock(115 - (curr_time - start_time))
+    else:
+        return _format_clock(40 - (curr_time - bomb_plant_time))
+
+
+
+
+
+# def get_tick_time(tick: int, start_tick: int, end_tick: int, dem: Demo, game_times: pl.DataFrame) -> str:
+#     bomb_plant_tick = _get_bomb_plant_tick(dem, start_tick, end_tick)
+
+#     tick_time = _calculate_tick_time(tick, start_tick, bomb_plant_tick, game_times)
+    
+#     if len(tick_time) > 0:
+#         return _format_clock(tick_time[0])
+#     return "0.00"
+
+# def _get_bomb_plant_tick(dem: Demo, start_tick: int, end_tick: int) -> int:
+#     bomb_plant = dem.events['bomb_planted']['tick', 'user_X', 'user_Y'].filter(
+#         pl.col('tick').is_between(start_tick, end_tick)
+#     )
+#     return bomb_plant[0, 'tick'] if bomb_plant.height > 0 else -1
+
+# def _calculate_tick_time(tick: int, start_tick: int, bomb_plant_tick: int, game_times: pl.DataFrame) -> float:
+#     tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
+#     round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
+
+#     if bomb_plant_tick != -1 and tick >= bomb_plant_tick:
+#         bomb_tick_time = game_times.filter(pl.col('tick') == bomb_plant_tick)[0]
+#         return 40 - (tick_game_time['game_time'] - bomb_tick_time['game_time'])
+#     else:
+#         return 115 - (tick_game_time['game_time'] - round_start_game_time['game_time'])
 
 def get_round_in_air_grenades(dem: Demo):
     g = dem.grenades['X', 'Y', 'tick', 'grenade_type', 'entity_id'].filter(pl.col('Y').is_not_null())
@@ -178,5 +236,4 @@ def get_plant(dem: Demo):
         pl.col('user_X').cast(pl.Int16).alias('X'),
         pl.col('user_Y').cast(pl.Int16).alias('Y'),
     ]).drop(['user_X', 'user_Y']))
-    
     

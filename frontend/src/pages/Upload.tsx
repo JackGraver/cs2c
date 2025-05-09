@@ -51,7 +51,7 @@ export default function Upload() {
                 const formData = new FormData();
                 formData.append("file", file);
                 console.log("Uploading file:", file.name);
-                const res = await fetch("http://127.0.0.1:8000/v2/upload", {
+                const res = await fetch("http://127.0.0.1:8000/upload", {
                     method: "POST",
                     body: formData,
                 });

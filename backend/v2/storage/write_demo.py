@@ -7,7 +7,7 @@ from pathlib import Path
 from v2.models.tick import Tick
 from v2.parsers.round_parser import parse_demo_round
 
-def write_demo(demo_id: str, dem: Demo, game_times: pl.DataFrame) -> List[Tick]:
+def write_demo(demo_id: str, dem: Demo, game_times: pl.DataFrame):
     """Writes all demo rounds to .parquet files
     - Each round stored in
         - demo_id/round_n/
@@ -16,16 +16,13 @@ def write_demo(demo_id: str, dem: Demo, game_times: pl.DataFrame) -> List[Tick]:
         demo_id (str): id of parsed demo
         dem (Demo): parsed demo
         game_times (pl.DataFrame): time and team information for demo
-        
-    Returns:
-        List[Tick]: Returns the the Tick information for the first round of the demo
     """
     num_rounds = int(dem.rounds['round_num'].max())
     
+    write_round(parse_demo_round(dem, game_times, 1), demo_id, 1)
+        
     for round in range(2, num_rounds + 1):
         write_round(parse_demo_round(dem, game_times, round), demo_id, round)
-        
-    return write_round(parse_demo_round(dem, game_times, 1), demo_id, 1)
     
     
 def write_round(round: List[Tick], demo_id: str, round_num: int):

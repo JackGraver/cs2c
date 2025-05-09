@@ -8,6 +8,7 @@ from v2.models.shot import Shot
 from v2.models.smoke_molly import SmokeMolly
 from v2.models.tick import Tick
 import polars as pl
+from polars import DataFrame
 
 def read_demo_round(demo_id: str, round_num: int) -> List[Tick]:
     """Reads a stored demo round from .parquet files and reconstructs a List[Tick]."""
@@ -43,19 +44,28 @@ def read_demo_round(demo_id: str, round_num: int) -> List[Tick]:
         else:
             plant = None
         
-        def extract(cls, df):
-            return [cls(**{k: v for k, v in row.items() if k != "tick"})
-                    for row in df.filter(pl.col("tick") == tick_id).to_dicts()]
+        def extract(cls, df: DataFrame, tick_id: int) -> list:
+            if len(df) == 0 or "tick" not in df.columns:
+                return []
+            
+            filtered_rows = df.filter(pl.col("tick") == tick_id).to_dicts()
+            
+            instances = []
+            for row in filtered_rows:
+                row_data = {k: v for k, v in row.items() if k != "tick"}
+                instances.append(cls(**row_data))
+            
+            return instances
 
         tick = Tick(
             tick=tick_id,
             logical_time=tick_row['logical_time'],
-            players=extract(Player, players_df),
-            in_air_grenades=extract(InAirGrenade, grenades_df),
-            smokes=extract(SmokeMolly, smokes_df),
-            mollys=extract(SmokeMolly, mollys_df),
-            shots=extract(Shot, shots_df),
-            kills=extract(Kill, kills_df),
+            players=extract(Player, players_df, tick_id),
+            in_air_grenades=extract(InAirGrenade, grenades_df, tick_id),
+            smokes=extract(SmokeMolly, smokes_df, tick_id),
+            mollys=extract(SmokeMolly, mollys_df, tick_id),
+            shots=extract(Shot, shots_df, tick_id),
+            kills=extract(Kill, kills_df, tick_id),
             bomb_plant = plant
         )
         ticks.append(tick)

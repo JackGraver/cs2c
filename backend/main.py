@@ -11,12 +11,10 @@ import tempfile
 from v1.parsing.demo_parser import parse_demo
 from v1.parsing.parquet_writer import *
 from v1.admin.info import *
-from v1.db.queries import *
 
+from v2.db.queries import *
 from v2.parsers.parser import parse
-
 from v2.parsers.round_parser import parse_demo_round
-
 from v2.storage.read_demo import read_demo_round
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
@@ -40,21 +38,25 @@ app.add_middleware(
 )
 
 
-@app.get("/v2/")
+@app.get("/")
 def v2_test():
-    print('recv v2')
-    _, dem, game_times = parse_demo('v2/testing/mouz-vs-pain-m1-nuke.dem')
-    print('parsed dem')
-    res = parse_demo_round(dem, game_times, 5)
+    demos = get_all_series()
+    return {"demos": demos}
 
-    return [asdict(tick) for tick in res]
-
-@app.post("/v2/upload")
+@app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     # receive demo
-    parse(file)
+    dem, demo_id = parse(file)
+    
+    return JSONResponse(content={
+        "success": True,
+        "message": "Demo parsed successfully.",
+        "demo_id": demo_id,
+        "map": dem.header['map_name']
+    })    
+    
 
-@app.get("/v2/demo/{demo_id}/round/{round_num}")
+@app.get("/demo/{demo_id}/round/{round_num}")
 def get_round(demo_id: str, round_num: int):
     tick_data = read_demo_round(demo_id, round_num)
     return {'data': [dataclasses.asdict(t) for t in tick_data] }
