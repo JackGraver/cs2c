@@ -45,7 +45,7 @@ export function PlayerCard({ player, loading }: PlayerProps) {
         return <div></div>;
     }
 
-    const bgColor = player.side ? "bg-blue-500" : "bg-orange-500";
+    const bgColor = player.is_ct ? "bg-blue-500" : "bg-orange-500";
     const healthFill = `${player.health}%`;
 
     return (
@@ -61,7 +61,7 @@ export function PlayerCard({ player, loading }: PlayerProps) {
                 <div className="flex justify-between">
                     <span className="text-lg leading-none">{player.name}</span>
                     <span>{player.armor}</span>
-                    {player.side ? (
+                    {player.is_ct ? (
                         <div>{player.has_defuser ? "Defuser" : "Loser"}</div>
                     ) : (
                         <div>

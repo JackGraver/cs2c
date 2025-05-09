@@ -11,11 +11,11 @@ export type TickData = {
 
     players: Player[];
 
-    activeSmokes: SmokeMolly[];
+    smokes: SmokeMolly[];
 
-    activeMolly: SmokeMolly[];
+    mollys: SmokeMolly[];
 
-    activeGrenades: InAirGrenade[];
+    in_air_grenades: InAirGrenade[];
 
     shots: {
         tick: number;

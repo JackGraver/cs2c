@@ -299,27 +299,18 @@ def parse_demo_round(dem: Demo, game_times: pl.DataFrame, round_num: int = 1) ->
         tick_mollies = mollies.filter((tick < pl.col('end_tick')) & (tick > pl.col('start_tick')))
         tick_mollies = tick_mollies['entity_id', 'X', 'Y', 'thrower_side'].to_dicts()
 
-        # airborne_grenades = air_grenades.filter((pl.col('tick') == tick) & (pl.col('tick') < pl.col('tick_right'))).to_dicts()
+
         airborne_grenades = air_grenades.filter(
             (pl.col('tick') == tick) &
             pl.when(pl.col('tick_right').is_not_null())
             .then(pl.col('tick') < pl.col('tick_right'))
             .otherwise(True)
         ).drop('tick_right').to_dicts()
-        # airborne_grenades = airborne_grenades.filter(
-        #     pl.when(pl.col('grenade_type') == 4)
-        #     .then(pl.col('tick') < pl.col('tick_right'))
-        #     .otherwise(pl.lit(True))
-        # ).drop('tick_right').to_dicts()
+
 
         tick_shots = shots.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
 
         tick_kills = kills.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
-        
-        # tick_plant_df = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8))
-        # tick_plant = tick_plant_df.to_dicts()
-
-        # bomb_plant = tick_plant if isinstance(tick_plant, list) else [tick_plant]
         
         tick_plant = plant.filter(pl.col('tick').is_between(tick - 8, tick + 8)).to_dicts()
         
