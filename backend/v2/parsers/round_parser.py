@@ -103,47 +103,18 @@ def _format_clock(seconds: float) -> str:
     s = int(seconds) % 60
     return f"{m}:{s:02}"
 
-def get_tick_time(game_times: DataFrame, tick: int, start_time: float, bomb_plant_time: float = -1.0):
+def get_tick_time(game_times: DataFrame, tick: int, start_time: float, bomb_plant_time: float):
     curr_time = game_times.filter(pl.col('tick') == tick)
     
     if curr_time.is_empty():
         return "0.00"
     
-    curr_time = curr_time[0]['game_time'].unique()[0]
+    curr_time = curr_time['game_time'][0]
     
-    if bomb_plant_time == -1:
+    if not bomb_plant_time or curr_time <= bomb_plant_time:
         return _format_clock(115 - (curr_time - start_time))
     else:
         return _format_clock(40 - (curr_time - bomb_plant_time))
-
-
-
-
-
-# def get_tick_time(tick: int, start_tick: int, end_tick: int, dem: Demo, game_times: pl.DataFrame) -> str:
-#     bomb_plant_tick = _get_bomb_plant_tick(dem, start_tick, end_tick)
-
-#     tick_time = _calculate_tick_time(tick, start_tick, bomb_plant_tick, game_times)
-    
-#     if len(tick_time) > 0:
-#         return _format_clock(tick_time[0])
-#     return "0.00"
-
-# def _get_bomb_plant_tick(dem: Demo, start_tick: int, end_tick: int) -> int:
-#     bomb_plant = dem.events['bomb_planted']['tick', 'user_X', 'user_Y'].filter(
-#         pl.col('tick').is_between(start_tick, end_tick)
-#     )
-#     return bomb_plant[0, 'tick'] if bomb_plant.height > 0 else -1
-
-# def _calculate_tick_time(tick: int, start_tick: int, bomb_plant_tick: int, game_times: pl.DataFrame) -> float:
-#     tick_game_time = game_times.filter(pl.col('tick') == tick)[0]
-#     round_start_game_time = game_times.filter(pl.col('tick') == start_tick)[0]
-
-#     if bomb_plant_tick != -1 and tick >= bomb_plant_tick:
-#         bomb_tick_time = game_times.filter(pl.col('tick') == bomb_plant_tick)[0]
-#         return 40 - (tick_game_time['game_time'] - bomb_tick_time['game_time'])
-#     else:
-#         return 115 - (tick_game_time['game_time'] - round_start_game_time['game_time'])
 
 def get_round_in_air_grenades(dem: Demo):
     g = dem.grenades['X', 'Y', 'tick', 'grenade_type', 'entity_id'].filter(pl.col('Y').is_not_null())

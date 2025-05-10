@@ -71,7 +71,8 @@ def get_round(demo_id: str, round_num: int):
         return {
             'status': 0,
             'data': [dataclasses.asdict(t) for t in tick_data],
-            'rounds': read_demo_rounds_info(demo_id)
+            'rounds': read_demo_rounds_info(demo_id),
+            'series_demos': get_series_games(demo_id)
         }
     except InvalidDemoFileError as e:
         return {

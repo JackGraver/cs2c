@@ -7,7 +7,7 @@ import { SmokeMolly } from "./smoke_molly_data";
 export type TickData = {
     tick: number;
 
-    time: string;
+    logical_time: string;
 
     players: Player[];
 

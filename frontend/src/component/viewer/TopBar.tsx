@@ -40,7 +40,7 @@ export default function TopBar({
 
                 {/* Current Time */}
                 <div className="text-white text-lg font-semibold">
-                    {formatTime(currentTick?.time)}
+                    {formatTime(currentTick?.logical_time)}
                 </div>
 
                 {/* Right Score */}

@@ -178,7 +178,7 @@ def get_all_series():
 
     return grouped
 
-def get_all_series_maps(demo_id: str):
+def get_series_games(demo_id: str):
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
