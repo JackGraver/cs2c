@@ -37,15 +37,15 @@ export default function Upload() {
                 setStageProgress(0);
 
                 // Simulate each stage
-                for (let stage = 0; stage < stages.length; stage++) {
-                    setCurrentStage(stage);
-                    for (let progress = 0; progress <= 100; progress += 10) {
-                        setStageProgress(progress);
-                        await new Promise((resolve) =>
-                            setTimeout(resolve, 200)
-                        );
-                    }
-                }
+                // for (let stage = 0; stage < stages.length; stage++) {
+                //     setCurrentStage(stage);
+                //     for (let progress = 0; progress <= 100; progress += 10) {
+                //         setStageProgress(progress);
+                //         await new Promise((resolve) =>
+                //             setTimeout(resolve, 200)
+                //         );
+                //     }
+                // }
 
                 // Simulate backend response
                 const formData = new FormData();

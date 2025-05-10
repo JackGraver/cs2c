@@ -1,0 +1,1 @@
+not_weapons = ['knife', 'flashbang', 'smokegrenade']

@@ -126,12 +126,13 @@ export class MapViewer {
     }
 
     async createPlayers(firstTick: TickData) {
+        console.log("c", firstTick.players.length);
         for (let i = 0; i < firstTick.players.length; i++) {
             const p = firstTick.players[i];
             const [x, y] = this.transformCoordinates(p.X, p.Y);
 
             const playerName = p.name;
-            const playerSide = p.side;
+            const playerSide = p.is_ct;
 
             const playerDot = new PlayerDot(
                 playerName,
@@ -152,7 +153,7 @@ export class MapViewer {
             this.root.addChild(playerDot.dot!);
             this.root.addChild(playerDot.nameText!);
         }
-        this.bomb.create();
+        // this.bomb.create();
     }
 
     async reDrawPlayers() {
@@ -170,6 +171,8 @@ export class MapViewer {
         previousTick: TickData,
         t: number
     ) {
+        // console.log("render?", currentTick.players);
+        // console.log("update", this.players);
         // === UPDATE PLAYERS ===
         for (const player of currentTick.players) {
             const prev = previousTick.players.find(
@@ -187,10 +190,10 @@ export class MapViewer {
         }
 
         // === Bomb ===
-        this.bomb?.update(currentTick);
-        if (this.bomb.displayed) {
-            this.tempLayer.addChild(this.bomb.dot!);
-        }
+        // this.bomb?.update(currentTick);
+        // if (this.bomb.displayed) {
+        //     this.tempLayer.addChild(this.bomb.dot!);
+        // }
 
         // === DRAW SHOTS ===
         for (const shot of currentTick.shots) {
@@ -210,8 +213,8 @@ export class MapViewer {
         }
 
         // === DRAW ACTIVE SMOKES ===
-        for (const smoke of currentTick.activeSmokes) {
-            const prev = previousTick.activeSmokes.find(
+        for (const smoke of currentTick.smokes) {
+            const prev = previousTick.smokes.find(
                 (s) => s.entity_id === smoke.entity_id
             );
             if (!prev) continue;
@@ -242,7 +245,7 @@ export class MapViewer {
         }
 
         for (const [id, graphic] of Object.entries(this.activeSmokes)) {
-            const stillActive = currentTick.activeSmokes.some(
+            const stillActive = currentTick.smokes.some(
                 (s) => s.entity_id === Number(id)
             );
 
@@ -253,8 +256,8 @@ export class MapViewer {
         }
 
         // // === DRAW ACTIVE MOLOTOVS ===
-        for (const molly of currentTick.activeMolly) {
-            const prev = previousTick.activeMolly.find(
+        for (const molly of currentTick.mollys) {
+            const prev = previousTick.mollys.find(
                 (m) => m.entity_id === molly.entity_id
             );
             if (!prev) continue;
@@ -327,7 +330,7 @@ export class MapViewer {
 
         // If there are grenades in inAirGrenades that are no longer in currentTick, remove them
         for (const [id, sprite] of Object.entries(this.inAirGrenades)) {
-            const flash = currentTick.activeGrenades.find(
+            const flash = currentTick.in_air_grenades.find(
                 (f) => f.entity_id === Number(id)
             );
 

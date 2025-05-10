@@ -214,7 +214,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.side
+                                    (p) => p.is_ct
                                 ),
                             ]}
                         />
@@ -248,7 +248,7 @@ const Viewer = () => {
                             key={`t-${currentTickIndex}`}
                             players={[
                                 ...tickData[currentTickIndex].players.filter(
-                                    (p) => !p.side
+                                    (p) => !p.is_ct
                                 ),
                             ]}
                         />

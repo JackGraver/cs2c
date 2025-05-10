@@ -45,12 +45,13 @@ export function PixiViewer({
     }, [mapI]);
 
     useEffect(() => {
-        if (!mapViewerRef.current || !currentTick) return;
+        if (!mapViewerRef.current || !currentTick) {
+            return;
+        }
 
-        if (!previousTick && !mapViewerRef.current.hasPlayers()) {
+        if (!mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.createPlayers(currentTick);
             return;
-            // new round or ???
         } else if (!previousTick && mapViewerRef.current.hasPlayers()) {
             mapViewerRef.current.reDrawPlayers();
             return;

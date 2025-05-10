@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from db.queries import *
+from v1.db.queries import *
 
 PATH = Path(__file__).resolve().parent.parent / "parsed_demos"
 
