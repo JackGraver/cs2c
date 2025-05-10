@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 
-import { Texture } from "pixi.js";
+import { Graphics, Texture } from "pixi.js";
 
 export class TextureManager {
     private static instance: TextureManager;
