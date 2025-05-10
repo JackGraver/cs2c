@@ -43,7 +43,7 @@ Bottom row
 export function PlayerCard({ player, loading }: PlayerProps) {
     if (loading || !player) {
         return (
-            <div className="w-80 mt-2 p-2 rounded-md bg-gray-700 animate-pulse h-[80px]">
+            <div className="w-80 mt-2 p-2 rounded-md bg-gray-700 animate-pulse">
                 {/* Simulate lines of text */}
                 <div className="h-4 bg-gray-600 rounded w-3/4 mb-2"></div>
                 <div className="h-4 bg-gray-600 rounded w-1/2 mb-2"></div>
@@ -56,12 +56,12 @@ export function PlayerCard({ player, loading }: PlayerProps) {
     const healthFill = `${player.health}%`;
 
     return (
-        <div className="relative space-y-1 text-sm w-80 mt-2 rounded-md p-2 overflow-hidden h-[80px]">
+        <div className="relative space-y-1 text-sm w-80 mt-2 rounded-md p-2 overflow-hidden">
             {/* Health bar background */}
             <div
                 className={`absolute top-0 left-0 h-full ${bgColor} z-0`}
                 style={{ width: healthFill }}
-            ></div>
+            />
 
             {/* Content */}
             <div className="relative z-10">

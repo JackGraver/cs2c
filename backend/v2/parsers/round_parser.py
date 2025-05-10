@@ -38,7 +38,7 @@ def parse_demo_round(dem: Demo, game_times: DataFrame, round_num: int = 1) -> Li
     start_time = game_times.filter(pl.col('tick') == start_tick)[0]['game_time'].unique()[0]
     
     bomb_plant_tick = round_plant.filter(pl.col('tick').is_between(start_tick, end_tick))['tick']
-    bomb_plant_time = -1
+    bomb_plant_time = None
     if len(bomb_plant_tick) > 0:
         bomb_plant_time = game_times.filter(pl.col('tick') == bomb_plant_tick)[0]['game_time'].unique()[0]
         

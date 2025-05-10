@@ -127,11 +127,11 @@ const Viewer = () => {
                 );
 
                 const data = await res.json();
-                console.log("d", data);
                 const fetchStatus = data.status;
 
                 if (fetchStatus === 0) {
                     if (data.data) {
+                        console.log("d", data.data);
                         roundCache.current[selectedRound] = data.data;
                         setTickData(data.data);
                         navigate(
@@ -175,13 +175,15 @@ const Viewer = () => {
             } catch (err) {
                 console.error("Network or parsing error:", err);
                 setErrorMessage("Failed to connect to backend.");
-            } finally {
-                setLoading(tickData.length !== 0);
             }
         };
 
         fetchRounds();
     }, [selectedRound]);
+
+    useEffect(() => {
+        setLoading(tickData.length === 0);
+    }, [tickData]);
 
     useEffect(() => {
         if (tickData.length == 0) return;

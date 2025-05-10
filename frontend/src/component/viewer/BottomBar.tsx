@@ -61,7 +61,7 @@ export function BottomBar({
             <div className="flex items-center justify-between gap-4 w-full">
                 <span
                     onClick={changeSpeed}
-                    className="cursor-pointer text-sm text-gray-200 hover:underline"
+                    className="cursor-pointer text-sm text-gray-200 hover:underline select-none"
                 >
                     {speed}x
                 </span>

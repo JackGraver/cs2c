@@ -39,7 +39,7 @@ export default function TopBar({
                 </div>
 
                 {/* Current Time */}
-                <div className="text-white text-lg font-semibold">
+                <div className="text-white text-lg font-semibold select-none">
                     {formatTime(currentTick?.logical_time)}
                 </div>
 

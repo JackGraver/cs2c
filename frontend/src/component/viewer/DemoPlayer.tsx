@@ -27,31 +27,36 @@ export function DemoPlayer({
         if (tickKills.length > 0) {
             const newKills = tickKills.map((kill) => ({
                 ...kill,
-                timestamp: Date.now(),
+                tick: currentTick.tick,
             }));
 
             setDisplayedKills((prevKills) => [...prevKills, ...newKills]);
         }
     };
 
+    /**
+     * Cut off oldest kills if having to display more than 5
+     */
     useEffect(() => {
         if (displayedKills.length > 5) {
             displayedKills.shift();
         }
     }, [displayedKills]);
 
+    /**
+     * Update current kills (for KillFeed)
+     */
     useEffect(() => {
-        if (
-            currentTick &&
-            currentTick.tick !== undefined &&
-            displayedKills.length > 0
-        ) {
+        if (currentTick && currentTick.tick !== undefined) {
             setDisplayedKills((prevKills) =>
-                prevKills.filter((kill) => currentTick.tick - kill.tick < 768)
+                prevKills.filter((kill) => currentTick.tick - kill.tick < 320)
             );
         }
     }, [currentTick]);
 
+    /**
+     * Handle demo playing (for PixiViewer)
+     */
     useEffect(() => {
         if (!isPlaying) return;
 
