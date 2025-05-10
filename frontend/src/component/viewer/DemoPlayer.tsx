@@ -67,16 +67,18 @@ export function DemoPlayer({
     }, [isPlaying, onAdvanceTick]);
 
     return (
-        <div className="relative pt-8 w-full h-full">
-            <KillFeed kills={displayedKills}></KillFeed>
-
-            {/* Pixi viewer */}
-            <PixiViewer
-                currentTick={currentTick}
-                speed={speed}
-                previousTick={previousTick}
-                mapI={map}
-            />
-        </div>
+        <>
+            {currentTick && (
+                <div className="relative pt-8 w-full h-full">
+                    <KillFeed kills={displayedKills}></KillFeed>
+                    <PixiViewer
+                        currentTick={currentTick}
+                        speed={speed}
+                        previousTick={previousTick}
+                        mapI={map}
+                    />
+                </div>
+            )}
+        </>
     );
 }

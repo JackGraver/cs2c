@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import asdict
 import dataclasses
+from time import sleep
 import uuid
 import zipfile
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -8,6 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import tempfile
 
+from starlette.status import HTTP_404_NOT_FOUND
+from v2.exceptions.StatusCode import StatusCode
+from v2.exceptions.ParsedFileDoesNotExist import InvalidDemoFileError
 from v1.parsing.demo_parser import parse_demo
 from v1.parsing.parquet_writer import *
 from v1.admin.info import *
@@ -58,9 +62,20 @@ async def upload(file: UploadFile = File(...)):
 
 @app.get("/demo/{demo_id}/round/{round_num}")
 def get_round(demo_id: str, round_num: int):
-    tick_data = read_demo_round(demo_id, round_num)
-    return {'data': [dataclasses.asdict(t) for t in tick_data] }
+    sleep(1)
+    try:
+        tick_data = read_demo_round(demo_id, round_num)
+        return {
+            'status': 0,
+            'data': [dataclasses.asdict(t) for t in tick_data]
+        }
+    except InvalidDemoFileError as e:
+        return {
+            'status': StatusCode.DEMO_FILE_NOT_FOUND.value,
+            'message': str(e)
+        }
     
+
 
 
 @app.get("/v1/")

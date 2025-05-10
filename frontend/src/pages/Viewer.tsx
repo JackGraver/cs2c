@@ -6,7 +6,7 @@ import { TickData } from "../lib/viewer/types/TickData";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import TopBar from "../component/viewer/TopBar";
 import { SeriesGame } from "../lib/viewer/types/SeriesGame";
-import { KillFeed } from "../component/killfeed/KillFeed";
+import { ErrorModal } from "../component/dialog/AlertModal";
 
 type RoundInfo = {
     round_num: number;
@@ -78,6 +78,8 @@ const Viewer = () => {
 
     const [seriesDemos, setSeriesDemos] = useState<SeriesGame[]>([]);
 
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
     useEffect(() => {
         const fetchRounds = async () => {
             if (roundCache.current[selectedRound]) {
@@ -94,53 +96,57 @@ const Viewer = () => {
                 const res = await fetch(
                     `http://127.0.0.1:8000/demo/${demoId}/round/${selectedRound}`
                 );
+
                 const data = await res.json();
-                if (data.data) {
-                    console.log(data.data);
-                    // const transformedList: TickData[] = data.data.map(
-                    //     (tick: any) => ({
-                    //         ...tick,
-                    //         players: tick.players.map((player: any) => ({
-                    //             ...player,
-                    //             side: player.side === "ct",
-                    //         })),
-                    //     })
-                    // );
-                    roundCache.current[selectedRound] = data.data;
-                    setTickData(data.data);
-                    navigate(
-                        `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
-                    );
-                }
-                if (data.rounds) {
-                    console.log(data.rounds);
-                    setRoundData((prev) => {
-                        const prevMap = Object.fromEntries(
-                            prev.map((r) => [r.round_num, r])
+                console.log(data);
+                const fetchStatus = data.status;
+
+                if (fetchStatus === 0) {
+                    if (data.data) {
+                        console.log(data.data);
+                        roundCache.current[selectedRound] = data.data;
+                        setTickData(data.data);
+                        navigate(
+                            `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
                         );
+                    }
 
-                        const updated = data.rounds.map((r: RoundInfo) => {
-                            const existing = prevMap[r.round_num];
-                            const isSelected = r.round_num === selectedRound;
-                            return {
-                                ...r,
-                                loaded: isSelected || existing?.loaded || false,
-                            };
+                    if (data.rounds) {
+                        setRoundData((prev) => {
+                            const prevMap = Object.fromEntries(
+                                prev.map((r) => [r.round_num, r])
+                            );
+
+                            const updated = data.rounds.map((r: RoundInfo) => {
+                                const existing = prevMap[r.round_num];
+                                const isSelected =
+                                    r.round_num === selectedRound;
+                                return {
+                                    ...r,
+                                    loaded:
+                                        isSelected || existing?.loaded || false,
+                                };
+                            });
+
+                            return updated;
                         });
+                    }
 
-                        return updated;
-                    });
-                }
-                if (data.series_demos) {
-                    console.log(data.series_demos);
-                    const other_demos = data.series_demos.map((demo: any) => ({
-                        id: demo.id,
-                        map_name: demo.map_name,
-                    }));
-                    setSeriesDemos(other_demos);
+                    if (data.series_demos) {
+                        const other_demos = data.series_demos.map(
+                            (demo: any) => ({
+                                id: demo.id,
+                                map_name: demo.map_name,
+                            })
+                        );
+                        setSeriesDemos(other_demos);
+                    }
+                } else {
+                    setErrorMessage(data.message);
                 }
             } catch (err) {
-                console.error("Error fetching round data:", err);
+                console.error("Network or parsing error:", err);
+                setErrorMessage("Failed to connect to backend.");
             } finally {
                 setLoading(false);
             }
@@ -189,88 +195,123 @@ const Viewer = () => {
     };
 
     return (
-        <div className="w-full h-screen flex flex-col text-white overflow-hidden">
-            {/* TopBar (fixed height) */}
-            <div className="w-full border-b border-gray-500 z-10">
-                <TopBar
-                    currentTick={tickData[currentTickIndex]}
-                    series={seriesDemos}
-                    handleSwitchGame={handleSwitchGame}
-                    score_ct={
-                        roundData[selectedRound - 1]?.ct_wins_during_round
-                    }
-                    score_t={roundData[selectedRound - 1]?.t_wins_during_round}
-                />
-            </div>
-
-            {/* Middle section: fills available space */}
-            <div className="flex flex-1 overflow-hidden">
-                {/* Left Team */}
-                <div className="w-1/4 overflow-auto p-2">
-                    {loading || !tickData[currentTickIndex]?.players ? (
-                        <div>Loading...</div>
-                    ) : (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => p.is_ct
-                                ),
-                            ]}
+        <>
+            {tickData.length === 0 && !errorMessage ? (
+                <p>LOADING...</p>
+            ) : (
+                <>
+                    {errorMessage ? (
+                        <ErrorModal
+                            message={errorMessage}
+                            onClose={() => {
+                                navigate(`/`);
+                            }}
                         />
-                    )}
-                </div>
-
-                {/* Demo viewer */}
-                <div className="w-2/4 p-2 flex items-center justify-center">
-                    <DemoPlayer
-                        currentTick={tickData[currentTickIndex]}
-                        previousTick={
-                            currentTickIndex === 0
-                                ? undefined
-                                : tickData[currentTickIndex - 1]
-                        }
-                        isPlaying={isPlaying}
-                        speed={speedValues[playbackSpeed]}
-                        onAdvanceTick={() =>
-                            setCurrentTickIndex((prev) => prev + 1)
-                        }
-                        map={map!}
-                    />
-                </div>
-
-                {/* Right Team */}
-                <div className="w-1/4 overflow-auto p-2">
-                    {loading || !tickData[currentTickIndex]?.players ? (
-                        <div>Loading...</div>
                     ) : (
-                        <Team
-                            key={`t-${currentTickIndex}`}
-                            players={[
-                                ...tickData[currentTickIndex].players.filter(
-                                    (p) => !p.is_ct
-                                ),
-                            ]}
-                        />
-                    )}
-                </div>
-            </div>
+                        <div className="w-full h-screen flex flex-col text-white overflow-hidden">
+                            <div>
+                                {/* TopBar (fixed height) */}
+                                <div className="w-full border-b border-gray-500 z-10">
+                                    <TopBar
+                                        currentTick={tickData[currentTickIndex]}
+                                        series={seriesDemos}
+                                        handleSwitchGame={handleSwitchGame}
+                                        score_ct={
+                                            roundData[selectedRound - 1]
+                                                ?.ct_wins_during_round
+                                        }
+                                        score_t={
+                                            roundData[selectedRound - 1]
+                                                ?.t_wins_during_round
+                                        }
+                                    />
+                                </div>
 
-            {/* BottomBar (fixed height) */}
-            <div className="h-28 border-t border-gray-500 w-full">
-                <BottomBar
-                    rounds={roundData}
-                    currentTickIndex={currentTickIndex}
-                    totalTicks={tickData.length}
-                    isPlaying={isPlaying}
-                    speed={speedValues[playbackSpeed]}
-                    changeSpeed={changeSpeed}
-                    onTickChange={sliderChangeTick}
-                    togglePlay={togglePlay}
-                    setSelectedRound={setSelectedRound}
-                />
-            </div>
-        </div>
+                                {/* Middle section: fills available space */}
+                                <div className="flex flex-1 overflow-hidden">
+                                    {/* Left Team */}
+                                    <div className="w-1/4 overflow-auto p-2">
+                                        {loading ||
+                                        !tickData[currentTickIndex]?.players ? (
+                                            <div>Loading...</div>
+                                        ) : (
+                                            <Team
+                                                key={`t-${currentTickIndex}`}
+                                                players={[
+                                                    ...tickData[
+                                                        currentTickIndex
+                                                    ].players.filter(
+                                                        (p) => p.is_ct
+                                                    ),
+                                                ]}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {/* Demo viewer */}
+                                    <div className="w-2/4 p-2 flex items-center justify-center">
+                                        <DemoPlayer
+                                            currentTick={
+                                                tickData[currentTickIndex]
+                                            }
+                                            previousTick={
+                                                currentTickIndex === 0
+                                                    ? undefined
+                                                    : tickData[
+                                                          currentTickIndex - 1
+                                                      ]
+                                            }
+                                            isPlaying={isPlaying}
+                                            speed={speedValues[playbackSpeed]}
+                                            onAdvanceTick={() =>
+                                                setCurrentTickIndex(
+                                                    (prev) => prev + 1
+                                                )
+                                            }
+                                            map={map!}
+                                        />
+                                    </div>
+
+                                    {/* Right Team */}
+                                    <div className="w-1/4 overflow-auto p-2">
+                                        {loading ||
+                                        !tickData[currentTickIndex]?.players ? (
+                                            <div>Loading...</div>
+                                        ) : (
+                                            <Team
+                                                key={`t-${currentTickIndex}`}
+                                                players={[
+                                                    ...tickData[
+                                                        currentTickIndex
+                                                    ].players.filter(
+                                                        (p) => !p.is_ct
+                                                    ),
+                                                ]}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* BottomBar (fixed height) */}
+                                <div className="h-28 border-t border-gray-500 w-full">
+                                    <BottomBar
+                                        rounds={roundData}
+                                        currentTickIndex={currentTickIndex}
+                                        totalTicks={tickData.length}
+                                        isPlaying={isPlaying}
+                                        speed={speedValues[playbackSpeed]}
+                                        changeSpeed={changeSpeed}
+                                        onTickChange={sliderChangeTick}
+                                        togglePlay={togglePlay}
+                                        setSelectedRound={setSelectedRound}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </>
+            )}
+        </>
     );
 };
 
