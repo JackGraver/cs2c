@@ -45,18 +45,13 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
     async create(texture: Texture) {
         this.dot = new Sprite(texture);
 
-        this.dot.scale.set(0.5); // Scale if necessary
+        this.dot.scale.set(0.5);
 
-        const bounds = this.dot.getLocalBounds();
-
-        this.dot.pivot.set(
-            (bounds.x + bounds.width) / 2,
-            (bounds.y + bounds.height) / 2
-        );
+        this.dot.anchor.set(0.5);
 
         this.dot.position.set(this.x, this.y);
 
-        this.dot.rotation = this.yaw; //this.yaw * (Math.PI / 180); // Convert yaw to radians\
+        this.dot.rotation = this.yaw;
 
         this.dot.zIndex = Zi.Player;
 
@@ -105,7 +100,7 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
             this.dot!.zIndex = Zi.Player;
         }
 
-        if (curr.blinded && this.dot) {
+        if (this.dot && curr.blinded && curr.blinded > 1) {
             const colorMatrix = new ColorMatrixFilter();
             colorMatrix.brightness(2, false); // values > 1.0 brighten
             this.dot.filters = [colorMatrix];
@@ -115,22 +110,20 @@ export class PlayerDot implements DisplayDot<[Player, Player, number]> {
             }
         }
 
-        if (Z_SWITCH) {
-            const isAbove = curr.Z >= Z_SWITCH;
-            const shouldBeVisible = showingUpper ? isAbove : !isAbove;
+        if (curr.health > 0) {
+            if (Z_SWITCH) {
+                const isAbove = curr.Z >= Z_SWITCH;
+                const shouldBeVisible = showingUpper ? isAbove : !isAbove;
 
-            if (shouldBeVisible) {
-                this.dot!.alpha = 1.0;
-                this.dot!.tint = 0xffffff; // or team color
-                this.nameText!.visible = true;
-                // this.nameText!.alpha = 1.0;
-                // this.nameText!.tint = 0xffffff;
-            } else {
-                this.dot!.alpha = 0.8;
-                this.dot!.tint = 0x888888;
-                this.nameText!.visible = false;
-                // this.nameText!.alpha = 0.8;
-                // this.nameText!.tint = 0x888888;
+                if (shouldBeVisible) {
+                    this.dot!.alpha = 1.0;
+                    this.dot!.tint = 0xffffff;
+                    this.nameText!.visible = true;
+                } else {
+                    this.dot!.alpha = 0.8;
+                    this.dot!.tint = 0x888888;
+                    this.nameText!.visible = false;
+                }
             }
         }
 

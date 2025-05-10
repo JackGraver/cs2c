@@ -31,13 +31,29 @@ export function MapPicker({
     };
 
     return (
-        <div className="relative w-64">
+        <div className="flex-1 relative w-64">
             <div
                 onClick={handleToggleDropdown}
                 className="w-full p-2 bg-gray-800 text-white rounded-md cursor-pointer"
             >
                 {selectedMap
-                    ? maps.find((m) => m.map_name === selectedMap)?.name
+                    ? (() => {
+                          const map = maps.find(
+                              (m) => m.map_name === selectedMap
+                          );
+                          return map ? (
+                              <span className="inline-flex items-center gap-2">
+                                  <img
+                                      src={`map_icons/${map.icon}`}
+                                      alt={map.name}
+                                      className="w-6 h-6 object-cover"
+                                  />
+                                  {map.name}
+                              </span>
+                          ) : (
+                              "Unknown Map"
+                          );
+                      })()
                     : "Select Map"}
             </div>
 
@@ -54,7 +70,10 @@ export function MapPicker({
                                             ? "bg-gray-700"
                                             : "bg-gray-600"
                                     }`}
-                                    onClick={() => handleSelect(map.map_name)}
+                                    onClick={() => {
+                                        handleSelect(map.map_name);
+                                        setDropdownOpen(false);
+                                    }}
                                 >
                                     <div className="flex items-center space-x-3">
                                         <img

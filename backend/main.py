@@ -65,12 +65,13 @@ async def upload(file: UploadFile = File(...)):
 
 @app.get("/demo/{demo_id}/round/{round_num}")
 def get_round(demo_id: str, round_num: int):
-    sleep(1)
+    # sleep(1)
     try:
         tick_data = read_demo_round(demo_id, round_num)
         return {
             'status': 0,
-            'data': [dataclasses.asdict(t) for t in tick_data]
+            'data': [dataclasses.asdict(t) for t in tick_data],
+            'rounds': read_demo_rounds_info(demo_id)
         }
     except InvalidDemoFileError as e:
         return {

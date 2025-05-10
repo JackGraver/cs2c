@@ -50,7 +50,6 @@ export class InAirGrenadeDot
         const interpY = prev.Y + (curr.Y - prev.Y) * t;
 
         const [x, y] = this.transformCoordinates(interpX, interpY);
-        // console.log("updating loc", interpX, "->", x, interpY, "->", y);
 
         this.trail.addPoint(x, y, curr.tick);
 

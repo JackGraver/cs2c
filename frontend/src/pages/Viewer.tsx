@@ -132,7 +132,6 @@ const Viewer = () => {
 
                 if (fetchStatus === 0) {
                     if (data.data) {
-                        console.log(data.data);
                         roundCache.current[selectedRound] = data.data;
                         setTickData(data.data);
                         navigate(
@@ -182,7 +181,6 @@ const Viewer = () => {
         };
 
         fetchRounds();
-        console.log(roundCache);
     }, [selectedRound]);
 
     useEffect(() => {
@@ -264,9 +262,10 @@ const Viewer = () => {
                                 <Team
                                     key={`t-${currentTickIndex}`}
                                     players={[
-                                        ...tickData[
+                                        ...(tickData[
                                             currentTickIndex
-                                        ]?.players.filter((p) => p.is_ct),
+                                        ]?.players?.filter((p) => p.is_ct) ??
+                                            []),
                                     ]}
                                     ct_team={true}
                                 />
@@ -300,9 +299,10 @@ const Viewer = () => {
                             ) : (
                                 <Team
                                     players={[
-                                        ...tickData[
+                                        ...(tickData[
                                             currentTickIndex
-                                        ].players.filter((p) => !p.is_ct),
+                                        ]?.players?.filter((p) => !p.is_ct) ??
+                                            []),
                                     ]}
                                     ct_team={false}
                                 />

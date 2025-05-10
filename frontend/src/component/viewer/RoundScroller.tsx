@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type RoundInfo = {
     round_num: number;
@@ -73,8 +73,8 @@ export default function RoundScroller({
             )}
 
             <div className="flex space-x-2 overflow-hidden">
-                {visibleRounds.map((round, i) => (
-                    <>
+                {visibleRounds.map((round) => (
+                    <React.Fragment key={round.round_num}>
                         <button
                             key={round.round_num}
                             onClick={() => handleRoundClick(round.round_num)}
@@ -99,7 +99,7 @@ export default function RoundScroller({
                         {round.round_num === 12 && (
                             <div className="w-0.5 h-10 bg-gray-200 mx-2"></div>
                         )}
-                    </>
+                    </React.Fragment>
                 ))}
             </div>
 

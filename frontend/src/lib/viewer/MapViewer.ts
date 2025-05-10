@@ -126,7 +126,6 @@ export class MapViewer {
     }
 
     async createPlayers(firstTick: TickData) {
-        console.log("c", firstTick.players.length);
         for (let i = 0; i < firstTick.players.length; i++) {
             const p = firstTick.players[i];
             const [x, y] = this.transformCoordinates(p.X, p.Y);
@@ -284,8 +283,8 @@ export class MapViewer {
         }
 
         // === DRAW IN AIR GRENADES ===
-        for (const tickGrenade of currentTick.activeGrenades) {
-            const prev = previousTick.activeGrenades.find(
+        for (const tickGrenade of currentTick.in_air_grenades) {
+            const prev = previousTick.in_air_grenades.find(
                 (f) => f.entity_id === tickGrenade.entity_id
             );
 
@@ -297,18 +296,16 @@ export class MapViewer {
             if (grenade) {
                 grenade.update(prev, tickGrenade, t);
 
-                const origin = grenade.trail.getOrigin();
+                const origin = grenade.trail?.getOrigin();
                 if (origin) {
                     this.trailContainer.addChild(origin);
                 }
 
-                for (const point of this.inAirGrenades[
-                    tickGrenade.entity_id
-                ].trail.getTrail()) {
-                    setTimeout(() => {
-                        this.trailContainer.addChild(point.line);
-                        point.rendered = true;
-                    }, 100); // 100ms delay (adjust as needed)
+                for (const point of grenade.trail.getTrail()) {
+                    // setTimeout(() => {
+                    this.trailContainer.addChild(point.line);
+                    point.rendered = true;
+                    // }, 100); // 100ms delay (adjust as needed)
                 }
             } else {
                 // If the sprite doesn't exist, create it
@@ -316,7 +313,7 @@ export class MapViewer {
                     tickGrenade.X,
                     tickGrenade.Y,
                     tickGrenade.entity_id,
-                    getGrenadeNameFromType(tickGrenade.grenade_type)!,
+                    getGrenadeNameFromType(tickGrenade.type)!,
                     this.transformCoordinates.bind(this)
                 );
 
@@ -340,6 +337,10 @@ export class MapViewer {
                     sprite.dot!.x,
                     sprite.dot!.y,
                     sprite.type
+                );
+
+                this.inAirGrenades[Number(id)]?.deleteTrail(
+                    this.trailContainer
                 );
 
                 // Remove the grenade sprite
