@@ -3,6 +3,7 @@ from typing import List
 from awpy import Demo
 import polars as pl
 from pathlib import Path
+
 from polars import DataFrame
 
 from v2.models.tick import Tick

@@ -50,7 +50,6 @@ async def upload(file: UploadFile = File(...)):
         dem, demo_id = await parse_zip(file)
     else:
         dem, demo_id = parse(file)
-
     
     return JSONResponse(content={
         "success": True,

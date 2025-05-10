@@ -5,6 +5,7 @@ import tempfile
 import traceback
 import uuid
 import zipfile
+
 from awpy import Demo
 from fastapi import File, UploadFile
 from typing import Tuple
@@ -12,9 +13,7 @@ from typing import Tuple
 from v2.models.tick import Tick
 from v2.parsers.demo_parser import parse_demo
 from v2.storage.write_demo import write_demo
-# from v2.db.queries import add_parsed_demos
 from v2.db.insert_demo import insert_parsed_demos
-
 
 def parse(file: UploadFile = File(...)) -> Tuple[Demo, str]:
     """Parses a provided .dem file
@@ -46,7 +45,6 @@ def parse(file: UploadFile = File(...)) -> Tuple[Demo, str]:
         traceback.print_exc()
         return []
         
-
 async def parse_zip(file: UploadFile = File(...)) -> Tuple[Demo, str]:
     contents = await file.read()
 
@@ -86,12 +84,6 @@ async def parse_zip(file: UploadFile = File(...)) -> Tuple[Demo, str]:
 
     return first_demo, first_demo_id
     
-
-
-
-
-
-
 
             
 def save_temp_file(file: UploadFile) -> str:
