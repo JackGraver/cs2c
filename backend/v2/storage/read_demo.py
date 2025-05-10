@@ -10,10 +10,15 @@ from v2.models.tick import Tick
 import polars as pl
 from polars import DataFrame
 
+from v2.exceptions.ParsedFileDoesNotExist import InvalidDemoFileError
+
 def read_demo_round(demo_id: str, round_num: int) -> List[Tick]:
     """Reads a stored demo round from .parquet files and reconstructs a List[Tick]."""
     base_dir = Path("v2/parsed_demos") / demo_id / f"round_{round_num}"
 
+    # Check if directory exists and contains .parquet files
+    if not base_dir.exists() or not any(base_dir.glob("*.parquet")):
+        raise InvalidDemoFileError(demo_id)
     
     # Read all dataframes
     ticks_df = pl.read_parquet(base_dir / "ticks.parquet")
