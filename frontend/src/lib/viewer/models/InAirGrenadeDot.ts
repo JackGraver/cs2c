@@ -1,7 +1,8 @@
-import { Sprite, Texture } from "pixi.js";
+import { Container, ParticleContainer, Sprite, Texture } from "pixi.js";
 import { GrenadeType, InAirGrenade } from "../types/InAirGrenade";
 import { DisplayDot } from "./DisplayDot";
 import { Zi } from "../types/zIndex";
+import { GrenadeTrail } from "./GrenadeTrail";
 
 export class InAirGrenadeDot
     implements DisplayDot<[InAirGrenade, InAirGrenade, number]>
@@ -12,7 +13,8 @@ export class InAirGrenadeDot
 
     id: number;
     type: GrenadeType;
-    // thrower: string;
+
+    trail: GrenadeTrail;
 
     transformCoordinates: (x: number, y: number) => [number, number];
 
@@ -21,15 +23,14 @@ export class InAirGrenadeDot
         y: number,
         id: number,
         type: GrenadeType,
-        // thrower: string,
         transformCoordinates: (x: number, y: number) => [number, number]
     ) {
         this.x = x;
         this.y = y;
         this.id = id;
         this.type = type;
-        // this.thrower = thrower;
         this.transformCoordinates = transformCoordinates;
+        this.trail = new GrenadeTrail();
     }
 
     create(texture: Texture): void {
@@ -51,7 +52,13 @@ export class InAirGrenadeDot
         const [x, y] = this.transformCoordinates(interpX, interpY);
         // console.log("updating loc", interpX, "->", x, interpY, "->", y);
 
+        this.trail.addPoint(x, y, curr.tick);
+
         this.dot?.position.set(x, y);
+    }
+
+    deleteTrail(trailContainer: Container): void {
+        this.trail.clear(trailContainer);
     }
 
     destroy(): void {
