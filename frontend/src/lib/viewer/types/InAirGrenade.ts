@@ -18,7 +18,16 @@ export function getGrenadeNameFromType(type: number): GrenadeType | undefined {
     return map[type];
 }
 
+export const textureMap: Record<GrenadeType, string> = {
+    [GrenadeType.HE]: "he",
+    [GrenadeType.Flashbang]: "flash",
+    [GrenadeType.Smoke]: "smoke",
+    [GrenadeType.Molly]: "molly",
+    [GrenadeType.Shot]: "shot",
+};
+
 export type InAirGrenade = {
+    tick: number;
     X: number;
     Y: number;
     entity_id: number;

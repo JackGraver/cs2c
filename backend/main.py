@@ -17,9 +17,9 @@ from v1.parsing.parquet_writer import *
 from v1.admin.info import *
 
 from v2.db.queries import *
-from v2.parsers.parser import parse
+from v2.parsers.parser import parse, parse_zip
 from v2.parsers.round_parser import parse_demo_round
-from v2.storage.read_demo import read_demo_round
+from v2.storage.read_demo import read_demo_round, read_demo_rounds_info
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
@@ -50,7 +50,10 @@ def v2_test():
 @app.post("/upload")
 async def upload(file: UploadFile = File(...)):
     # receive demo
-    dem, demo_id = parse(file)
+    if file.filename.endswith(".zip"):
+        dem, demo_id = await parse_zip(file)
+    else:
+        dem, demo_id = parse(file)
     
     return JSONResponse(content={
         "success": True,
