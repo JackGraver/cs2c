@@ -15,7 +15,7 @@ from v1.admin.info import *
 from v2.db.queries import *
 from v2.parsers.parser import parse
 from v2.parsers.round_parser import parse_demo_round
-from v2.storage.read_demo import read_demo_round
+from v2.storage.read_demo import read_demo_round, read_demo_rounds_info
 
 # uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
@@ -59,7 +59,10 @@ async def upload(file: UploadFile = File(...)):
 @app.get("/demo/{demo_id}/round/{round_num}")
 def get_round(demo_id: str, round_num: int):
     tick_data = read_demo_round(demo_id, round_num)
-    return {'data': [dataclasses.asdict(t) for t in tick_data] }
+    return {
+        'data': [dataclasses.asdict(t) for t in tick_data],
+        'rounds': read_demo_rounds_info(demo_id)
+    }
     
 
 

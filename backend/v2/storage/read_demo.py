@@ -12,7 +12,6 @@ from polars import DataFrame
 
 def read_demo_round(demo_id: str, round_num: int) -> List[Tick]:
     """Reads a stored demo round from .parquet files and reconstructs a List[Tick]."""
-    print('f')
     base_dir = Path("v2/parsed_demos") / demo_id / f"round_{round_num}"
 
     
@@ -71,3 +70,11 @@ def read_demo_round(demo_id: str, round_num: int) -> List[Tick]:
         ticks.append(tick)
 
     return ticks
+
+
+def read_demo_rounds_info(demo_id: str) -> List:
+    base_dir = Path("v2/parsed_demos") / demo_id
+    
+    round_info = pl.read_parquet(base_dir / "round_info.parquet")
+    
+    return round_info.to_dicts()  # Converts to list of dictionaries
