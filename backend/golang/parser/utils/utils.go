@@ -28,7 +28,7 @@ func GetPlayerName(p *common.Player) string {
 
 func WriteRoundToFile(round *structs.RoundData) {
 	fileName := fmt.Sprintf("r%d.json", round.RoundNum)
-	_ = os.MkdirAll("output", os.ModePerm)
+	_ = os.MkdirAll("parsed_demos", os.ModePerm)
 	f, err := os.Create(filepath.Join("output", fileName))
 	if err != nil {
 		fmt.Println("Failed to create file:", err)

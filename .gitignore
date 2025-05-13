@@ -99,6 +99,8 @@ _frontend/
 
 parsed_demos/
 
+*.json
+
 *.db
 
 non-scaled/
