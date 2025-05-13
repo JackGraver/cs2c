@@ -1,0 +1,93 @@
+package handlers
+
+import (
+	"demo_parser/parser/structs"
+	"demo_parser/parser/utils"
+
+	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
+)
+
+func RegisterGrenadeHandlers(context *HandlerContext) {	
+	context.Parser.RegisterEventHandler(func (e events.GrenadeProjectileThrow) {
+		// fmt.Println("grenade thrown", e.Projectile.Entity.ID())
+
+		thrownGrenade := structs.InAirGrenade {
+			X: e.Projectile.Position().X,
+			Y: e.Projectile.Position().Y,
+			Z: e.Projectile.Position().Z,
+			EntityID: e.Projectile.Entity.ID(),
+			Type: -1,
+		}
+
+		context.InAirGrenades[e.Projectile.Entity.ID()] = thrownGrenade
+	})
+
+	context.Parser.RegisterEventHandler(func (e events.GrenadeProjectileDestroy) {
+		delete(context.InAirGrenades, e.Projectile.Entity.ID())
+	})
+
+
+	context.Parser.RegisterEventHandler(func(e events.SmokeStart) {
+		lastTickIndex := len(context.CurrentRound.Ticks) - 1
+		if lastTickIndex < 0 {
+			return 
+		}
+		// tickPtr := &context.CurrentRound.Ticks[lastTickIndex]
+
+		poppedSmoke := e
+		newSmoke := structs.SmokeMolly{
+			X:         poppedSmoke.Position.X,
+			Y:         poppedSmoke.Position.Y,
+			Z:         poppedSmoke.Position.Z,
+			EntityID:  int(poppedSmoke.GrenadeEntityID),
+			ThrowerCT: utils.IsCT(e.Thrower),
+		}
+
+		context.ActiveSmokes[newSmoke.EntityID] = newSmoke
+		// tickPtr.Smokes = append(tickPtr.Smokes, newSmoke)
+	})
+
+	context.Parser.RegisterEventHandler(func(e events.SmokeExpired) {
+		lastTickIndex := len(context.CurrentRound.Ticks) - 1
+		if lastTickIndex < 0 {
+			return 
+		}
+		// tickPtr := &context.CurrentRound.Ticks[lastTickIndex]
+
+		// poppedSmoke := e
+		// newSmoke := structs.SmokeMolly{
+		// 	X:         poppedSmoke.Position.X,
+		// 	Y:         poppedSmoke.Position.Y,
+		// 	Z:         poppedSmoke.Position.Z,
+		// 	EntityID:  int(poppedSmoke.GrenadeEntityID),
+		// 	ThrowerCT: utils.IsCT(e.Thrower),
+		// }
+
+		delete(context.ActiveSmokes, int(e.GrenadeEntityID))
+		// tickPtr.Smokes = append(tickPtr.Smokes, newSmoke)
+	})
+
+	context.Parser.RegisterEventHandler(func(e events.InfernoStart) {
+		// lastTickIndex := len(context.CurrentRound.Ticks) - 1
+		// if lastTickIndex < 0 {
+		// 	return 
+		// }
+		// tickPtr := &context.CurrentRound.Ticks[lastTickIndex]
+
+		inf := e.Inferno
+		newMolly := structs.SmokeMolly{
+			X:         inf.Entity.Position().X,
+			Y:         inf.Entity.Position().Y,
+			Z:         inf.Entity.Position().Z,
+			EntityID:  int(inf.UniqueID()),
+			ThrowerCT: utils.IsCT(inf.Thrower()),
+		}
+
+		context.ActiveMollies[newMolly.EntityID] = newMolly
+		// tickPtr.Mollies = append(tickPtr.Mollies, newMolly)
+	})
+
+	context.Parser.RegisterEventHandler(func(e events.InfernoExpired) {
+		delete(context.ActiveMollies, int(e.Inferno.UniqueID()))
+	})
+}

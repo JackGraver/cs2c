@@ -30,6 +30,7 @@ export type InAirGrenade = {
     tick: number;
     X: number;
     Y: number;
+    Z: number;
     entity_id: number;
     type: number;
 };

@@ -123,10 +123,11 @@ const Viewer = () => {
 
             try {
                 const res = await fetch(
-                    `http://127.0.0.1:8000/demo/${demoId}/round/${selectedRound}`
+                    `http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`
                 );
 
                 const data = await res.json();
+                console.log("d", data);
                 const fetchStatus = data.status;
 
                 if (fetchStatus === 0) {

@@ -18,10 +18,11 @@ export type TickData = {
     in_air_grenades: InAirGrenade[];
 
     shots: {
-        tick: number;
-        shot_id: number;
         X: number;
         Y: number;
+        Z: number;
+        tick: number;
+        shot_id: number;
         yaw: number;
         weapon: number;
     }[];
