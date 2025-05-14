@@ -105,25 +105,21 @@ const Viewer = () => {
     }, [tickData]);
 
     useEffect(() => {
+        console.log("round", roundData);
+    }, [roundData]);
+
+    useEffect(() => {
         fetch(`http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`)
             .then((res) => res.json())
             .then((data) => {
                 console.log("rdata", data);
-                // Extract ticks
-                setTickData(data.ticks);
 
-                // Build round info from the rest of the data
-                const roundInfo: RoundData = {
-                    num_rounds: data.num_rounds,
-                    winner_ct: data.winner_ct,
-                    team_ct: data.team_ct,
-                    team_t: data.team_t,
-                    had_timeout: data.had_timeout,
-                    ct_score: data.ct_score,
-                    t_score: data.t_score,
-                };
+                // Extract tick data from demo_info
+                setTickData(data.demo_info.ticks);
 
-                setRoundData([roundInfo]);
+                // Extract round info array from rounds
+                const rounds: RoundData[] = data.rounds;
+                setRoundData(rounds);
             })
             .catch(console.error);
         // const fetchRounds = async () => {

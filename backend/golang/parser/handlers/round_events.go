@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterRoundHandler(context *HandlerContext) {
-	context.Parser.RegisterEventHandler(func(e events.RoundStart) {
+	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		context.DemoData.NumRounds = context.Parser.GameState().TotalRoundsPlayed() + 1
 	
 		context.CurrentRound = &structs.RoundData{
@@ -20,7 +20,10 @@ func RegisterRoundHandler(context *HandlerContext) {
 			CTScore:    context.Parser.GameState().TeamCounterTerrorists().Score(),
 			TScore:     context.Parser.GameState().TeamTerrorists().Score(),
 			Ticks:      []structs.TickData{},
+
+			StartTime: context.Parser.CurrentTime(),
 		}
+
 		context.ActiveSmokes = make(map[int]structs.SmokeMolly)
 		context.ActiveMollies = make(map[int]structs.SmokeMolly)
 		context.InAirGrenades = make(map[int]structs.InAirGrenade)
@@ -34,5 +37,6 @@ func RegisterRoundHandler(context *HandlerContext) {
 		}
 		var currentRound = context.CurrentRound
 		utils.WriteRoundToFile(currentRound, context.DemoData.DemoID)
+		context.AllRounds = append(context.AllRounds, *currentRound)
 	})
 }

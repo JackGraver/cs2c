@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type Player struct {
 	X          int      `json:"X"`
 	Y          int      `json:"Y"`
@@ -83,6 +85,17 @@ type RoundData struct {
 	CTScore    int        `json:"ct_score"`
 	TScore     int        `json:"t_score"`
 	Ticks      []TickData `json:"ticks"`
+	StartTime  time.Duration
+}
+
+type RoundDataWithoutTicks struct {
+	RoundNum    int            `json:"round_num"`
+	WinnerCT    bool           `json:"winner_ct"`
+	TeamCT      string         `json:"team_ct"`
+	TeamT       string         `json:"team_t"`
+	HadTimeout  bool           `json:"had_timeout"`
+	CTScore     int            `json:"ct_score"`
+	TScore      int            `json:"t_score"`
 }
 
 type DemoData struct {

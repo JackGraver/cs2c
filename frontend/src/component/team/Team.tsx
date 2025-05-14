@@ -8,9 +8,6 @@ type PlayersProps = {
 };
 
 export function Team({ players, team_name, ct_team }: PlayersProps) {
-    console.log(players);
-    let teamName = "---";
-
     let teamColour = !players
         ? " text-pink-400 "
         : ct_team

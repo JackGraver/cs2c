@@ -15,7 +15,7 @@ export function getGrenadeNameFromType(type: number): GrenadeType | undefined {
         5: GrenadeType.Shot,
     };
 
-    return map[type];
+    return type === -1 ? GrenadeType.Flashbang : map[type];
 }
 
 export const textureMap: Record<GrenadeType, string> = {

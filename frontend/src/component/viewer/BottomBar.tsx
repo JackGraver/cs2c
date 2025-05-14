@@ -24,6 +24,7 @@ export function BottomBar({
     togglePlay,
     setSelectedRound,
 }: BottomBarProps) {
+    // console.log("bb", rounds);
     const handleSliderMouseDown = () => {
         if (isPlaying && togglePlay) {
             togglePlay();

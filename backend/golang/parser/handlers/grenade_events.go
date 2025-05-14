@@ -7,6 +7,34 @@ import (
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 )
 
+/*
+
+	EqDecoy      EquipmentType = 501
+	EqMolotov    EquipmentType = 502
+	EqIncendiary EquipmentType = 503
+	EqFlash      EquipmentType = 504
+	EqSmoke      EquipmentType = 505
+	EqHE         EquipmentType = 506
+*/
+func grenadeTypeConversion(weaponType int) int {
+	switch weaponType {
+		case 501:
+			return 10 // smoke
+		case 502:
+			return 3  // flash
+		case 503:
+			return 3  // HE
+		case 504:
+			return 1  // decoy
+		case 505:
+			return 2  // molotov
+		case 506:
+			return 4  // incendiary
+		default:
+			return 0 // unknown or unsupported grenade type
+		}
+	}
+
 func RegisterGrenadeHandlers(context *HandlerContext) {	
 	context.Parser.RegisterEventHandler(func (e events.GrenadeProjectileThrow) {
 		// fmt.Println("grenade thrown", e.Projectile.Entity.ID())
@@ -16,7 +44,7 @@ func RegisterGrenadeHandlers(context *HandlerContext) {
 			Y: e.Projectile.Position().Y,
 			Z: e.Projectile.Position().Z,
 			EntityID: e.Projectile.Entity.ID(),
-			Type: -1,
+			Type: grenadeTypeConversion(int(e.Projectile.WeaponInstance.Type)),
 		}
 
 		context.InAirGrenades[e.Projectile.Entity.ID()] = thrownGrenade
@@ -26,6 +54,9 @@ func RegisterGrenadeHandlers(context *HandlerContext) {
 		delete(context.InAirGrenades, e.Projectile.Entity.ID())
 	})
 
+	context.Parser.RegisterEventHandler(func (e events.HeExplode) {
+		delete(context.InAirGrenades, e.GrenadeEntityID)
+	})
 
 	context.Parser.RegisterEventHandler(func(e events.SmokeStart) {
 		lastTickIndex := len(context.CurrentRound.Ticks) - 1

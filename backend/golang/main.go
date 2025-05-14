@@ -7,6 +7,7 @@ import (
 	"demo_parser/parser"
 	"demo_parser/parser/handlers"
 	"demo_parser/parser/structs"
+	"demo_parser/parser/utils"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -38,12 +39,10 @@ func main() {
 
 	router.GET("/", func(ctx *gin.Context) {
 		data, err := db.GetAllDemosGrouped()
-		fmt.Println(data)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-		fmt.Println(data)
 		ctx.JSON(200, gin.H{
 			"demos": data,
 		})
@@ -70,9 +69,19 @@ func main() {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid JSON", "details": err.Error()})
 			return
 		}
+		
+		rounds, err := utils.ReadRounds(demoID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 
-		// Respond with the unmarshalled JSON data
-		c.JSON(http.StatusOK, jsonData)
+		response := gin.H{
+			"demo_info": jsonData,
+			"rounds":    rounds,
+		}
+
+		c.JSON(http.StatusOK, response)
 	})
 
 	router.POST("/upload", func(c *gin.Context) {
@@ -141,6 +150,10 @@ func parseDemo(uploadedFile multipart.File) (*structs.DemoData, *structs.RoundDa
 	}
 
 	if context.FirstRound != nil {
+		err := utils.WriteRounds(context.AllRounds, demo_id)
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed writing all rounds file")
+		}
 		return context.DemoData, context.FirstRound, nil
 	} else {
 		return nil, nil, fmt.Errorf("no round parsed")

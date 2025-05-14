@@ -3,20 +3,53 @@ package handlers
 import (
 	"demo_parser/parser/structs"
 	"demo_parser/parser/utils"
+	"fmt"
+	"sort"
+	"time"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 )
 
 const tickInterval = 8
 
+
+func formatRoundTime(current, roundStart time.Duration) string {
+	const roundDuration = 116 * time.Second
+
+	elapsed := current - roundStart
+	if elapsed < 0 {
+		elapsed = 0
+	}
+	remaining := roundDuration - elapsed
+	if remaining < 0 {
+		remaining = 0
+	}
+
+	totalSeconds := int(remaining.Seconds())
+	minutes := totalSeconds / 60
+	seconds := totalSeconds % 60
+
+	return fmt.Sprintf("%d:%02d", minutes, seconds)
+}
+
 func RegisterPlayerHandler(context *HandlerContext) {
-	context.Parser.RegisterEventHandler(func(e events.FrameDone) {
+	context.Parser.RegisterEventHandler(func(e events.FrameDone) {		
 		tick := context.Parser.GameState().IngameTick()
+		
+		if context.CurrentRound == nil {
+			return
+		}
+		
+		numTicks := len(context.CurrentRound.Ticks)
+		if numTicks > 0 && context.CurrentRound.Ticks[numTicks-1].Tick == tick {
+			// Skip if this tick is already recorded
+			return
+		}
 
 		if tick % tickInterval != 0 {
 			return
 		}
-		
+
 		players := []structs.Player{}
 
 		for _, pl := range context.Parser.GameState().Participants().Playing() {
@@ -45,6 +78,10 @@ func RegisterPlayerHandler(context *HandlerContext) {
 			})
 		}
 
+		sort.Slice(players, func(i, j int) bool {
+			return players[i].Name < players[j].Name
+		})
+
 		if context.CurrentRound == nil {
 			context.CurrentRound = &structs.RoundData{}
 		}
@@ -63,14 +100,24 @@ func RegisterPlayerHandler(context *HandlerContext) {
 		entities := context.Parser.GameState().Entities()
 
 		for id, grenade := range context.InAirGrenades {
-			if entities[id] != nil {
-				// fmt.Printf("Grenade ID %d is in entities\n", id)
-				inAir = append(inAir, grenade)
+			entity, exists := entities[id]
+			if !exists || entity == nil {
+				continue
 			}
+
+			pos := entity.Position()
+			inAir = append(inAir, structs.InAirGrenade{
+				X:        pos.X,
+				Y:        pos.Y,
+				Z:        pos.Z,
+				EntityID: id,
+				Type:     grenade.Type,
+			})
 		}
 
 		tickData := structs.TickData{
 			Tick:    tick,
+			LogicalTime: formatRoundTime(context.Parser.CurrentTime(), context.CurrentRound.StartTime),
 			Players: players,
 			Smokes: smokes,
 			Mollies: mollies,

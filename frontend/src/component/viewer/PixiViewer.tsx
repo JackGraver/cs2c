@@ -60,7 +60,7 @@ export function PixiViewer({
         // Interpolated animation from previousTick to currentTick
         let animationFrame: number;
         const startTime = performance.now();
-        const duration = 300 / speed; // ms
+        const duration = 120 / speed; // ms
 
         const animate = (now: number) => {
             const elapsed = now - startTime;

@@ -66,7 +66,7 @@ export function DemoPlayer({
 
         const id = setInterval(() => {
             onAdvanceTick();
-        }, 300 / speed);
+        }, 120 / speed);
 
         return () => clearInterval(id);
     }, [isPlaying, onAdvanceTick]);

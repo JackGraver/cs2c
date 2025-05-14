@@ -1,5 +1,5 @@
 export type RoundData = {
-    num_rounds: number;
+    round_num: number;
     winner_ct: boolean;
     team_ct: string;
     team_t: string;
