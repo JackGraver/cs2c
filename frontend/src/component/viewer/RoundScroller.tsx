@@ -1,18 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-
-type RoundInfo = {
-    round_num: number;
-    winner_ct: boolean;
-    loaded?: boolean;
-    had_timeout: boolean;
-    ct_score: number;
-    t_score: number;
-    team1: string;
-    team2: string;
-};
+import { RoundData } from "../../lib/viewer/types/RoundData";
 
 type RoundScrollerProps = {
-    rounds: RoundInfo[];
+    rounds: RoundData[];
     handleRoundClick: (round_num: number) => void;
 };
 

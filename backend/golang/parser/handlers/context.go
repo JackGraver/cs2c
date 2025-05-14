@@ -8,7 +8,7 @@ import (
 
 type HandlerContext struct {
 	Parser        demoinfocs.Parser
-	DemoID 		  string
+	DemoData 	  *structs.DemoData
 	CurrentRound  *structs.RoundData
 	FirstRound    *structs.RoundData
 	ActiveSmokes  map[int]structs.SmokeMolly

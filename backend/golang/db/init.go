@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "modernc.org/sqlite"
@@ -30,4 +31,5 @@ func InitDB(path string) {
 	if _, err := DB.Exec(createTable); err != nil {
 		log.Fatalf("Failed to create table: %v", err)
 	}
+	fmt.Println("Finished DB init")
 }

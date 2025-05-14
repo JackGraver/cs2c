@@ -20,6 +20,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs"
+	msg "github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/msgs2"
 )
 
 func main() {
@@ -37,6 +38,7 @@ func main() {
 
 	router.GET("/", func(ctx *gin.Context) {
 		data, err := db.GetAllDemosGrouped()
+		fmt.Println(data)
 		if err != nil {
 			ctx.JSON(500, gin.H{"error": err.Error()})
 			return
@@ -118,8 +120,19 @@ func parseDemo(uploadedFile multipart.File) (*structs.DemoData, *structs.RoundDa
 
 	context := &handlers.HandlerContext{
 		Parser: go_parser,
-		DemoID: demo_id,
+		DemoData: &structs.DemoData {
+			DemoID: demo_id,
+			SeriesID: "",  
+			NumRounds: 0,
+			Map: "",
+			UploadDate: time.Now().Format(time.RFC3339), 
+		},
 	}
+
+	go_parser.RegisterNetMessageHandler(func(msg *msg.CSVCMsg_ServerInfo) {
+		fmt.Println()
+		context.DemoData.Map = msg.GetMapName()
+	})
 
 	parser.CreateHandlers(context)
 
@@ -127,18 +140,8 @@ func parseDemo(uploadedFile multipart.File) (*structs.DemoData, *structs.RoundDa
 		return nil, nil, err
 	}
 
-	demoData := structs.DemoData {
-		DemoID: demo_id,
-		SeriesID: "",  
-		Team1: "",  
-		Team2: "",
-		NumRounds: 0,
-		Map: "",
-		UploadDate: "", 
-	}
-
 	if context.FirstRound != nil {
-		return &demoData, context.FirstRound, nil
+		return context.DemoData, context.FirstRound, nil
 	} else {
 		return nil, nil, fmt.Errorf("no round parsed")
 	}

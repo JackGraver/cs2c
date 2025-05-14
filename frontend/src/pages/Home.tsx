@@ -8,14 +8,23 @@ type Series = {
     demos: ParsedDemos[];
 };
 
+// type ParsedDemos = {
+//     demo_id: string;
+//     series_id: string;
+//     // demo_name: string;
+//     map_name: string;
+//     rounds: number;
+//     team1: string;
+//     team2: string;
+//     uploaded_at: string;
+// };
 type ParsedDemos = {
     demo_id: string;
     series_id: string;
-    // demo_name: string;
-    map_name: string;
-    rounds: number;
     team1: string;
     team2: string;
+    num_rounds: number;
+    map_name: string;
     uploaded_at: string;
 };
 
@@ -33,7 +42,6 @@ export default function Home() {
         const fetchParsedDemos = async () => {
             const res = await fetch(`http://127.0.0.1:8080/`);
             const data = await res.json();
-            console.log(data);
             if (data.demos) {
                 console.log(data.demos);
                 if (Object.keys(data.demos).length === 0) {
@@ -46,11 +54,11 @@ export default function Home() {
                     ([series_id, demos]: [string, any]) => ({
                         series_id,
                         demos: demos.map((d: any) => ({
-                            demo_id: d.id,
+                            demo_id: d.demo_id,
                             series_id, // attach the series_id here
-                            demo_name: d.name,
+                            demo_name: d.demo_name,
                             map_name: d.map_name,
-                            rounds: d.rounds,
+                            num_rounds: d.num_rounds,
                             team1: d.team1,
                             team2: d.team2,
                             uploaded_at: d.uploaded_at,
@@ -228,7 +236,9 @@ export default function Home() {
                                                                 {game.map_name}
                                                             </div>
                                                             <div className="text-sm text-gray-300">
-                                                                {game.rounds}{" "}
+                                                                {
+                                                                    game.num_rounds
+                                                                }{" "}
                                                                 rounds
                                                             </div>
                                                         </div>

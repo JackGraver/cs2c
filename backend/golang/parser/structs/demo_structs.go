@@ -77,6 +77,8 @@ type TickData struct {
 type RoundData struct {
 	RoundNum   int        `json:"round_num"`
 	WinnerCT   bool       `json:"winner_ct"`
+	TeamCT     string     `json:"team_ct"`
+	TeamT      string     `json:"team_t"`
 	HadTimeout bool       `json:"had_timeout"`
 	CTScore    int        `json:"ct_score"`
 	TScore     int        `json:"t_score"`
@@ -88,7 +90,7 @@ type DemoData struct {
 	SeriesID   string `json:"series_id"`
 	Team1      string `json:"team1"`
 	Team2      string `json:"team2"`
-	NumRounds  int    `json:"rounds"`
+	NumRounds  int    `json:"num_rounds"`
 	Map        string `json:"map_name"`
 	UploadDate string `json:"uploaded_at"`
 }

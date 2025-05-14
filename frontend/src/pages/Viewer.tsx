@@ -7,17 +7,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import TopBar from "../component/viewer/TopBar";
 import { SeriesGame } from "../lib/viewer/types/SeriesGame";
 import { ErrorModal } from "../component/dialog/AlertModal";
-
-type RoundInfo = {
-    round_num: number;
-    winner_ct: boolean;
-    loaded?: boolean;
-    had_timeout: boolean;
-    ct_score: number;
-    t_score: number;
-    team1: string;
-    team2: string;
-};
+import { RoundData } from "../lib/viewer/types/RoundData";
 
 const Viewer = () => {
     const [searchParams] = useSearchParams();
@@ -92,7 +82,7 @@ const Viewer = () => {
     const navigate = useNavigate();
 
     const [tickData, setTickData] = useState<TickData[]>([]);
-    const [roundData, setRoundData] = useState<RoundInfo[]>([]);
+    const [roundData, setRoundData] = useState<RoundData[]>([]);
     const [selectedRound, setSelectedRound] = useState<number>(
         round ? parseInt(round) : 1
     );
@@ -118,18 +108,19 @@ const Viewer = () => {
         fetch(`http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`)
             .then((res) => res.json())
             .then((data) => {
+                console.log("rdata", data);
                 // Extract ticks
                 setTickData(data.ticks);
 
                 // Build round info from the rest of the data
-                const roundInfo: RoundInfo = {
-                    round_num: data.round_num,
+                const roundInfo: RoundData = {
+                    num_rounds: data.num_rounds,
                     winner_ct: data.winner_ct,
+                    team_ct: data.team_ct,
+                    team_t: data.team_t,
                     had_timeout: data.had_timeout,
                     ct_score: data.ct_score,
                     t_score: data.t_score,
-                    team1: "Team A", // you can fill these in from context or elsewhere
-                    team2: "Team B",
                 };
 
                 setRoundData([roundInfo]);
@@ -284,7 +275,11 @@ const Viewer = () => {
                     <div className="flex flex-1 overflow-hidden">
                         <div className="w-1/4 overflow-auto p-2">
                             {loading ? (
-                                <Team players={undefined} ct_team={true} />
+                                <Team
+                                    players={undefined}
+                                    team_name={undefined}
+                                    ct_team={true}
+                                />
                             ) : (
                                 <Team
                                     key={`t-${currentTickIndex}`}
@@ -294,6 +289,7 @@ const Viewer = () => {
                                         ]?.players?.filter((p) => p.is_ct) ??
                                             []),
                                     ]}
+                                    team_name={roundData[0].team_ct}
                                     ct_team={true}
                                 />
                             )}
@@ -322,7 +318,11 @@ const Viewer = () => {
 
                         <div className="w-1/4 overflow-auto p-2">
                             {loading ? (
-                                <Team players={undefined} ct_team={false} />
+                                <Team
+                                    players={undefined}
+                                    team_name={undefined}
+                                    ct_team={false}
+                                />
                             ) : (
                                 <Team
                                     players={[
@@ -331,6 +331,7 @@ const Viewer = () => {
                                         ]?.players?.filter((p) => !p.is_ct) ??
                                             []),
                                     ]}
+                                    team_name={roundData[0].team_t}
                                     ct_team={false}
                                 />
                             )}

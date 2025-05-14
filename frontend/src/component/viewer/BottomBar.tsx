@@ -1,18 +1,8 @@
+import { RoundData } from "../../lib/viewer/types/RoundData";
 import RoundScroller from "./RoundScroller";
 
-type RoundInfo = {
-    round_num: number;
-    winner_ct: boolean;
-    loaded?: boolean;
-    had_timeout: boolean;
-    ct_score: number;
-    t_score: number;
-    team1: string;
-    team2: string;
-};
-
 type BottomBarProps = {
-    rounds: RoundInfo[];
+    rounds: RoundData[];
     currentTickIndex: number;
     totalTicks: number;
     isPlaying: boolean;

@@ -9,10 +9,10 @@ import (
 	Insert new Parsed Demo
 */
 func InsertDemo(demo *structs.DemoData) error {
-	fmt.Println("insertion")
+	fmt.Println("inserting demo", demo)
 	query := `
-	INSERT INTO demos (demo_id, series_id, team1, team2, rounds, map_name, uploaded_at)
-	VALUES (?, ?, ?, ?, ?, ?, ?)
+		INSERT INTO demos (demo_id, series_id, team1, team2, rounds, map_name, uploaded_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err := DB.Exec(query,

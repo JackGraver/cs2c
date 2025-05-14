@@ -3,10 +3,11 @@ import { PlayerCard } from "./PlayerCard";
 
 type PlayersProps = {
     players: Player[] | undefined;
+    team_name: string | undefined;
     ct_team: boolean;
 };
 
-export function Team({ players, ct_team }: PlayersProps) {
+export function Team({ players, team_name, ct_team }: PlayersProps) {
     console.log(players);
     let teamName = "---";
 
@@ -22,15 +23,15 @@ export function Team({ players, ct_team }: PlayersProps) {
 
     const loading = players === undefined;
 
-    if (!loading) {
-        teamName = "TEMP 4 BACKEND"; //players[0].team_clan_name;
+    if (!team_name) {
+        team_name = "---";
     }
 
     return (
         <div className={`flex justify-center gap-10 p-4 h-full`}>
             <div className="flex flex-col justify-center h-full">
                 <h2 className={teamStyle}>
-                    <>{teamName}</>
+                    <>{team_name}</>
                 </h2>
 
                 {/* {players.length > 0 &&
