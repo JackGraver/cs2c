@@ -6,7 +6,7 @@ export type Player = {
     is_ct: boolean;
     health: number;
     blinded: number;
-    armor: number;
+    has_armor: boolean;
     has_helmet: boolean;
     has_defuser: boolean;
     yaw: number;

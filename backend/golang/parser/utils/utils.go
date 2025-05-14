@@ -26,10 +26,19 @@ func GetPlayerName(p *common.Player) string {
 	return p.Name
 }
 
-func WriteRoundToFile(round *structs.RoundData) {
+func WriteRoundToFile(round *structs.RoundData, demoID string) {
 	fileName := fmt.Sprintf("r%d.json", round.RoundNum)
-	_ = os.MkdirAll("parsed_demos", os.ModePerm)
-	f, err := os.Create(filepath.Join("output", fileName))
+	outputDir := filepath.Join("parsed_demos", demoID)
+
+	// Ensure the full path exists: parsed_demos/demoID/
+	if err := os.MkdirAll(outputDir, os.ModePerm); err != nil {
+		fmt.Println("Failed to create directory:", err)
+		return
+	}
+
+	// Now create the file inside that directory
+	fullPath := filepath.Join(outputDir, fileName)
+	f, err := os.Create(fullPath)
 	if err != nil {
 		fmt.Println("Failed to create file:", err)
 		return
@@ -38,8 +47,7 @@ func WriteRoundToFile(round *structs.RoundData) {
 
 	encoder := json.NewEncoder(f)
 	encoder.SetIndent("", "  ")
-	err = encoder.Encode(round)
-	if err != nil {
+	if err := encoder.Encode(round); err != nil {
 		fmt.Println("Failed to encode JSON:", err)
 	}
 }

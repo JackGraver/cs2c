@@ -10,11 +10,11 @@ import { ErrorModal } from "../component/dialog/AlertModal";
 
 type RoundInfo = {
     round_num: number;
-    winner: "t" | "ct";
+    winner_ct: boolean;
     loaded?: boolean;
     had_timeout: boolean;
-    ct_wins_during_round: number;
-    t_wins_during_round: number;
+    ct_score: number;
+    t_score: number;
     team1: string;
     team2: string;
 };
@@ -111,75 +111,103 @@ const Viewer = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
-        const fetchRounds = async () => {
-            if (roundCache.current[selectedRound]) {
-                navigate(
-                    `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
-                );
-                setTickData(roundCache.current[selectedRound]);
-                setLoading(false);
-                return;
-            }
+        console.log("ticks", tickData);
+    }, [tickData]);
 
-            try {
-                const res = await fetch(
-                    `http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`
-                );
+    useEffect(() => {
+        fetch(`http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`)
+            .then((res) => res.json())
+            .then((data) => {
+                // Extract ticks
+                setTickData(data.ticks);
 
-                const data = await res.json();
-                console.log("d", data);
-                const fetchStatus = data.status;
+                // Build round info from the rest of the data
+                const roundInfo: RoundInfo = {
+                    round_num: data.round_num,
+                    winner_ct: data.winner_ct,
+                    had_timeout: data.had_timeout,
+                    ct_score: data.ct_score,
+                    t_score: data.t_score,
+                    team1: "Team A", // you can fill these in from context or elsewhere
+                    team2: "Team B",
+                };
 
-                if (fetchStatus === 0) {
-                    if (data.data) {
-                        console.log("d", data.data);
-                        roundCache.current[selectedRound] = data.data;
-                        setTickData(data.data);
-                        navigate(
-                            `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
-                        );
-                    }
+                setRoundData([roundInfo]);
+            })
+            .catch(console.error);
+        // const fetchRounds = async () => {
+        //     if (roundCache.current[selectedRound]) {
+        //         navigate(
+        //             `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
+        //         );
+        //         setTickData(roundCache.current[selectedRound]);
+        //         setLoading(false);
+        //         return;
+        //     }
 
-                    if (data.rounds) {
-                        setRoundData((prev) => {
-                            const prevMap = Object.fromEntries(
-                                prev.map((r) => [r.round_num, r])
-                            );
+        //     try {
+        //         const res = await fetch(
+        //             `http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`
+        //         );
 
-                            const updated = data.rounds.map((r: RoundInfo) => {
-                                const existing = prevMap[r.round_num];
-                                const isSelected =
-                                    r.round_num === selectedRound;
-                                return {
-                                    ...r,
-                                    loaded:
-                                        isSelected || existing?.loaded || false,
-                                };
-                            });
+        //         const data = await res.json();
+        //         const fetchStatus = data.status;
 
-                            return updated;
-                        });
-                    }
+        //         if (data && data["ticks"]) {
+        //             console.log("set", data);
+        //             setTickData(data["ticks"]);
+        //         }
 
-                    if (data.series_demos) {
-                        const other_demos = data.series_demos.map(
-                            (demo: any) => ({
-                                id: demo.id,
-                                map_name: demo.map_name,
-                            })
-                        );
-                        setSeriesDemos(other_demos);
-                    }
-                } else {
-                    setErrorMessage(data.message);
-                }
-            } catch (err) {
-                console.error("Network or parsing error:", err);
-                setErrorMessage("Failed to connect to backend.");
-            }
-        };
+        //         if (fetchStatus === 0) {
+        //             if (data.data) {
+        //                 console.log("d", data.data);
+        //                 roundCache.current[selectedRound] = data.data;
+        //                 setTickData(data.data);
+        //                 navigate(
+        //                     `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
+        //                 );
+        //             }
 
-        fetchRounds();
+        //             if (data.rounds) {
+        //                 setRoundData((prev) => {
+        //                     const prevMap = Object.fromEntries(
+        //                         prev.map((r) => [r.round_num, r])
+        //                     );
+
+        //                     const updated = data.rounds.map((r: RoundInfo) => {
+        //                         const existing = prevMap[r.round_num];
+        //                         const isSelected =
+        //                             r.round_num === selectedRound;
+        //                         return {
+        //                             ...r,
+        //                             loaded:
+        //                                 isSelected || existing?.loaded || false,
+        //                         };
+        //                     });
+
+        //                     return updated;
+        //                 });
+        //             }
+
+        //             if (data.series_demos) {
+        //                 const other_demos = data.series_demos.map(
+        //                     (demo: any) => ({
+        //                         id: demo.id,
+        //                         map_name: demo.map_name,
+        //                     })
+        //                 );
+        //                 setSeriesDemos(other_demos);
+        //             }
+        //         } else {
+        //             setErrorMessage(data.message);
+        //         }
+        //     } catch (err) {
+        //         console.error("Network or parsing error:", err);
+        //         setErrorMessage("Failed to connect to backend.");
+        //     }
+        // };
+
+        // fetchRounds();
     }, [selectedRound]);
 
     useEffect(() => {
@@ -245,13 +273,9 @@ const Viewer = () => {
                                 series={seriesDemos}
                                 handleSwitchGame={handleSwitchGame}
                                 score_ct={
-                                    roundData[selectedRound - 1]
-                                        ?.ct_wins_during_round
+                                    roundData[selectedRound - 1]?.ct_score
                                 }
-                                score_t={
-                                    roundData[selectedRound - 1]
-                                        ?.t_wins_during_round
-                                }
+                                score_t={roundData[selectedRound - 1]?.t_score}
                             />
                         )}
                     </div>

@@ -195,19 +195,21 @@ export class MapViewer {
         // }
 
         // === DRAW SHOTS ===
-        for (const shot of currentTick.shots) {
-            if (!this.activeShots[shot.shot_id]) {
-                this.activeShots[shot.shot_id] = true;
-                let [x, y] = this.transformCoordinates(shot.X, shot.Y);
-                const yawInRadians = (shot.yaw * Math.PI) / 180;
+        if (currentTick.shots) {
+            for (const shot of currentTick.shots) {
+                if (!this.activeShots[shot.shot_id]) {
+                    this.activeShots[shot.shot_id] = true;
+                    let [x, y] = this.transformCoordinates(shot.X, shot.Y);
+                    const yawInRadians = (shot.yaw * Math.PI) / 180;
 
-                const directionX = Math.cos(yawInRadians);
-                const directionY = Math.sin(yawInRadians);
+                    const directionX = Math.cos(yawInRadians);
+                    const directionY = Math.sin(yawInRadians);
 
-                x += directionX * 15;
-                y += -directionY * 15;
+                    x += directionX * 15;
+                    y += -directionY * 15;
 
-                this.triggerGrenadeEffect(x, y, GrenadeType.Shot);
+                    this.triggerGrenadeEffect(x, y, GrenadeType.Shot);
+                }
             }
         }
 
@@ -255,8 +257,8 @@ export class MapViewer {
         }
 
         // // === DRAW ACTIVE MOLOTOVS ===
-        for (const molly of currentTick.mollys) {
-            const prev = previousTick.mollys.find(
+        for (const molly of currentTick.mollies) {
+            const prev = previousTick.mollies.find(
                 (m) => m.entity_id === molly.entity_id
             );
             if (!prev) continue;

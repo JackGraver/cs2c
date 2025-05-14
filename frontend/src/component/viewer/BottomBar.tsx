@@ -2,11 +2,11 @@ import RoundScroller from "./RoundScroller";
 
 type RoundInfo = {
     round_num: number;
-    winner: "t" | "ct";
+    winner_ct: boolean;
     loaded?: boolean;
     had_timeout: boolean;
-    ct_wins_during_round: number;
-    t_wins_during_round: number;
+    ct_score: number;
+    t_score: number;
     team1: string;
     team2: string;
 };

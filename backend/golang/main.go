@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"crypto/sha256"
+	"demo_parser/db"
 	"demo_parser/parser"
 	"demo_parser/parser/handlers"
 	"demo_parser/parser/structs"
@@ -22,6 +23,8 @@ import (
 )
 
 func main() {
+	db.InitDB("demos.db")
+
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -32,12 +35,25 @@ func main() {
 		MaxAge:           12 * time.Hour,  // Cache preflight requests for 12 hours
 	}))
 
+	router.GET("/", func(ctx *gin.Context) {
+		data, err := db.GetAllDemosGrouped()
+		if err != nil {
+			ctx.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		fmt.Println(data)
+		ctx.JSON(200, gin.H{
+			"demos": data,
+		})
+	})
+
+
 	router.GET("/demo/:demo_id/round/:round_num", func(c *gin.Context) {
 		demoID := c.Param("demo_id")
 		roundNum := c.Param("round_num")
 
 		// Construct the file path using demoID and roundNum
-		filePath := filepath.Join("./output", demoID, fmt.Sprintf("r%s.json", roundNum))
+		filePath := filepath.Join("./parsed_demos", demoID, fmt.Sprintf("r%s.json", roundNum))
 
 		// Attempt to read the JSON file
 		data, err := os.ReadFile(filePath)
@@ -71,30 +87,29 @@ func main() {
 		}
 		defer openedFile.Close()
 
-		
-
-		first_round, err := parseDemo(openedFile)
+		demo, first_round, err := parseDemo(openedFile)
 		if err != nil {
 			c.JSON(500, gin.H{"error": err.Error()})
 			return
 		}
-
+		
+		db.InsertDemo(demo)
 		c.JSON(200, first_round)
 	})
 
 	router.Run() // listen and serve on 0.0.0.0:8080
 }
 
-func parseDemo(uploadedFile multipart.File) (*structs.RoundData, error) {
+func parseDemo(uploadedFile multipart.File) (*structs.DemoData, *structs.RoundData, error) {
 	// Read the uploaded file into memory
 	var buf bytes.Buffer
 	if _, err := io.Copy(&buf, uploadedFile); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Hash the file contents
 	hash := sha256.Sum256(buf.Bytes())
-	fmt.Println("Hash:", hex.EncodeToString(hash[:]))
+	demo_id := hex.EncodeToString(hash[:])
 
 	// Create a new reader for the parser
 	demoReader := bytes.NewReader(buf.Bytes())
@@ -103,18 +118,29 @@ func parseDemo(uploadedFile multipart.File) (*structs.RoundData, error) {
 
 	context := &handlers.HandlerContext{
 		Parser: go_parser,
+		DemoID: demo_id,
 	}
 
 	parser.CreateHandlers(context)
 
 	if err := go_parser.ParseToEnd(); err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	demoData := structs.DemoData {
+		DemoID: demo_id,
+		SeriesID: "",  
+		Team1: "",  
+		Team2: "",
+		NumRounds: 0,
+		Map: "",
+		UploadDate: "", 
 	}
 
 	if context.FirstRound != nil {
-		return context.FirstRound, nil
+		return &demoData, context.FirstRound, nil
 	} else {
-		return nil, fmt.Errorf("no round parsed")
+		return nil, nil, fmt.Errorf("no round parsed")
 	}
 }
 

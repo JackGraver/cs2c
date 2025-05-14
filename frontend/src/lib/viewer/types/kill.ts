@@ -1,10 +1,10 @@
 export type Kill = {
     tick: number;
     assistedflash: boolean;
-    assister_name: string;
-    assister_side: number;
-    attacker_name: string;
-    attacker_side: number;
+    assister: string;
+    assister_ct: boolean;
+    attacker_: string;
+    attacker_ct: boolean;
     attackerblind: boolean;
     attackerinair: boolean;
     headshot: boolean;
@@ -12,6 +12,6 @@ export type Kill = {
     penetrated: boolean;
     thrusmoke: boolean;
     weapon: number;
-    user_name: string;
-    user_side: number;
+    victim: string;
+    victim_ct: boolean;
 };

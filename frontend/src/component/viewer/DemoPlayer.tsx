@@ -60,7 +60,7 @@ export function DemoPlayer({
     useEffect(() => {
         if (!isPlaying) return;
 
-        if (currentTick && currentTick.kills.length !== 0) {
+        if (currentTick && currentTick.kills) {
             processKills(currentTick.kills);
         }
 

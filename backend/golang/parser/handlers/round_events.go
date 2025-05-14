@@ -29,6 +29,6 @@ func RegisterRoundHandler(context *HandlerContext) {
 			context.FirstRound = context.CurrentRound
 		}
 		var currentRound = context.CurrentRound
-		utils.WriteRoundToFile(currentRound)
+		utils.WriteRoundToFile(currentRound, context.DemoID)
 	})
 }

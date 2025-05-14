@@ -13,7 +13,7 @@ export type TickData = {
 
     smokes: SmokeMolly[];
 
-    mollys: SmokeMolly[];
+    mollies: SmokeMolly[];
 
     in_air_grenades: InAirGrenade[];
 

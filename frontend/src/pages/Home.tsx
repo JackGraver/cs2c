@@ -11,7 +11,7 @@ type Series = {
 type ParsedDemos = {
     demo_id: string;
     series_id: string;
-    demo_name: string;
+    // demo_name: string;
     map_name: string;
     rounds: number;
     team1: string;
@@ -31,8 +31,9 @@ export default function Home() {
 
     useEffect(() => {
         const fetchParsedDemos = async () => {
-            const res = await fetch(`http://127.0.0.1:8000/`);
+            const res = await fetch(`http://127.0.0.1:8080/`);
             const data = await res.json();
+            console.log(data);
             if (data.demos) {
                 console.log(data.demos);
                 if (Object.keys(data.demos).length === 0) {
