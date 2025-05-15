@@ -29,5 +29,5 @@ export type TickData = {
 
     kills: Kill[];
 
-    bomb_plant: BombPlant[];
+    bomb_plant: BombPlant | undefined;
 };

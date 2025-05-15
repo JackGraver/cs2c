@@ -35,7 +35,7 @@ export class MapViewer {
     private inAirGrenades: Record<number, InAirGrenadeDot> = {};
     private activeSmokes: Record<number, Graphics> = {};
     private activeShots: Record<number, boolean> = {};
-    private bomb: BombDot = new BombDot(this.transformCoordinates.bind(this));
+    private bomb: BombDot | undefined; //= new BombDot(this.transformCoordinates.bind(this));
 
     private textureManager: TextureManager;
 
@@ -188,11 +188,26 @@ export class MapViewer {
             );
         }
 
+        if (this.bomb) {
+            if (currentTick.tick < this.bomb.tick) {
+                this.bomb.toggleVisible(false);
+            } else {
+                this.bomb.toggleVisible(true);
+            }
+        } else {
+            if (currentTick.bomb_plant) {
+                console.log("create bp", currentTick.bomb_plant);
+                const [x, y] = this.transformCoordinates(
+                    currentTick.bomb_plant.X,
+                    currentTick.bomb_plant.Y
+                );
+                this.bomb = new BombDot(x, y, currentTick.bomb_plant.tick);
+                this.mapLayer.addChild(this.bomb.dot!);
+            }
+        }
         // === Bomb ===
-        // this.bomb?.update(currentTick);
-        // if (this.bomb.displayed) {
-        //     this.tempLayer.addChild(this.bomb.dot!);
-        // }
+        if (!this.bomb && currentTick.bomb_plant) {
+        }
 
         // === DRAW SHOTS ===
         if (currentTick.shots) {

@@ -60,9 +60,10 @@ type KillInfo struct {
 }
 
 type BombPlant struct {
-	X float64 `json:"X"`
-	Y float64 `json:"Y"`
-	Z float64 `json:"Z"`
+	Tick 	int 		`json:"tick"`
+	X 		float64 	`json:"X"`
+	Y 		float64 	`json:"Y"`
+	Z 		float64 	`json:"Z"`
 }
 
 type TickData struct {
@@ -74,19 +75,20 @@ type TickData struct {
 	InAirGrenades []InAirGrenade `json:"in_air_grenades"`
 	Shots         []Shot         `json:"shots"`
 	Kills         []KillInfo     `json:"kills"`
-	BombPlant     *BombPlant     `json:"bomb_plant,omitempty"`
 }
 
 type RoundData struct {
-	RoundNum   int        		`json:"round_num"`
-	WinnerCT   bool       		`json:"winner_ct"`
-	TeamCT     string     		`json:"team_ct"`
-	TeamT      string     		`json:"team_t"`
-	HadTimeout bool       		`json:"had_timeout"`
-	CTScore    int        		`json:"ct_score"`
-	TScore     int        		`json:"t_score"`
-	Ticks      []TickData 		`json:"ticks"`
-	StartTime  time.Duration 	`json:"-"`
+	RoundNum   	int        		`json:"round_num"`
+	WinnerCT   	bool       		`json:"winner_ct"`
+	TeamCT     	string     		`json:"team_ct"`
+	TeamT      	string     		`json:"team_t"`
+	HadTimeout 	bool       		`json:"had_timeout"`
+	CTScore    	int        		`json:"ct_score"`
+	TScore     	int        		`json:"t_score"`
+	BombPlant  	*BombPlant     	`json:"bomb_plant,omitempty"`
+	Ticks      	[]TickData 		`json:"ticks"`
+	StartTime  	time.Duration 	`json:"-"`
+	BombPlantTime time.Duration 			`json:"-"`
 }
 
 type RoundDataWithoutTicks struct {
@@ -97,6 +99,7 @@ type RoundDataWithoutTicks struct {
 	HadTimeout  bool           `json:"had_timeout"`
 	CTScore     int            `json:"ct_score"`
 	TScore      int            `json:"t_score"`
+	BombPlant  	*BombPlant     `json:"bomb_plant"`
 }
 
 type DemoData struct {

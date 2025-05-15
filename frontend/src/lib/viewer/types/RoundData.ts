@@ -1,3 +1,5 @@
+import { BombPlant } from "./BombPlant";
+
 export type RoundData = {
     round_num: number;
     winner_ct: boolean;
@@ -7,4 +9,5 @@ export type RoundData = {
     had_timeout: boolean;
     ct_score: number;
     t_score: number;
+    bomb_plant: BombPlant;
 };

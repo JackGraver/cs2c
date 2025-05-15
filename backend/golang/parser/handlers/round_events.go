@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterRoundHandler(context *HandlerContext) {
-	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeChanged ) {
+	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeChanged) {
 		context.DemoData.NumRounds = context.Parser.GameState().TotalRoundsPlayed() + 1
 	
 		context.CurrentRound = &structs.RoundData{
@@ -22,6 +22,7 @@ func RegisterRoundHandler(context *HandlerContext) {
 			Ticks:      []structs.TickData{},
 
 			StartTime: context.Parser.CurrentTime(),
+			// BombPlanted: time.Duration(0),
 		}
 
 		context.ActiveSmokes = make(map[int]structs.SmokeMolly)

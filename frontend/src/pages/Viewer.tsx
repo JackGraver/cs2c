@@ -102,7 +102,7 @@ const Viewer = () => {
     /**
      * other
      */
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     const [seriesDemos, setSeriesDemos] = useState<SeriesGame[]>([]);
 
@@ -176,8 +176,20 @@ const Viewer = () => {
     }, [selectedRound, demoId]);
 
     useEffect(() => {
-        setLoading(tickData.length === 0);
-    }, [tickData]);
+        // console.log(
+        //     "change loading",
+        //     tickData,
+        //     roundData,
+        //     "\n\tlen",
+        //     tickData.length !== 0,
+        //     roundData.length !== 0,
+        //     "\n\t",
+        //     tickData.length !== 0 && roundData.length !== 0,
+        //     "\n\t",
+        //     roundData[selectedRound - 1]?.bomb_plant
+        // );
+        setLoading(tickData.length !== 0 && roundData.length !== 0);
+    }, [tickData, roundData]);
 
     useEffect(() => {
         if (tickData.length == 0) return;
@@ -185,6 +197,16 @@ const Viewer = () => {
         if (currentTickIndex >= tickData.length) {
             setSelectedRound(selectedRound + 1);
             setCurrentTickIndex(0);
+        }
+
+        const currentTick = tickData[currentTickIndex]?.tick;
+        const bombPlant = roundData[selectedRound - 1]?.bomb_plant;
+
+        if (bombPlant && currentTick !== undefined) {
+            const plantTick = bombPlant.tick;
+            if (Math.abs(currentTick - plantTick) <= 8) {
+                tickData[currentTickIndex].bomb_plant = bombPlant;
+            }
         }
     }, [currentTickIndex]);
 
@@ -230,7 +252,7 @@ const Viewer = () => {
                 <div className="w-full h-screen flex flex-col text-white overflow-hidden">
                     {/* TopBar (fixed height) */}
                     <div className="border-b border-gray-500 z-10">
-                        {loading ? (
+                        {!loading ? (
                             <p className="text-center">LOADING</p>
                         ) : (
                             <TopBar
@@ -248,7 +270,7 @@ const Viewer = () => {
                     {/* Middle section (takes up all remaining vertical space) */}
                     <div className="flex flex-1 overflow-hidden">
                         <div className="w-1/4 overflow-auto p-2">
-                            {loading ? (
+                            {!loading ? (
                                 <Team
                                     players={undefined}
                                     team_name={undefined}
@@ -270,7 +292,7 @@ const Viewer = () => {
                         </div>
 
                         <div className="w-2/4 p-2 flex items-center justify-center">
-                            {loading ? (
+                            {!loading ? (
                                 <p className="text-center">LOADING</p>
                             ) : (
                                 <DemoPlayer
@@ -291,7 +313,7 @@ const Viewer = () => {
                         </div>
 
                         <div className="w-1/4 overflow-auto p-2">
-                            {loading ? (
+                            {!loading ? (
                                 <Team
                                     players={undefined}
                                     team_name={undefined}
@@ -314,7 +336,7 @@ const Viewer = () => {
 
                     {/* BottomBar (fixed height) */}
                     <div className="h-28 border-t border-gray-500 w-full">
-                        {loading ? (
+                        {!loading ? (
                             <p className="text-center">LOADING</p>
                         ) : (
                             <BottomBar

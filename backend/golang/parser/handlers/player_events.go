@@ -13,22 +13,37 @@ import (
 const tickInterval = 8
 
 
-func formatRoundTime(current, roundStart time.Duration) string {
-	const roundDuration = 116 * time.Second
+func formatRoundTime(current, roundStart, bombPlantTime time.Duration) string {
+	const (
+		fullRoundDuration = 116 * time.Second // 1:55
+		bombTimerDuration = 40 * time.Second  // 0:40
+	)
 
-	elapsed := current - roundStart
-	if elapsed < 0 {
-		elapsed = 0
+	// Bomb has not been planted yet
+	if bombPlantTime == 0 || current < bombPlantTime {
+		elapsed := current - roundStart
+		if elapsed < 0 {
+			elapsed = 0
+		}
+		remaining := fullRoundDuration - elapsed
+		if remaining < 0 {
+			remaining = 0
+		}
+		totalSeconds := int(remaining.Seconds())
+		minutes := totalSeconds / 60
+		seconds := totalSeconds % 60
+		return fmt.Sprintf("%d:%02d", minutes, seconds)
 	}
-	remaining := roundDuration - elapsed
+
+	// Bomb has been planted, show bomb timer countdown
+	elapsedSincePlant := current - bombPlantTime
+	remaining := bombTimerDuration - elapsedSincePlant
 	if remaining < 0 {
 		remaining = 0
 	}
-
 	totalSeconds := int(remaining.Seconds())
 	minutes := totalSeconds / 60
 	seconds := totalSeconds % 60
-
 	return fmt.Sprintf("%d:%02d", minutes, seconds)
 }
 
@@ -124,7 +139,7 @@ func RegisterPlayerHandler(context *HandlerContext) {
 
 		tickData := structs.TickData{
 			Tick:    tick,
-			LogicalTime: formatRoundTime(context.Parser.CurrentTime(), context.CurrentRound.StartTime),
+			LogicalTime: formatRoundTime(context.Parser.CurrentTime(), context.CurrentRound.StartTime, context.CurrentRound.BombPlantTime),
 			Players: players,
 			Smokes: smokes,
 			Mollies: mollies,

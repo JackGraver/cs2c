@@ -70,15 +70,17 @@ export default function NavBar() {
                         <ul className="flex flex-col">
                             {menuItems.map((item) => (
                                 <li key={item.path}>
-                                    <button
+                                    <a
+                                        href={item.path}
+                                        className="px-4 py-2 text-sm hover:bg-gray-100 w-full text-left block"
                                         onClick={() => {
-                                            navigate(item.path);
+                                            // Allow normal link behavior (right-click/middle-click),
+                                            // and just close the menu for regular left clicks
                                             setMenuOpen(false);
                                         }}
-                                        className="px-4 py-2 text-sm hover:bg-gray-100 w-full text-left"
                                     >
                                         {item.label}
-                                    </button>
+                                    </a>
                                 </li>
                             ))}
                         </ul>

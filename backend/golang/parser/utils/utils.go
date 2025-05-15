@@ -72,6 +72,7 @@ func WriteRounds(rounds []structs.RoundData, demoID string) error {
 			HadTimeout: r.HadTimeout,
 			CTScore:    r.CTScore,
 			TScore:     r.TScore,
+			BombPlant: 	r.BombPlant,
 		})
 	}
 
