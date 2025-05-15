@@ -81,121 +81,99 @@ const Viewer = () => {
 
     const navigate = useNavigate();
 
+    /**
+     * ticks
+     */
     const [tickData, setTickData] = useState<TickData[]>([]);
     const [roundData, setRoundData] = useState<RoundData[]>([]);
     const [selectedRound, setSelectedRound] = useState<number>(
         round ? parseInt(round) : 1
     );
-    const [isPlaying, setIsPlaying] = useState(true);
+    const roundCache = useRef<Record<number, TickData[]>>({});
 
+    /**
+     * playback
+     */
+    const [isPlaying, setIsPlaying] = useState(true);
     const speedValues = [0.5, 1, 1.5, 2, 4];
     const [playbackSpeed, setPlaybackSpeed] = useState<number>(1);
-
     const [currentTickIndex, setCurrentTickIndex] = useState(0);
 
+    /**
+     * other
+     */
     const [loading, setLoading] = useState(true);
-    const roundCache = useRef<Record<number, TickData[]>>({});
 
     const [seriesDemos, setSeriesDemos] = useState<SeriesGame[]>([]);
 
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+    // Fetch round metadata once
     useEffect(() => {
-        console.log("ticks", tickData);
-    }, [tickData]);
+        if (roundData.length === 0) {
+            fetch(`http://127.0.0.1:8080/demo/${demoId}`)
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("round data", data);
 
-    useEffect(() => {
-        console.log("round", roundData);
-    }, [roundData]);
+                    const rounds: RoundData[] = data.demo_rounds.map(
+                        (round: RoundData) => ({
+                            ...round,
+                            loaded: false,
+                        })
+                    );
 
+                    setRoundData(rounds);
+
+                    // Cache the first round tick data if provided
+                    const initialRound = data.round_data?.round_num;
+                    if (initialRound !== undefined) {
+                        roundCache.current[initialRound] =
+                            data.round_data.ticks;
+                    }
+                })
+                .catch(console.error);
+        }
+    }, [demoId, roundData]);
+
+    // Fetch tick data whenever selectedRound changes
     useEffect(() => {
+        if (selectedRound === null) return;
+
+        // If already cached, just use it
+        if (roundCache.current[selectedRound]) {
+            setTickData(roundCache.current[selectedRound]);
+            setRoundData((prev) =>
+                prev.map((round) =>
+                    round.round_num === selectedRound
+                        ? { ...round, loaded: true }
+                        : round
+                )
+            );
+            return;
+        }
+
+        // Otherwise, fetch and cache
         fetch(`http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`)
             .then((res) => res.json())
             .then((data) => {
-                console.log("rdata", data);
+                console.log("tdata", data);
 
-                // Extract tick data from demo_info
-                setTickData(data.demo_info.ticks);
+                const ticks = data.round_data.ticks;
+                setTickData(ticks);
+                roundCache.current[selectedRound] = ticks;
 
-                // Extract round info array from rounds
-                const rounds: RoundData[] = data.rounds;
-                setRoundData(rounds);
+                // Set the loaded flag for only the selected round
+                setRoundData((prev) =>
+                    prev.map((round) =>
+                        round.round_num === selectedRound
+                            ? { ...round, loaded: true }
+                            : round
+                    )
+                );
             })
             .catch(console.error);
-        // const fetchRounds = async () => {
-        //     if (roundCache.current[selectedRound]) {
-        //         navigate(
-        //             `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
-        //         );
-        //         setTickData(roundCache.current[selectedRound]);
-        //         setLoading(false);
-        //         return;
-        //     }
-
-        //     try {
-        //         const res = await fetch(
-        //             `http://127.0.0.1:8080/demo/${demoId}/round/${selectedRound}`
-        //         );
-
-        //         const data = await res.json();
-        //         const fetchStatus = data.status;
-
-        //         if (data && data["ticks"]) {
-        //             console.log("set", data);
-        //             setTickData(data["ticks"]);
-        //         }
-
-        //         if (fetchStatus === 0) {
-        //             if (data.data) {
-        //                 console.log("d", data.data);
-        //                 roundCache.current[selectedRound] = data.data;
-        //                 setTickData(data.data);
-        //                 navigate(
-        //                     `/viewer?demo_id=${demoId}&map=${map}&round=${selectedRound}`
-        //                 );
-        //             }
-
-        //             if (data.rounds) {
-        //                 setRoundData((prev) => {
-        //                     const prevMap = Object.fromEntries(
-        //                         prev.map((r) => [r.round_num, r])
-        //                     );
-
-        //                     const updated = data.rounds.map((r: RoundInfo) => {
-        //                         const existing = prevMap[r.round_num];
-        //                         const isSelected =
-        //                             r.round_num === selectedRound;
-        //                         return {
-        //                             ...r,
-        //                             loaded:
-        //                                 isSelected || existing?.loaded || false,
-        //                         };
-        //                     });
-
-        //                     return updated;
-        //                 });
-        //             }
-
-        //             if (data.series_demos) {
-        //                 const other_demos = data.series_demos.map(
-        //                     (demo: any) => ({
-        //                         id: demo.id,
-        //                         map_name: demo.map_name,
-        //                     })
-        //                 );
-        //                 setSeriesDemos(other_demos);
-        //             }
-        //         } else {
-        //             setErrorMessage(data.message);
-        //         }
-        //     } catch (err) {
-        //         console.error("Network or parsing error:", err);
-        //         setErrorMessage("Failed to connect to backend.");
-        //     }
-        // };
-
-        // fetchRounds();
-    }, [selectedRound]);
+    }, [selectedRound, demoId]);
 
     useEffect(() => {
         setLoading(tickData.length === 0);

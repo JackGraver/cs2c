@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterRoundHandler(context *HandlerContext) {
-	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
+	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeChanged ) {
 		context.DemoData.NumRounds = context.Parser.GameState().TotalRoundsPlayed() + 1
 	
 		context.CurrentRound = &structs.RoundData{
@@ -36,6 +36,8 @@ func RegisterRoundHandler(context *HandlerContext) {
 			context.DemoData.Team2 = context.FirstRound.TeamT
 		}
 		var currentRound = context.CurrentRound
+		currentRound.WinnerCT = e.Winner == 3
+
 		utils.WriteRoundToFile(currentRound, context.DemoData.DemoID)
 		context.AllRounds = append(context.AllRounds, *currentRound)
 	})

@@ -63,23 +63,36 @@ func main() {
 		}
 
 		// Unmarshal into an interface{} to serve as raw JSON
-		var jsonData interface{}
-		if err := json.Unmarshal(data, &jsonData); err != nil {
+		var roundJSON interface{}
+		if err := json.Unmarshal(data, &roundJSON); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid JSON", "details": err.Error()})
 			return
 		}
 		
-		rounds, err := utils.ReadRounds(demoID)
+		// demo_rounds, err := utils.ReadRounds(demoID)
+		// if err != nil {
+		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		// 	return
+		// }
+
+		response := gin.H{
+			"round_data": roundJSON,
+			// "demo_rounds": demo_rounds, //CAN PROBABLY SPLIT UP TO A DIFFERENT API CALL TO AVOID FETCHING EVERY ROUND
+		}
+
+		c.JSON(http.StatusOK, response)
+	})
+
+	router.GET("/demo/:demo_id", func(c *gin.Context) {
+		demoID := c.Param("demo_id")
+		demo_rounds, err := utils.ReadRounds(demoID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-
-		response := gin.H{
-			"demo_info": jsonData,
-			"rounds":    rounds,
+		response := gin.H {
+			"demo_rounds": demo_rounds,
 		}
-
 		c.JSON(http.StatusOK, response)
 	})
 
