@@ -56,7 +56,7 @@ export function PlayerCard({ player, loading }: PlayerProps) {
     const healthFill = `${player.health}%`;
 
     return (
-        <div className="relative space-y-1 text-sm w-80 mt-2 rounded-md p-2 overflow-hidden">
+        <div className="relative space-y-1 text-sm w-80 mt-2 rounded-md p-2 overflow-hidden bg-gray-600">
             {/* Health bar background */}
             <div
                 className={`absolute top-0 left-0 h-full ${bgColor} z-0`}
@@ -64,21 +64,21 @@ export function PlayerCard({ player, loading }: PlayerProps) {
             />
 
             {/* Content */}
-            <div className="relative z-10">
+            <div className="relative z-10 bg-gray">
                 <div className="flex justify-between">
                     <span className="text-lg leading-none">{player.name}</span>
-                    <span>{player.armor}</span>
+                    <span>{player.has_armor}</span>
                     {player.is_ct ? (
                         <div>{player.has_defuser ? "Defuser" : "Loser"}</div>
                     ) : (
                         <div>
-                            {player.inventory.includes(26) ? "Bomb" : "No"}
+                            {player.grenades.includes("Bomb") ? "Bomb" : "No"}
                         </div>
                     )}
                 </div>
 
                 <div className="flex justify-between">
-                    <span>{player.inventory[-1]}</span>
+                    <span>{player.current_weapon}</span>
                     <span>GRENADES</span>
                 </div>
             </div>

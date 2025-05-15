@@ -21,6 +21,21 @@ export function PixiViewer({
     const [map, setMap] = useState<string>(mapI);
 
     useEffect(() => {
+        const handleResize = () => {
+            mapViewerRef.current?.updateMap(mapI);
+        };
+
+        window.addEventListener("resize", handleResize);
+
+        // Call it once on mount if needed
+        handleResize();
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
+    useEffect(() => {
         const initializeMapViewer = async () => {
             // Cleanup before re-creating
             if (mapViewerRef.current) {
@@ -60,7 +75,7 @@ export function PixiViewer({
         // Interpolated animation from previousTick to currentTick
         let animationFrame: number;
         const startTime = performance.now();
-        const duration = 120 / speed; // ms
+        const duration = 130 / speed; // ms
 
         const animate = (now: number) => {
             const elapsed = now - startTime;

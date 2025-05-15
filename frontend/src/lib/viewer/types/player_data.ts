@@ -11,5 +11,6 @@ export type Player = {
     has_defuser: boolean;
     yaw: number;
     team_clan_name: string;
-    inventory: number[];
+    current_weapon: string;
+    grenades: string[];
 };

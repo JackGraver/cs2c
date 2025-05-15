@@ -62,6 +62,12 @@ func RegisterPlayerHandler(context *HandlerContext) {
 
 			pos := pl.Position()
 
+
+			activeWeapon := ""
+			if pl.ActiveWeapon() != nil {
+				activeWeapon = pl.ActiveWeapon().String()
+			}
+
 			players = append(players, structs.Player{
 				Name:       pl.Name,
 				X:          int(pos.X),
@@ -74,7 +80,8 @@ func RegisterPlayerHandler(context *HandlerContext) {
 				HasDefuser: pl.HasDefuseKit(),
 				Blinded:    pl.IsBlinded(),
 				Yaw:        int(pl.ViewDirectionX()),
-				Inventory:  inv,
+				CurrentWeapon: activeWeapon,
+				Grenades: inv,
 			})
 		}
 

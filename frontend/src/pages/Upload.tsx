@@ -57,11 +57,12 @@ export default function Upload() {
                 });
 
                 const data = await res.json();
-
-                if (res.ok && data.success) {
+                console.log(data);
+                if (res.ok) {
+                    //  && data.success) {
                     setIsProcessing(false);
                     setReady(
-                        `/viewer?demo_id=${data.demo_id}&map=${data.map}&round=1`
+                        `/viewer?demo_id=${data.demo_id}&map=${data.map_name}&round=1`
                     );
                     setCurrentStage(stages.length - 1);
                     setStageProgress(100);
