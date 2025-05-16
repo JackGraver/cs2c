@@ -3,7 +3,7 @@ export type Kill = {
     assistedflash: boolean;
     assister: string;
     assister_ct: boolean;
-    attacker_: string;
+    attacker: string;
     attacker_ct: boolean;
     attackerblind: boolean;
     attackerinair: boolean;

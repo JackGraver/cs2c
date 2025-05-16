@@ -10,30 +10,30 @@ export function KillCard({ kill }: KillCardProps) {
             <>{kill.attackerblind && <>(B)</>}</>
             <span
                 className={
-                    kill.attacker_side ? "text-blue-400" : "text-orange-400"
+                    kill.attacker_ct ? "text-blue-400" : "text-orange-400"
                 }
             >
-                {kill.attacker_name}
+                {kill.attacker}
             </span>
-            {kill.assister_name !== "N/A" && (
+            {kill.assister !== "N/A" && (
                 <>
                     {" + "}
                     <span
                         className={
-                            kill.assister_side
+                            kill.assister_ct
                                 ? "text-blue-400"
                                 : "text-orange-400"
                         }
                     >
-                        {kill.assister_name}
+                        {kill.assister}
                     </span>
                 </>
             )}
 
             <span
-                className={kill.user_side ? "text-blue-400" : "text-orange-400"}
+                className={kill.victim_ct ? "text-blue-400" : "text-orange-400"}
             >
-                {kill.user_name}
+                {kill.victim}
             </span>
         </div>
     );

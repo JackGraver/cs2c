@@ -9,4 +9,5 @@ func CreateHandlers(context *handlers.HandlerContext) {
 	handlers.RegisterPlayerHandler(context)
 	handlers.RegisterRoundHandler(context)
 	handlers.RegisterBombHandler(context)
+	handlers.RegisterKillHandlers(context)
 }

@@ -144,7 +144,12 @@ func RegisterPlayerHandler(context *HandlerContext) {
 			Smokes: smokes,
 			Mollies: mollies,
 			InAirGrenades: inAir,
+			Shots: context.WeaponFires,
+			Kills: context.Deaths,
 		}
+		context.WeaponFires = []structs.Shot{}
+		context.Deaths = []structs.Kill{}
+
 		context.CurrentRound.Ticks = append(context.CurrentRound.Ticks, tickData)
 	})
 }

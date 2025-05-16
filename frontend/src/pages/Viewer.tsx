@@ -1,13 +1,14 @@
 import { Team } from "../component/team/Team";
 import { BottomBar } from "../component/viewer/BottomBar";
 import { DemoPlayer } from "../component/viewer/DemoPlayer";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { TickData } from "../lib/viewer/types/TickData";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import TopBar from "../component/viewer/TopBar";
 import { SeriesGame } from "../lib/viewer/types/SeriesGame";
 import { ErrorModal } from "../component/dialog/AlertModal";
 import { RoundData } from "../lib/viewer/types/RoundData";
+import { debounce } from "../utils/debounce";
 
 const Viewer = () => {
     const [searchParams] = useSearchParams();
@@ -210,9 +211,13 @@ const Viewer = () => {
         }
     }, [currentTickIndex]);
 
-    const sliderChangeTick = (tick: number) => {
-        setCurrentTickIndex(tick);
-    };
+    const sliderChangeTick = useMemo(
+        () =>
+            debounce((tick: number) => {
+                setCurrentTickIndex(tick);
+            }, 1),
+        []
+    );
 
     const togglePlay = () => {
         if (!isPlaying) {

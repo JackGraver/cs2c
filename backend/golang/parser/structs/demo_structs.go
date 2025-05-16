@@ -42,7 +42,7 @@ type Shot struct {
 	Yaw    int     `json:"yaw"`
 }
 
-type KillInfo struct {
+type Kill struct {
 	FlashAssist     bool   `json:"assistedflash"`
 	Assister        string `json:"assister"`
 	AssisterCT      bool   `json:"assister_ct"`
@@ -74,7 +74,7 @@ type TickData struct {
 	Mollies       []SmokeMolly   `json:"mollies"`
 	InAirGrenades []InAirGrenade `json:"in_air_grenades"`
 	Shots         []Shot         `json:"shots"`
-	Kills         []KillInfo     `json:"kills"`
+	Kills         []Kill	     `json:"kills"`
 }
 
 type RoundData struct {
