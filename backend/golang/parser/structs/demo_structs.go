@@ -88,7 +88,7 @@ type RoundData struct {
 	BombPlant  	*BombPlant     	`json:"bomb_plant,omitempty"`
 	Ticks      	[]TickData 		`json:"ticks"`
 	StartTime  	time.Duration 	`json:"-"`
-	BombPlantTime time.Duration 			`json:"-"`
+	BombPlantTime time.Duration `json:"-"`
 }
 
 type RoundDataWithoutTicks struct {

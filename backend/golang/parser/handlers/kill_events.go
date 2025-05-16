@@ -9,8 +9,12 @@ import (
 )
 
 func RegisterKillHandlers(context *HandlerContext) {
-	fmt.Println("?")
 	context.Parser.RegisterEventHandler(func(e events.WeaponFire) {
+		if (int(e.Weapon.Type) >= 400) {
+			fmt.Println("wf", e.Weapon.Type)
+			return
+		}
+
 		shooter := e.Shooter
 
 		pos := shooter.Position()

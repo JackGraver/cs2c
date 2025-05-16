@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterRoundHandler(context *HandlerContext) {
-	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeChanged) {
+	context.Parser.RegisterEventHandler(func(e events.RoundFreezetimeEnd) {
 		context.DemoData.NumRounds = context.Parser.GameState().TotalRoundsPlayed() + 1
 	
 		context.CurrentRound = &structs.RoundData{
@@ -22,6 +22,7 @@ func RegisterRoundHandler(context *HandlerContext) {
 			Ticks:      []structs.TickData{},
 
 			StartTime: context.Parser.CurrentTime(),
+			// EndTime: 0,
 			// BombPlanted: time.Duration(0),
 		}
 
@@ -39,7 +40,24 @@ func RegisterRoundHandler(context *HandlerContext) {
 		var currentRound = context.CurrentRound
 		currentRound.WinnerCT = e.Winner == 3
 
+		// currentRound.EndTime = context.Parser.CurrentTime()
+
 		utils.WriteRoundToFile(currentRound, context.DemoData.DemoID)
 		context.AllRounds = append(context.AllRounds, *currentRound)
 	})
+	
+	// context.Parser.RegisterEventHandler(func(e events.FrameDone) {
+	// 	if(context.CurrentRound == nil || context.CurrentRound.EndTime == 0) {
+	// 		return
+	// 	}
+		
+	// 	var currentRound = context.CurrentRound
+	// 	if(context.Parser.CurrentTime().Seconds() > (currentRound.EndTime.Seconds() + 6)) {
+	// 		fmt.Println("write round", currentRound.EndTime.Seconds() + 1, context.Parser.CurrentTime().Seconds())
+	// 		utils.WriteRoundToFile(currentRound, context.DemoData.DemoID)
+	// 		context.AllRounds = append(context.AllRounds, *currentRound)
+	// 	} else {
+	// 		fmt.Println("wait 1 second")
+	// 	}
+	// })
 }
