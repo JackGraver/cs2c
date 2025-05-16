@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { RoundData } from "../../lib/viewer/types/RoundData";
 import RoundScroller from "./RoundScroller";
 
@@ -24,6 +25,19 @@ export function BottomBar({
     togglePlay,
     setSelectedRound,
 }: BottomBarProps) {
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === " " || event.key === "Space") {
+                togglePlay();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []);
     // console.log("bb", rounds);
     const handleSliderMouseDown = () => {
         if (isPlaying && togglePlay) {
