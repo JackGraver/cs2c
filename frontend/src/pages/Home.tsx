@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { MapPicker } from "../component/filtering/MapPicker";
 import parse from "parse-svg-path";
+import DemoCounter from "../component/home/DemoCounter";
 
 type Series = {
     series_id: string;
@@ -104,6 +105,15 @@ export default function Home() {
             return dateB - dateA; // descending
         });
 
+    const getNumDemos = () => {
+        let c = 0;
+        parsedDemos.forEach((series) => {
+            c += series.demos.length;
+        });
+
+        return c;
+    };
+
     return (
         <div className="p-8 text-center">
             {noDemos && (
@@ -122,6 +132,7 @@ export default function Home() {
 
             {parsedDemos.length > 0 && (
                 <div className="mt-8 max-w-6xl mx-auto text-white px-4">
+                    <DemoCounter numDemos={getNumDemos()} />
                     {/* Filter Section */}
                     <div className=" rounded-lg p-4 mb-6 flex flex-row border border-gray-500">
                         <MapPicker

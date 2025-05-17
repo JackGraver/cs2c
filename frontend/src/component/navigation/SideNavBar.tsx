@@ -35,7 +35,9 @@ export default function SideNavBar() {
                 onMouseLeave={() => setOpen(false)}
             >
                 {/* Logo */}
-                <div className={`p-4 text-lg font-bold`}>{"CS2C"}</div>
+                <div className={`pt-4 pl-4 pb-2 text-3xl font-bold`}>
+                    {"CS2C"}
+                </div>
 
                 {/* Menu items */}
                 <ul className="space-y-2">

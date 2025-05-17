@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 const maps = [
+    { name: "None", map_name: "" },
     { name: "Ancient", map_name: "de_ancient", icon: "de_ancient.png" },
     { name: "Anubis", map_name: "de_anubis", icon: "de_anubis.png" },
     { name: "Dust2", map_name: "de_dust2", icon: "de_dust2.png" },
@@ -21,13 +22,15 @@ export function MapPicker({
 }: MapPickerProps) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
+    const effectiveMap =
+        maps.find((m) => m.map_name === selectedMap) || maps[0];
+
     const handleSelect = (mapName: string) => {
-        const newSelection = selectedMap === mapName ? null : mapName;
-        onSelectedMapChange(newSelection);
+        onSelectedMapChange(mapName || null);
     };
 
     const handleToggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
+        setDropdownOpen((prev) => !prev);
     };
 
     return (
@@ -36,32 +39,28 @@ export function MapPicker({
                 onClick={handleToggleDropdown}
                 className="w-full p-2 bg-gray-800 text-white rounded-md cursor-pointer"
             >
-                {selectedMap
-                    ? (() => {
-                          const map = maps.find(
-                              (m) => m.map_name === selectedMap
-                          );
-                          return map ? (
-                              <span className="inline-flex items-center gap-2">
-                                  <img
-                                      src={`map_icons/${map.icon}`}
-                                      alt={map.name}
-                                      className="w-6 h-6 object-cover"
-                                  />
-                                  {map.name}
-                              </span>
-                          ) : (
-                              "Unknown Map"
-                          );
-                      })()
-                    : "Select Map"}
+                <span className="inline-flex items-center gap-2">
+                    {effectiveMap.icon ? (
+                        <img
+                            src={`map_icons/${effectiveMap.icon}`}
+                            alt={effectiveMap.name}
+                            className="w-6 h-6 object-cover"
+                        />
+                    ) : (
+                        <div className="w-6 h-6" />
+                    )}
+                    {effectiveMap.name}
+                </span>
             </div>
 
             {dropdownOpen && (
                 <div className="absolute z-10 w-full bg-gray-800 text-white border rounded-md mt-1 p-2">
                     <div className="max-h-72 overflow-y-auto">
                         {maps.map((map, index) => {
-                            const isSelected = selectedMap === map.map_name;
+                            const isSelected =
+                                selectedMap === map.map_name ||
+                                (!selectedMap && map.map_name === "");
+
                             return (
                                 <div
                                     key={map.name}
@@ -76,14 +75,16 @@ export function MapPicker({
                                     }}
                                 >
                                     <div className="flex items-center space-x-3">
-                                        <img
-                                            src={`map_icons/${map.icon}`}
-                                            alt={map.name}
-                                            className="w-6 h-6 object-cover"
-                                        />
-                                        <label htmlFor={map.name}>
-                                            {map.name}
-                                        </label>
+                                        {map.icon ? (
+                                            <img
+                                                src={`map_icons/${map.icon}`}
+                                                alt={map.name}
+                                                className="w-6 h-6 object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-6 h-6" />
+                                        )}
+                                        <label>{map.name}</label>
                                     </div>
                                     {isSelected && (
                                         <span className="text-green-400 text-lg font-bold">

@@ -3,7 +3,6 @@ package handlers
 import (
 	"demo_parser/parser/structs"
 	"demo_parser/parser/utils"
-	"fmt"
 
 	"github.com/markus-wa/demoinfocs-golang/v4/pkg/demoinfocs/events"
 )
@@ -11,7 +10,6 @@ import (
 func RegisterKillHandlers(context *HandlerContext) {
 	context.Parser.RegisterEventHandler(func(e events.WeaponFire) {
 		if (int(e.Weapon.Type) >= 400) {
-			fmt.Println("wf", e.Weapon.Type)
 			return
 		}
 

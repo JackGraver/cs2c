@@ -256,7 +256,7 @@ const Viewer = () => {
             ) : (
                 <div className="w-full h-screen flex flex-col text-white overflow-hidden">
                     {/* TopBar (fixed height) */}
-                    <div className="border-b border-gray-500 z-10">
+                    <div className=" z-10">
                         {!loading ? (
                             <p className="text-center">LOADING</p>
                         ) : (

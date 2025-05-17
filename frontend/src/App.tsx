@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Viewer from "./pages/Viewer";
 import Upload from "./pages/Upload";
-import NavBar from "./component/navigation/NavBar";
 import ToCome from "./pages/ToCome";
 import Admin from "./pages/Admin";
 import SideNavBar from "./component/navigation/SideNavBar";
